@@ -1,0 +1,674 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01B8C0103775942738D391BF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366E4CDB4BF93811FE2538CD /* SettingsView.swift */; };
+		092CEEDB1E9C1302FA0221AF /* FolderWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */; };
+		12ED009FE3E205CAF6984735 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = D817BC21A2DB782D9C12FA33 /* ZIPFoundation */; };
+		1CA71A28824BCB7ADC25F0BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254BCB2D5C535AC4BECEE178 /* Assets.xcassets */; };
+		26D0CC8E3F24B67DFF44FF8B /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */; };
+		2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */; };
+		32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */; };
+		41B1E32BC7FBF6A2A53361D9 /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */; };
+		490A2043C61D80330F6F6C73 /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A472815FF592C604E14F530 /* AISettingsStore.swift */; };
+		714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26AAD36474C235E41470619 /* LibraryModels.swift */; };
+		7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */; };
+		85A2EDDBEB5C8968650A5E5F /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		87CB66AD561C453DC3BB1463 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
+		92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */; };
+		96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */; };
+		9ABE494DBBA7A877B71FA347 /* PreviewExtractionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B80E64E60EC008F0138C1AF /* PreviewExtractionResult.swift */; };
+		A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */; };
+		AAEBF017381A6089C05EF0BF /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */; };
+		B2E6A2D341C52AFEFF85394F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9616AAB5527A5BB86D07B666 /* ContentView.swift */; };
+		BC0495854D73104CD255AE65 /* ImageNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAACFE9806D39DEE1C6ED1E /* ImageNormalizer.swift */; };
+		D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */; };
+		ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */; };
+		EE38E0883D200A7BA0D5C20F /* ThreeMFPackageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A80DE531D9FF623D74204B3 /* ThreeMFPackageReader.swift */; };
+		EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
+		F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */; };
+		FA883B4AA1D79E00B2B1B377 /* PrintFileManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		217CBD5B68BC36F6092C4E93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8CBEDD9C0CCAFD34F44AFDD5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 680443661C56855913C65F5D;
+			remoteInfo = PrintFileManagerCore;
+		};
+		6C1CF271C9F4416849594BF7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8CBEDD9C0CCAFD34F44AFDD5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 680443661C56855913C65F5D;
+			remoteInfo = PrintFileManagerCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0BE604D75C95B89DF34CC094 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				85A2EDDBEB5C8968650A5E5F /* PrintFileManagerCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D81140FB05EF55F25F7BA012 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				490A2043C61D80330F6F6C73 /* PrintFileManagerCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDatabase.swift; sourceTree = "<group>"; };
+		0A80DE531D9FF623D74204B3 /* ThreeMFPackageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPackageReader.swift; sourceTree = "<group>"; };
+		0B80E64E60EC008F0138C1AF /* PreviewExtractionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewExtractionResult.swift; sourceTree = "<group>"; };
+		1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderWatcher.swift; sourceTree = "<group>"; };
+		24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnrichmentClient.swift; sourceTree = "<group>"; };
+		254BCB2D5C535AC4BECEE178 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerCoreTests.swift; sourceTree = "<group>"; };
+		31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BambuPreviewResolver.swift; sourceTree = "<group>"; };
+		366E4CDB4BF93811FE2538CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PrintFileManagerCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A472815FF592C604E14F530 /* AISettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsStore.swift; sourceTree = "<group>"; };
+		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
+		652011BBE18B214E599DFC0B /* PrintFileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrintFileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationPlanner.swift; sourceTree = "<group>"; };
+		8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySearch.swift; sourceTree = "<group>"; };
+		9616AAB5527A5BB86D07B666 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPreviewExtractor.swift; sourceTree = "<group>"; };
+		9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryIndexer.swift; sourceTree = "<group>"; };
+		A60DEA6D7E36AF9D9DCE9929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B26AAD36474C235E41470619 /* LibraryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
+		BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceLookupClient.swift; sourceTree = "<group>"; };
+		C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerApp.swift; sourceTree = "<group>"; };
+		CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
+		EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECAACFE9806D39DEE1C6ED1E /* ImageNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNormalizer.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3DEB8DBB865B92B319102EBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87CB66AD561C453DC3BB1463 /* PrintFileManagerCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5DA7F4EA299DA71F95701E3D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */,
+				7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5B8454C1F0570F53FAEA526 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12ED009FE3E205CAF6984735 /* ZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01C970F4FAD03044F9B82112 /* PrintFileManagerCore */ = {
+			isa = PBXGroup;
+			children = (
+				24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */,
+				07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */,
+				9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */,
+				B26AAD36474C235E41470619 /* LibraryModels.swift */,
+				8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */,
+				770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */,
+				BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */,
+				445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */,
+			);
+			name = PrintFileManagerCore;
+			path = Sources/PrintFileManagerCore;
+			sourceTree = "<group>";
+		};
+		1BD61C608028E1310D4C5320 /* ThreeMFCore */ = {
+			isa = PBXGroup;
+			children = (
+				31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */,
+				ECAACFE9806D39DEE1C6ED1E /* ImageNormalizer.swift */,
+				0B80E64E60EC008F0138C1AF /* PreviewExtractionResult.swift */,
+				0A80DE531D9FF623D74204B3 /* ThreeMFPackageReader.swift */,
+				99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */,
+			);
+			name = ThreeMFCore;
+			path = ../Quicklook/Sources/ThreeMFCore;
+			sourceTree = "<group>";
+		};
+		366BFE07B3C4BE7D41BF0AA5 = {
+			isa = PBXGroup;
+			children = (
+				F521545FE75030FAF0642C22 /* PrintFileManagerApp */,
+				01C970F4FAD03044F9B82112 /* PrintFileManagerCore */,
+				C08528612102194BB933DB71 /* PrintFileManagerCoreTests */,
+				1BD61C608028E1310D4C5320 /* ThreeMFCore */,
+				59B8082D024EAD1041EC4000 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		59B8082D024EAD1041EC4000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				652011BBE18B214E599DFC0B /* PrintFileManager.app */,
+				394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */,
+				EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C08528612102194BB933DB71 /* PrintFileManagerCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */,
+			);
+			name = PrintFileManagerCoreTests;
+			path = Tests/PrintFileManagerCoreTests;
+			sourceTree = "<group>";
+		};
+		F521545FE75030FAF0642C22 /* PrintFileManagerApp */ = {
+			isa = PBXGroup;
+			children = (
+				3A472815FF592C604E14F530 /* AISettingsStore.swift */,
+				254BCB2D5C535AC4BECEE178 /* Assets.xcassets */,
+				9616AAB5527A5BB86D07B666 /* ContentView.swift */,
+				1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */,
+				A60DEA6D7E36AF9D9DCE9929 /* Info.plist */,
+				CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */,
+				C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */,
+				366E4CDB4BF93811FE2538CD /* SettingsView.swift */,
+			);
+			name = PrintFileManagerApp;
+			path = Sources/PrintFileManagerApp;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		025EBDB90973AF505BBEC5F1 /* PrintFileManager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 190F55CCCEB4B2750DF23C3A /* Build configuration list for PBXNativeTarget "PrintFileManager" */;
+			buildPhases = (
+				BB6D6F7A27435FCB8C2E8632 /* Sources */,
+				7064FF9B8C323BF7D7CB0195 /* Resources */,
+				3DEB8DBB865B92B319102EBA /* Frameworks */,
+				D81140FB05EF55F25F7BA012 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4495E80A0458CCB75D54F88 /* PBXTargetDependency */,
+			);
+			name = PrintFileManager;
+			packageProductDependencies = (
+			);
+			productName = PrintFileManager;
+			productReference = 652011BBE18B214E599DFC0B /* PrintFileManager.app */;
+			productType = "com.apple.product-type.application";
+		};
+		680443661C56855913C65F5D /* PrintFileManagerCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 50FED4CD4819FB70B69E3E69 /* Build configuration list for PBXNativeTarget "PrintFileManagerCore" */;
+			buildPhases = (
+				D98632FF84AC0DE17EA214BF /* Sources */,
+				B5B8454C1F0570F53FAEA526 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PrintFileManagerCore;
+			packageProductDependencies = (
+				D817BC21A2DB782D9C12FA33 /* ZIPFoundation */,
+			);
+			productName = PrintFileManagerCore;
+			productReference = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		BCAEC264A36687A95CBCD62C /* PrintFileManagerCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5789DCD4DA5FB37E5BA6F11E /* Build configuration list for PBXNativeTarget "PrintFileManagerCoreTests" */;
+			buildPhases = (
+				D13544530B02C7ED03546190 /* Sources */,
+				5DA7F4EA299DA71F95701E3D /* Frameworks */,
+				0BE604D75C95B89DF34CC094 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				375729DA2ADC09211A883318 /* PBXTargetDependency */,
+			);
+			name = PrintFileManagerCoreTests;
+			packageProductDependencies = (
+				C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */,
+			);
+			productName = PrintFileManagerCoreTests;
+			productReference = EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8CBEDD9C0CCAFD34F44AFDD5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 5CDAA671F9406D096C0FF198 /* Build configuration list for PBXProject "PrintFileManager" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 366BFE07B3C4BE7D41BF0AA5;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				025EBDB90973AF505BBEC5F1 /* PrintFileManager */,
+				680443661C56855913C65F5D /* PrintFileManagerCore */,
+				BCAEC264A36687A95CBCD62C /* PrintFileManagerCoreTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7064FF9B8C323BF7D7CB0195 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CA71A28824BCB7ADC25F0BE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BB6D6F7A27435FCB8C2E8632 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */,
+				B2E6A2D341C52AFEFF85394F /* ContentView.swift in Sources */,
+				092CEEDB1E9C1302FA0221AF /* FolderWatcher.swift in Sources */,
+				AAEBF017381A6089C05EF0BF /* LibraryViewModel.swift in Sources */,
+				FA883B4AA1D79E00B2B1B377 /* PrintFileManagerApp.swift in Sources */,
+				01B8C0103775942738D391BF /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D13544530B02C7ED03546190 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D98632FF84AC0DE17EA214BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */,
+				26D0CC8E3F24B67DFF44FF8B /* BambuPreviewResolver.swift in Sources */,
+				BC0495854D73104CD255AE65 /* ImageNormalizer.swift in Sources */,
+				F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */,
+				A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */,
+				714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */,
+				D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */,
+				92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */,
+				9ABE494DBBA7A877B71FA347 /* PreviewExtractionResult.swift in Sources */,
+				96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */,
+				EE38E0883D200A7BA0D5C20F /* ThreeMFPackageReader.swift in Sources */,
+				41B1E32BC7FBF6A2A53361D9 /* ThreeMFPreviewExtractor.swift in Sources */,
+				32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		375729DA2ADC09211A883318 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 680443661C56855913C65F5D /* PrintFileManagerCore */;
+			targetProxy = 217CBD5B68BC36F6092C4E93 /* PBXContainerItemProxy */;
+		};
+		B4495E80A0458CCB75D54F88 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 680443661C56855913C65F5D /* PrintFileManagerCore */;
+			targetProxy = 6C1CF271C9F4416849594BF7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		01D5EF0C5BDEE1E5CB877EC5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		181D690BE1D3286FC1FEF3D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCoreTests;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4AE40729BA25F9758FEEA79D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCoreTests;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5D0785F258E84B1CDC9B8DED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/PrintFileManagerApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManager;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		86498691B29426AA9BE604A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		876E4B8F4DC99615BC031FA0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/PrintFileManagerApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManager;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9E73D168266661D4A17A5655 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCore;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		F6AC3905E3DDBE8BD1FDB09A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCore;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		190F55CCCEB4B2750DF23C3A /* Build configuration list for PBXNativeTarget "PrintFileManager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5D0785F258E84B1CDC9B8DED /* Debug */,
+				876E4B8F4DC99615BC031FA0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		50FED4CD4819FB70B69E3E69 /* Build configuration list for PBXNativeTarget "PrintFileManagerCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E73D168266661D4A17A5655 /* Debug */,
+				F6AC3905E3DDBE8BD1FDB09A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5789DCD4DA5FB37E5BA6F11E /* Build configuration list for PBXNativeTarget "PrintFileManagerCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				181D690BE1D3286FC1FEF3D3 /* Debug */,
+				4AE40729BA25F9758FEEA79D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5CDAA671F9406D096C0FF198 /* Build configuration list for PBXProject "PrintFileManager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86498691B29426AA9BE604A4 /* Debug */,
+				01D5EF0C5BDEE1E5CB877EC5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.19;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		D817BC21A2DB782D9C12FA33 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8CBEDD9C0CCAFD34F44AFDD5 /* Project object */;
+}

@@ -1,0 +1,63 @@
+name: PrintFileManager
+options:
+  bundleIdPrefix: com.printfilemanager
+  deploymentTarget:
+    macOS: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    from: 0.9.19
+targets:
+  PrintFileManagerCore:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/PrintFileManagerCore
+      - path: ../Quicklook/Sources/ThreeMFCore
+    dependencies:
+      - package: ZIPFoundation
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManagerCore
+        GENERATE_INFOPLIST_FILE: "YES"
+
+  PrintFileManager:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/PrintFileManagerApp
+    dependencies:
+      - target: PrintFileManagerCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManager
+        INFOPLIST_FILE: Sources/PrintFileManagerApp/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  PrintFileManagerCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/PrintFileManagerCoreTests
+    dependencies:
+      - target: PrintFileManagerCore
+      - package: ZIPFoundation
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManagerCoreTests
+        GENERATE_INFOPLIST_FILE: "YES"
+
+schemes:
+  PrintFileManager:
+    build:
+      targets:
+        PrintFileManager: all
+        PrintFileManagerCoreTests: [test]
+    test:
+      targets:
+        - PrintFileManagerCoreTests

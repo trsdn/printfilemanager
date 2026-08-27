@@ -1,0 +1,959 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		061531E7029B7F08D5B0A987 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 574163CB617A89E854F232D7 /* ZIPFoundation */; };
+		073EF58C481F904A9D06D346 /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */; };
+		16BDB6B60BA98CF0C5F2B5C8 /* ThreeMFPackageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A00344A83102D7CC319D91 /* ThreeMFPackageReader.swift */; };
+		1DABD376EDC8C03032BF70A7 /* QLGeneratorFactory.c in Sources */ = {isa = PBXBuildFile; fileRef = 489F95DE33EA5715053539C9 /* QLGeneratorFactory.c */; };
+		1F985B78432FC68F1A44A6E8 /* PreviewExtractionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */; };
+		264F56B65F0A9E0137E754F5 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0038FB3893DD140FBE2327F /* PreviewProvider.swift */; };
+		34B96BA95892BBFABAD687D6 /* ImageNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */; };
+		56D4A1520E74C21F6611A465 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF795E3E429EDC846ED8982C /* Assets.xcassets */; };
+		740541C727653773BBCF6589 /* ThreeMFCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7AC7AA790DD393407BDEF477 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FCB9492A3670974F79E603 /* ContentView.swift */; };
+		8C130EEACEE7708C00EF7E21 /* ThreeMFCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7B704CFE6F0F84EEB73DBE /* ThreeMFCoreTests.swift */; };
+		8C4A0446C787F9FB4199D998 /* ThreeMFCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; };
+		8CCE85FA673B681A19011D2F /* ThreeMFPackageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A00344A83102D7CC319D91 /* ThreeMFPackageReader.swift */; };
+		92CE42045602A0905EF8C5B2 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19932B673A93BC23A0E1D04 /* Generator.swift */; };
+		934BFE130B60BFD99C386259 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 82B1D669B5EC43EE655C36CC /* ZIPFoundation */; };
+		9A28B64DC2B0712CDA37F1A8 /* ImageNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */; };
+		A3CB6BF830792E8C98C619AB /* PreviewExtractionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */; };
+		A6E54FF97D0075D053F52810 /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98E9D38BFB5F8059783EB42 /* ThreeMFPreviewExtractor.swift */; };
+		AB81C27ECE1074D3C340B71A /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */; };
+		C3FB9EC172327F1AA99B9A8C /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86A14A65D131F576559C4BA /* ThumbnailProvider.swift */; };
+		C68F0F57A61C29F5F2B14A67 /* ThreeMFThumbnailExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CE4AEB3AB950241E7930FDCD /* ThreeMFQuickLookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BE873B27FF16F763199C75 /* ThreeMFQuickLookApp.swift */; };
+		D4D4399C8DBC024B395B0282 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 21C1DD5FF8B967EC6A3315FB /* ZIPFoundation */; };
+		D66D88E83A85569A5F37F6CE /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98E9D38BFB5F8059783EB42 /* ThreeMFPreviewExtractor.swift */; };
+		E7DB9E61BC340CB368C21ECD /* ThreeMFPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E4B3F18C69B035351E2BA56C /* ThreeMFPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FE70605A0C15E3FEB5839DF2 /* ThreeMFCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; };
+		FFF9C834E50FEC8D5F2D61C6 /* ThreeMFCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3D655709B707C3203D61CB04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B7CB72BEFB8AAEA79F928D57 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9FE3E9E6BE026DFAADD96365;
+			remoteInfo = ThreeMFCore;
+		};
+		C956E9119E51B2720AE20C4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B7CB72BEFB8AAEA79F928D57 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A8CFCD17A257DD7BBB03BBB9;
+			remoteInfo = ThreeMFThumbnailExtension;
+		};
+		D2F6F2FA0F16EB8DE8B79B83 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B7CB72BEFB8AAEA79F928D57 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 340269FF326B8B43FEF4BD3E;
+			remoteInfo = ThreeMFPreviewExtension;
+		};
+		E6C3F8419E31A5E3AE1DA6AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B7CB72BEFB8AAEA79F928D57 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9FE3E9E6BE026DFAADD96365;
+			remoteInfo = ThreeMFCore;
+		};
+		F2E92CFE66613B13B32039E0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B7CB72BEFB8AAEA79F928D57 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9FE3E9E6BE026DFAADD96365;
+			remoteInfo = ThreeMFCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		11A6B544E41EFE479D643DF4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				740541C727653773BBCF6589 /* ThreeMFCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7E8077FA5085EB0FD51EAED0 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E7DB9E61BC340CB368C21ECD /* ThreeMFPreviewExtension.appex in Embed Foundation Extensions */,
+				C68F0F57A61C29F5F2B14A67 /* ThreeMFThumbnailExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		08701365BA844B5987258BB3 /* ThreeMFCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ThreeMFCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		18BE873B27FF16F763199C75 /* ThreeMFQuickLookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFQuickLookApp.swift; sourceTree = "<group>"; };
+		1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNormalizer.swift; sourceTree = "<group>"; };
+		489F95DE33EA5715053539C9 /* QLGeneratorFactory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = QLGeneratorFactory.c; sourceTree = "<group>"; };
+		57B0EB762EA156CDE25E7461 /* ThreeMFQuickLook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThreeMFQuickLook.entitlements; sourceTree = "<group>"; };
+		70A7DE04FBF454411980A98A /* ThreeMFPreviewExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThreeMFPreviewExtension.entitlements; sourceTree = "<group>"; };
+		71098E7ADF97D26242FC818C /* ThreeMFQuickLook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreeMFQuickLook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B3B44593E39C44392D00CEB /* ThreeMFCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeMFCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		832D25AD36FDD5AF1FE35D40 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A252A665F3CCB75626999076 /* ThreeMFQLGenerator.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeMFQLGenerator.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0038FB3893DD140FBE2327F /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
+		B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BambuPreviewResolver.swift; sourceTree = "<group>"; };
+		B86A14A65D131F576559C4BA /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
+		BA7F0FF2DD6EFC53DE163D30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		BA91647CCAFCB6074F26D9BD /* ThreeMFThumbnailExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThreeMFThumbnailExtension.entitlements; sourceTree = "<group>"; };
+		D19932B673A93BC23A0E1D04 /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
+		DD7B704CFE6F0F84EEB73DBE /* ThreeMFCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFCoreTests.swift; sourceTree = "<group>"; };
+		DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ThreeMFThumbnailExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewExtractionResult.swift; sourceTree = "<group>"; };
+		E4B3F18C69B035351E2BA56C /* ThreeMFPreviewExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ThreeMFPreviewExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E98E9D38BFB5F8059783EB42 /* ThreeMFPreviewExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPreviewExtractor.swift; sourceTree = "<group>"; };
+		E9A00344A83102D7CC319D91 /* ThreeMFPackageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPackageReader.swift; sourceTree = "<group>"; };
+		EAE4634A68AB309C83874096 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		EF795E3E429EDC846ED8982C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F0FCB9492A3670974F79E603 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F261483C7CA4A99D96F25350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4C3CA20D93B2665D26D5669C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FFF9C834E50FEC8D5F2D61C6 /* ThreeMFCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		576E80787F98FFFAF4D7308C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FE70605A0C15E3FEB5839DF2 /* ThreeMFCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60DA9779FA853DEB158C8536 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				061531E7029B7F08D5B0A987 /* ZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		76A7F2B2ACA8641E765477A7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C4A0446C787F9FB4199D998 /* ThreeMFCore.framework in Frameworks */,
+				D4D4399C8DBC024B395B0282 /* ZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		889744005664D764F4B200DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				934BFE130B60BFD99C386259 /* ZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0AB8B3B1887B87BF000E76F6 /* ThreeMFPreviewExtension */ = {
+			isa = PBXGroup;
+			children = (
+				EAE4634A68AB309C83874096 /* Info.plist */,
+				B0038FB3893DD140FBE2327F /* PreviewProvider.swift */,
+				70A7DE04FBF454411980A98A /* ThreeMFPreviewExtension.entitlements */,
+			);
+			name = ThreeMFPreviewExtension;
+			path = Sources/ThreeMFPreviewExtension;
+			sourceTree = "<group>";
+		};
+		1F230F93CEE60DBC19E37BCB /* ThreeMFCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				DD7B704CFE6F0F84EEB73DBE /* ThreeMFCoreTests.swift */,
+			);
+			name = ThreeMFCoreTests;
+			path = Tests/ThreeMFCoreTests;
+			sourceTree = "<group>";
+		};
+		2F128B08C2525F9ED47BCC82 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				08701365BA844B5987258BB3 /* ThreeMFCore.framework */,
+				7B3B44593E39C44392D00CEB /* ThreeMFCoreTests.xctest */,
+				E4B3F18C69B035351E2BA56C /* ThreeMFPreviewExtension.appex */,
+				A252A665F3CCB75626999076 /* ThreeMFQLGenerator.bundle */,
+				71098E7ADF97D26242FC818C /* ThreeMFQuickLook.app */,
+				DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4624CEC85639F2A0698D3773 /* ThreeMFQuickLookApp */ = {
+			isa = PBXGroup;
+			children = (
+				EF795E3E429EDC846ED8982C /* Assets.xcassets */,
+				F0FCB9492A3670974F79E603 /* ContentView.swift */,
+				832D25AD36FDD5AF1FE35D40 /* Info.plist */,
+				57B0EB762EA156CDE25E7461 /* ThreeMFQuickLook.entitlements */,
+				18BE873B27FF16F763199C75 /* ThreeMFQuickLookApp.swift */,
+			);
+			name = ThreeMFQuickLookApp;
+			path = Sources/ThreeMFQuickLookApp;
+			sourceTree = "<group>";
+		};
+		4DA840EE9D95FD6226B79834 = {
+			isa = PBXGroup;
+			children = (
+				C93FD07C5F785A8161162E10 /* ThreeMFCore */,
+				1F230F93CEE60DBC19E37BCB /* ThreeMFCoreTests */,
+				0AB8B3B1887B87BF000E76F6 /* ThreeMFPreviewExtension */,
+				8D6F7A6FBDC88D45BD51D217 /* ThreeMFQLGenerator */,
+				4624CEC85639F2A0698D3773 /* ThreeMFQuickLookApp */,
+				C83D5E109C547E002C75C35E /* ThreeMFThumbnailExtension */,
+				2F128B08C2525F9ED47BCC82 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8D6F7A6FBDC88D45BD51D217 /* ThreeMFQLGenerator */ = {
+			isa = PBXGroup;
+			children = (
+				D19932B673A93BC23A0E1D04 /* Generator.swift */,
+				F261483C7CA4A99D96F25350 /* Info.plist */,
+				489F95DE33EA5715053539C9 /* QLGeneratorFactory.c */,
+			);
+			name = ThreeMFQLGenerator;
+			path = Sources/ThreeMFQLGenerator;
+			sourceTree = "<group>";
+		};
+		C83D5E109C547E002C75C35E /* ThreeMFThumbnailExtension */ = {
+			isa = PBXGroup;
+			children = (
+				BA7F0FF2DD6EFC53DE163D30 /* Info.plist */,
+				BA91647CCAFCB6074F26D9BD /* ThreeMFThumbnailExtension.entitlements */,
+				B86A14A65D131F576559C4BA /* ThumbnailProvider.swift */,
+			);
+			name = ThreeMFThumbnailExtension;
+			path = Sources/ThreeMFThumbnailExtension;
+			sourceTree = "<group>";
+		};
+		C93FD07C5F785A8161162E10 /* ThreeMFCore */ = {
+			isa = PBXGroup;
+			children = (
+				B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */,
+				1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */,
+				DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */,
+				E9A00344A83102D7CC319D91 /* ThreeMFPackageReader.swift */,
+				E98E9D38BFB5F8059783EB42 /* ThreeMFPreviewExtractor.swift */,
+			);
+			name = ThreeMFCore;
+			path = Sources/ThreeMFCore;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		15697F0C2A8B0A2A5DA7DE92 /* ThreeMFCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 901EDEFF0160593B9719784B /* Build configuration list for PBXNativeTarget "ThreeMFCoreTests" */;
+			buildPhases = (
+				1670AED00AFCEB30B01F16B5 /* Sources */,
+				76A7F2B2ACA8641E765477A7 /* Frameworks */,
+				11A6B544E41EFE479D643DF4 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B2BCBA5E617BD9B04ED3C631 /* PBXTargetDependency */,
+			);
+			name = ThreeMFCoreTests;
+			packageProductDependencies = (
+				21C1DD5FF8B967EC6A3315FB /* ZIPFoundation */,
+			);
+			productName = ThreeMFCoreTests;
+			productReference = 7B3B44593E39C44392D00CEB /* ThreeMFCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		340269FF326B8B43FEF4BD3E /* ThreeMFPreviewExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1EC75B032C0AC2754A997309 /* Build configuration list for PBXNativeTarget "ThreeMFPreviewExtension" */;
+			buildPhases = (
+				4CCBEB1362540B8CEE01ABC5 /* Sources */,
+				4C3CA20D93B2665D26D5669C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92E2D6A3DC67B6FC29EBCC69 /* PBXTargetDependency */,
+			);
+			name = ThreeMFPreviewExtension;
+			packageProductDependencies = (
+			);
+			productName = ThreeMFPreviewExtension;
+			productReference = E4B3F18C69B035351E2BA56C /* ThreeMFPreviewExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		342371DC68EF0FCFD1D58B5F /* ThreeMFQuickLook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E5465DABE67AB272779A5774 /* Build configuration list for PBXNativeTarget "ThreeMFQuickLook" */;
+			buildPhases = (
+				4357CD5A759D451511740C3B /* Sources */,
+				F726726340A390F6F5BB16BD /* Resources */,
+				7E8077FA5085EB0FD51EAED0 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ABC17D04500C38FA8AA5AD4A /* PBXTargetDependency */,
+				0DA9C932DAA51522A57A26AA /* PBXTargetDependency */,
+			);
+			name = ThreeMFQuickLook;
+			packageProductDependencies = (
+			);
+			productName = ThreeMFQuickLook;
+			productReference = 71098E7ADF97D26242FC818C /* ThreeMFQuickLook.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6968A5E9C04D1CEB0C1A15B5 /* ThreeMFQLGenerator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E001CD2A13F4D8339C19C08 /* Build configuration list for PBXNativeTarget "ThreeMFQLGenerator" */;
+			buildPhases = (
+				92EB982703420DD94586B77D /* Sources */,
+				889744005664D764F4B200DC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ThreeMFQLGenerator;
+			packageProductDependencies = (
+				82B1D669B5EC43EE655C36CC /* ZIPFoundation */,
+			);
+			productName = ThreeMFQLGenerator;
+			productReference = A252A665F3CCB75626999076 /* ThreeMFQLGenerator.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+		9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8922324A0F69829E051EFA0D /* Build configuration list for PBXNativeTarget "ThreeMFCore" */;
+			buildPhases = (
+				141F65EB6FCA1F4AED3341FC /* Sources */,
+				60DA9779FA853DEB158C8536 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ThreeMFCore;
+			packageProductDependencies = (
+				574163CB617A89E854F232D7 /* ZIPFoundation */,
+			);
+			productName = ThreeMFCore;
+			productReference = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A8CFCD17A257DD7BBB03BBB9 /* ThreeMFThumbnailExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A43D8703E34A14F43DDC440 /* Build configuration list for PBXNativeTarget "ThreeMFThumbnailExtension" */;
+			buildPhases = (
+				61DA36461A88FFFDF3FA38A9 /* Sources */,
+				576E80787F98FFFAF4D7308C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92899A6CF0F49CFB49303D22 /* PBXTargetDependency */,
+			);
+			name = ThreeMFThumbnailExtension;
+			packageProductDependencies = (
+			);
+			productName = ThreeMFThumbnailExtension;
+			productReference = DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B7CB72BEFB8AAEA79F928D57 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = FB323586D0FD9DA2FA96001C /* Build configuration list for PBXProject "ThreeMFQuickLook" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 4DA840EE9D95FD6226B79834;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */,
+				15697F0C2A8B0A2A5DA7DE92 /* ThreeMFCoreTests */,
+				340269FF326B8B43FEF4BD3E /* ThreeMFPreviewExtension */,
+				6968A5E9C04D1CEB0C1A15B5 /* ThreeMFQLGenerator */,
+				342371DC68EF0FCFD1D58B5F /* ThreeMFQuickLook */,
+				A8CFCD17A257DD7BBB03BBB9 /* ThreeMFThumbnailExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F726726340A390F6F5BB16BD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56D4A1520E74C21F6611A465 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		141F65EB6FCA1F4AED3341FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB81C27ECE1074D3C340B71A /* BambuPreviewResolver.swift in Sources */,
+				9A28B64DC2B0712CDA37F1A8 /* ImageNormalizer.swift in Sources */,
+				1F985B78432FC68F1A44A6E8 /* PreviewExtractionResult.swift in Sources */,
+				16BDB6B60BA98CF0C5F2B5C8 /* ThreeMFPackageReader.swift in Sources */,
+				A6E54FF97D0075D053F52810 /* ThreeMFPreviewExtractor.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1670AED00AFCEB30B01F16B5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C130EEACEE7708C00EF7E21 /* ThreeMFCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4357CD5A759D451511740C3B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AC7AA790DD393407BDEF477 /* ContentView.swift in Sources */,
+				CE4AEB3AB950241E7930FDCD /* ThreeMFQuickLookApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4CCBEB1362540B8CEE01ABC5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				264F56B65F0A9E0137E754F5 /* PreviewProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		61DA36461A88FFFDF3FA38A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C3FB9EC172327F1AA99B9A8C /* ThumbnailProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92EB982703420DD94586B77D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				073EF58C481F904A9D06D346 /* BambuPreviewResolver.swift in Sources */,
+				92CE42045602A0905EF8C5B2 /* Generator.swift in Sources */,
+				34B96BA95892BBFABAD687D6 /* ImageNormalizer.swift in Sources */,
+				A3CB6BF830792E8C98C619AB /* PreviewExtractionResult.swift in Sources */,
+				1DABD376EDC8C03032BF70A7 /* QLGeneratorFactory.c in Sources */,
+				8CCE85FA673B681A19011D2F /* ThreeMFPackageReader.swift in Sources */,
+				D66D88E83A85569A5F37F6CE /* ThreeMFPreviewExtractor.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0DA9C932DAA51522A57A26AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A8CFCD17A257DD7BBB03BBB9 /* ThreeMFThumbnailExtension */;
+			targetProxy = C956E9119E51B2720AE20C4C /* PBXContainerItemProxy */;
+		};
+		92899A6CF0F49CFB49303D22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */;
+			targetProxy = F2E92CFE66613B13B32039E0 /* PBXContainerItemProxy */;
+		};
+		92E2D6A3DC67B6FC29EBCC69 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */;
+			targetProxy = E6C3F8419E31A5E3AE1DA6AB /* PBXContainerItemProxy */;
+		};
+		ABC17D04500C38FA8AA5AD4A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 340269FF326B8B43FEF4BD3E /* ThreeMFPreviewExtension */;
+			targetProxy = D2F6F2FA0F16EB8DE8B79B83 /* PBXContainerItemProxy */;
+		};
+		B2BCBA5E617BD9B04ED3C631 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */;
+			targetProxy = 3D655709B707C3203D61CB04 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		10C8C6606DB4D81FA29F6ACC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFCore;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		2052B64CA803C258646C97F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFCoreTests;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2072632AC702DE688AFA547E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFCoreTests;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		27E0BE26285FFB4760A3F961 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFCore;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		2AC5FAA55117A5C84BB94C96 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		34E36718634630E275275BC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/ThreeMFPreviewExtension/ThreeMFPreviewExtension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFPreviewExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.preview;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		906F0D5DC045032167F6E604 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFQLGenerator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACH_O_TYPE = mh_bundle;
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.generator;
+				PRODUCT_NAME = ThreeMFQLGenerator;
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = qlgenerator;
+			};
+			name = Release;
+		};
+		9BFBA34722318068654AEE70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/ThreeMFQuickLookApp/ThreeMFQuickLook.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFQuickLookApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A2A69D3804F89FF504B156B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/ThreeMFQuickLookApp/ThreeMFQuickLook.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFQuickLookApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A56E127C72D873E71CB7264C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFQLGenerator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACH_O_TYPE = mh_bundle;
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.generator;
+				PRODUCT_NAME = ThreeMFQLGenerator;
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = qlgenerator;
+			};
+			name = Debug;
+		};
+		C65DE6043D6EC7F4B5DE4272 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/ThreeMFThumbnailExtension/ThreeMFThumbnailExtension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFThumbnailExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.thumbnail;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CD47AB45E19E2DD19EC4A113 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/ThreeMFPreviewExtension/ThreeMFPreviewExtension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFPreviewExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.preview;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D85A9D1397D41D1D4B9EE6CA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		E53A54859FFA32142DB903AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/ThreeMFThumbnailExtension/ThreeMFThumbnailExtension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/ThreeMFThumbnailExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.thumbnail;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0A43D8703E34A14F43DDC440 /* Build configuration list for PBXNativeTarget "ThreeMFThumbnailExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C65DE6043D6EC7F4B5DE4272 /* Debug */,
+				E53A54859FFA32142DB903AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1EC75B032C0AC2754A997309 /* Build configuration list for PBXNativeTarget "ThreeMFPreviewExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD47AB45E19E2DD19EC4A113 /* Debug */,
+				34E36718634630E275275BC0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4E001CD2A13F4D8339C19C08 /* Build configuration list for PBXNativeTarget "ThreeMFQLGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A56E127C72D873E71CB7264C /* Debug */,
+				906F0D5DC045032167F6E604 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8922324A0F69829E051EFA0D /* Build configuration list for PBXNativeTarget "ThreeMFCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				10C8C6606DB4D81FA29F6ACC /* Debug */,
+				27E0BE26285FFB4760A3F961 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		901EDEFF0160593B9719784B /* Build configuration list for PBXNativeTarget "ThreeMFCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2072632AC702DE688AFA547E /* Debug */,
+				2052B64CA803C258646C97F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E5465DABE67AB272779A5774 /* Build configuration list for PBXNativeTarget "ThreeMFQuickLook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9BFBA34722318068654AEE70 /* Debug */,
+				A2A69D3804F89FF504B156B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FB323586D0FD9DA2FA96001C /* Build configuration list for PBXProject "ThreeMFQuickLook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D85A9D1397D41D1D4B9EE6CA /* Debug */,
+				2AC5FAA55117A5C84BB94C96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.19;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		21C1DD5FF8B967EC6A3315FB /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		574163CB617A89E854F232D7 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		82B1D669B5EC43EE655C36CC /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B7CB72BEFB8AAEA79F928D57 /* Project object */;
+}
