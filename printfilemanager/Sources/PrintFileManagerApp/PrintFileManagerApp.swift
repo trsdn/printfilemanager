@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 @main
@@ -12,6 +13,10 @@ struct PrintFileManagerApp: App {
                 .environmentObject(aiSettings)
                 .task {
                     await viewModel.load()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                    // Saves are coalesced, so the last edits must be forced out before exit.
+                    viewModel.flushPendingSave()
                 }
         }
         .defaultSize(width: 1180, height: 760)

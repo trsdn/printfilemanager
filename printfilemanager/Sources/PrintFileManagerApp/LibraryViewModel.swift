@@ -4,7 +4,9 @@ import PrintFileManagerCore
 
 @MainActor
 final class LibraryViewModel: ObservableObject {
-    @Published private(set) var snapshot = LibrarySnapshot()
+    @Published private(set) var snapshot = LibrarySnapshot() {
+        didSet { snapshotRevision &+= 1 }
+    }
     @Published var selectedCollection: SmartCollection? = .all
     @Published var selectedRootID: UUID?
     @Published var selectedRecordID: UUID?
@@ -41,6 +43,16 @@ final class LibraryViewModel: ObservableObject {
     private let folderWatcher = FolderWatcher()
     private let isUsingVolatileFallbackStore: Bool
 
+    /// How long mutations are batched before the library file is rewritten.
+    private static let saveCoalescingDelayMilliseconds = 600
+
+    private var pendingSaveTask: Task<Void, Never>?
+
+    private var snapshotRevision: UInt64 = 0
+    private var cachedFilterKey: FilterCacheKey?
+    private var cachedFilteredRecords: [PrintFileRecord] = []
+    private var cachedCollectionCounts: CollectionCounts?
+
     init(database: LibraryDatabase? = nil) {
         if let database {
             self.database = database
@@ -58,22 +70,40 @@ final class LibraryViewModel: ObservableObject {
     }
 
     var filteredRecords: [PrintFileRecord] {
-        search.records(
-            in: snapshot,
-            matching: LibraryQuery(
-                text: searchText,
-                smartCollection: selectedCollection,
-                rootID: selectedRootID,
-                selectedTags: selectedTags,
-                selectedPrintabilities: selectedPrintabilities,
-                selectedMaterials: selectedMaterials,
-                selectedPrinters: selectedPrinters,
-                selectedSourcePlatforms: selectedSourcePlatforms,
-                selectedSourceVersionStatuses: selectedSourceVersionStatuses,
-                sortOption: sortOption,
-                sortAscending: sortAscending
-            )
+        let query = currentQuery()
+        let key = FilterCacheKey(snapshotRevision: snapshotRevision, query: query)
+        if let cachedFilterKey, cachedFilterKey == key {
+            return cachedFilteredRecords
+        }
+
+        let records = search.records(in: snapshot, matching: query)
+        cachedFilterKey = key
+        cachedFilteredRecords = records
+        return records
+    }
+
+    private func currentQuery() -> LibraryQuery {
+        LibraryQuery(
+            text: searchText,
+            smartCollection: selectedCollection,
+            rootID: selectedRootID,
+            selectedTags: selectedTags,
+            selectedPrintabilities: selectedPrintabilities,
+            selectedMaterials: selectedMaterials,
+            selectedPrinters: selectedPrinters,
+            selectedSourcePlatforms: selectedSourcePlatforms,
+            selectedSourceVersionStatuses: selectedSourceVersionStatuses,
+            sortOption: sortOption,
+            sortAscending: sortAscending
         )
+    }
+
+    /// SwiftUI re-reads `filteredRecords` on every body pass, so without this the whole library is
+    /// filtered and sorted many times per frame. The cache is invalidated by any snapshot mutation
+    /// (via `snapshotRevision`) or any change to the query itself.
+    private struct FilterCacheKey: Equatable {
+        let snapshotRevision: UInt64
+        let query: LibraryQuery
     }
 
     var selectedRecord: PrintFileRecord? {
@@ -306,17 +336,45 @@ final class LibraryViewModel: ObservableObject {
     }
 
     func count(for collection: SmartCollection) -> Int {
-        search.records(
-            in: snapshot,
-            matching: LibraryQuery(text: "", smartCollection: collection, sortOption: .name)
-        ).count
+        cachedCounts(for: snapshotRevision).collections[collection] ?? 0
     }
 
     func count(for root: LibraryRoot) -> Int {
-        search.records(
-            in: snapshot,
-            matching: LibraryQuery(text: "", smartCollection: nil, rootID: root.id, sortOption: .name)
-        ).count
+        cachedCounts(for: snapshotRevision).roots[root.id] ?? 0
+    }
+
+    /// Every sidebar badge asks for a count on each render. Computing them all once per snapshot
+    /// change replaces roughly a dozen full library scans per frame with one pass.
+    private func cachedCounts(for revision: UInt64) -> CollectionCounts {
+        if let cachedCollectionCounts, cachedCollectionCounts.snapshotRevision == revision {
+            return cachedCollectionCounts
+        }
+
+        var collections: [SmartCollection: Int] = [:]
+        for collection in SmartCollection.allCases {
+            collections[collection] = search.records(
+                in: snapshot,
+                matching: LibraryQuery(text: "", smartCollection: collection, sortOption: .name)
+            ).count
+        }
+
+        var roots: [UUID: Int] = [:]
+        for root in snapshot.roots {
+            roots[root.id] = search.records(
+                in: snapshot,
+                matching: LibraryQuery(text: "", smartCollection: nil, rootID: root.id, sortOption: .name)
+            ).count
+        }
+
+        let counts = CollectionCounts(snapshotRevision: revision, collections: collections, roots: roots)
+        cachedCollectionCounts = counts
+        return counts
+    }
+
+    private struct CollectionCounts {
+        let snapshotRevision: UInt64
+        let collections: [SmartCollection: Int]
+        let roots: [UUID: Int]
     }
 
     func select(collection: SmartCollection) {
@@ -607,7 +665,8 @@ final class LibraryViewModel: ObservableObject {
         if selectedRecordID == record.id {
             selectedRecordID = firstVisibleSelectedRecordID()
         }
-        saveSnapshot()
+        // The file is gone from disk, so the index must not lag behind it.
+        flushPendingSave()
     }
 
     private func bambuStudioURL() -> URL? {
@@ -807,7 +866,9 @@ final class LibraryViewModel: ObservableObject {
             snapshot.records[index].errorMessage = nil
         }
 
-        saveSnapshot()
+        // Files have physically moved; persist immediately so a crash cannot strand the index
+        // pointing at the old paths.
+        flushPendingSave()
     }
 
     private func relativePath(for url: URL, rootURL: URL) -> String {
@@ -979,6 +1040,25 @@ final class LibraryViewModel: ObservableObject {
     }
 
     private func saveSnapshot() {
+        // Coalesced rather than immediate: the library is persisted as a single file, so writing
+        // it on every mutation would rewrite the whole index on each keystroke in the notes field.
+        pendingSaveTask?.cancel()
+        pendingSaveTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(Self.saveCoalescingDelayMilliseconds))
+            guard !Task.isCancelled else { return }
+            self?.writeSnapshotNow()
+        }
+    }
+
+    /// Persists any coalesced changes immediately. Call before the app terminates or whenever the
+    /// index must match the file system right away.
+    func flushPendingSave() {
+        pendingSaveTask?.cancel()
+        pendingSaveTask = nil
+        writeSnapshotNow()
+    }
+
+    private func writeSnapshotNow() {
         if let lockout = persistenceLockout {
             statusMessage = "Changes are not being saved: \(lockout.reason)"
             return
