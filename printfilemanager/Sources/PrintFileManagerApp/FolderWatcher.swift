@@ -23,6 +23,13 @@ final class FolderWatcher {
         streams.removeAll()
     }
 
+    /// Isolated so the teardown can touch the MainActor-isolated stream table. Without this, a
+    /// watcher released without an explicit `update(roots: [])` leaks its FSEvents streams and the
+    /// retained callback boxes.
+    isolated deinit {
+        stopAll()
+    }
+
     private func start(root: LibraryRoot, onChange: @escaping @MainActor (LibraryRoot) -> Void) {
         let box = FolderWatchBox(root: root, onChange: onChange)
         var context = FSEventStreamContext(

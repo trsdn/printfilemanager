@@ -19,10 +19,23 @@ public protocol ThreeMFPackageReading: Sendable {
 public enum ThreeMFPackageReaderError: Error, Equatable {
     case unreadableArchive(URL)
     case entryNotFound(String)
+    case entryTooLarge(path: String, limit: UInt64)
 }
 
 public struct ZIPFoundationThreeMFPackageReader: ThreeMFPackageReading {
-    public init() {}
+    /// Upper bound on the decompressed size of a single entry.
+    ///
+    /// A `.3mf` is an untrusted ZIP that is frequently downloaded from the internet, and DEFLATE
+    /// reaches compression ratios around 1000:1. Without a ceiling, a small crafted package can
+    /// expand to gigabytes in memory — fatal in a memory-constrained Quick Look extension and an
+    /// easy way to take down the indexer during a background scan.
+    public static let defaultMaximumEntrySize: UInt64 = 256 * 1024 * 1024
+
+    private let maximumEntrySize: UInt64
+
+    public init(maximumEntrySize: UInt64 = ZIPFoundationThreeMFPackageReader.defaultMaximumEntrySize) {
+        self.maximumEntrySize = maximumEntrySize
+    }
 
     public func fileEntries(in packageURL: URL) throws -> [ThreeMFPackageEntry] {
         let archive: Archive
@@ -51,8 +64,19 @@ public struct ZIPFoundationThreeMFPackageReader: ThreeMFPackageReading {
             throw ThreeMFPackageReaderError.entryNotFound(entry.path)
         }
 
+        guard archiveEntry.uncompressedSize <= maximumEntrySize else {
+            throw ThreeMFPackageReaderError.entryTooLarge(path: entry.path, limit: maximumEntrySize)
+        }
+
+        // The declared size lives in the archive metadata and can lie, so the stream is also
+        // budgeted and aborted the moment it exceeds the limit.
         var data = Data()
+        var extractedBytes: UInt64 = 0
         _ = try archive.extract(archiveEntry) { chunk in
+            extractedBytes += UInt64(chunk.count)
+            guard extractedBytes <= maximumEntrySize else {
+                throw ThreeMFPackageReaderError.entryTooLarge(path: entry.path, limit: maximumEntrySize)
+            }
             data.append(chunk)
         }
         return data

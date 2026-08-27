@@ -8,29 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		061531E7029B7F08D5B0A987 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 574163CB617A89E854F232D7 /* ZIPFoundation */; };
-		073EF58C481F904A9D06D346 /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */; };
 		16BDB6B60BA98CF0C5F2B5C8 /* ThreeMFPackageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A00344A83102D7CC319D91 /* ThreeMFPackageReader.swift */; };
-		1DABD376EDC8C03032BF70A7 /* QLGeneratorFactory.c in Sources */ = {isa = PBXBuildFile; fileRef = 489F95DE33EA5715053539C9 /* QLGeneratorFactory.c */; };
 		1F985B78432FC68F1A44A6E8 /* PreviewExtractionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */; };
 		264F56B65F0A9E0137E754F5 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0038FB3893DD140FBE2327F /* PreviewProvider.swift */; };
-		34B96BA95892BBFABAD687D6 /* ImageNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */; };
 		56D4A1520E74C21F6611A465 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF795E3E429EDC846ED8982C /* Assets.xcassets */; };
 		740541C727653773BBCF6589 /* ThreeMFCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7AC7AA790DD393407BDEF477 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FCB9492A3670974F79E603 /* ContentView.swift */; };
 		8C130EEACEE7708C00EF7E21 /* ThreeMFCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7B704CFE6F0F84EEB73DBE /* ThreeMFCoreTests.swift */; };
 		8C4A0446C787F9FB4199D998 /* ThreeMFCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; };
-		8CCE85FA673B681A19011D2F /* ThreeMFPackageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A00344A83102D7CC319D91 /* ThreeMFPackageReader.swift */; };
-		92CE42045602A0905EF8C5B2 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19932B673A93BC23A0E1D04 /* Generator.swift */; };
-		934BFE130B60BFD99C386259 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 82B1D669B5EC43EE655C36CC /* ZIPFoundation */; };
 		9A28B64DC2B0712CDA37F1A8 /* ImageNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */; };
-		A3CB6BF830792E8C98C619AB /* PreviewExtractionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */; };
 		A6E54FF97D0075D053F52810 /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98E9D38BFB5F8059783EB42 /* ThreeMFPreviewExtractor.swift */; };
 		AB81C27ECE1074D3C340B71A /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */; };
 		C3FB9EC172327F1AA99B9A8C /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86A14A65D131F576559C4BA /* ThumbnailProvider.swift */; };
 		C68F0F57A61C29F5F2B14A67 /* ThreeMFThumbnailExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CE4AEB3AB950241E7930FDCD /* ThreeMFQuickLookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BE873B27FF16F763199C75 /* ThreeMFQuickLookApp.swift */; };
 		D4D4399C8DBC024B395B0282 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 21C1DD5FF8B967EC6A3315FB /* ZIPFoundation */; };
-		D66D88E83A85569A5F37F6CE /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98E9D38BFB5F8059783EB42 /* ThreeMFPreviewExtractor.swift */; };
 		E7DB9E61BC340CB368C21ECD /* ThreeMFPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E4B3F18C69B035351E2BA56C /* ThreeMFPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FE70605A0C15E3FEB5839DF2 /* ThreeMFCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; };
 		FFF9C834E50FEC8D5F2D61C6 /* ThreeMFCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08701365BA844B5987258BB3 /* ThreeMFCore.framework */; };
@@ -104,19 +96,16 @@
 		08701365BA844B5987258BB3 /* ThreeMFCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ThreeMFCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		18BE873B27FF16F763199C75 /* ThreeMFQuickLookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFQuickLookApp.swift; sourceTree = "<group>"; };
 		1A84DC1E6E82A15BE6A5D325 /* ImageNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNormalizer.swift; sourceTree = "<group>"; };
-		489F95DE33EA5715053539C9 /* QLGeneratorFactory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = QLGeneratorFactory.c; sourceTree = "<group>"; };
 		57B0EB762EA156CDE25E7461 /* ThreeMFQuickLook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThreeMFQuickLook.entitlements; sourceTree = "<group>"; };
 		70A7DE04FBF454411980A98A /* ThreeMFPreviewExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThreeMFPreviewExtension.entitlements; sourceTree = "<group>"; };
 		71098E7ADF97D26242FC818C /* ThreeMFQuickLook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreeMFQuickLook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B3B44593E39C44392D00CEB /* ThreeMFCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeMFCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		832D25AD36FDD5AF1FE35D40 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		A252A665F3CCB75626999076 /* ThreeMFQLGenerator.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeMFQLGenerator.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0038FB3893DD140FBE2327F /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		B478E48AF4C19B94FF968C7D /* BambuPreviewResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BambuPreviewResolver.swift; sourceTree = "<group>"; };
 		B86A14A65D131F576559C4BA /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
 		BA7F0FF2DD6EFC53DE163D30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BA91647CCAFCB6074F26D9BD /* ThreeMFThumbnailExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThreeMFThumbnailExtension.entitlements; sourceTree = "<group>"; };
-		D19932B673A93BC23A0E1D04 /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		DD7B704CFE6F0F84EEB73DBE /* ThreeMFCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFCoreTests.swift; sourceTree = "<group>"; };
 		DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ThreeMFThumbnailExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF9B67DB5B4BAC99DC098DFD /* PreviewExtractionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewExtractionResult.swift; sourceTree = "<group>"; };
@@ -126,7 +115,6 @@
 		EAE4634A68AB309C83874096 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		EF795E3E429EDC846ED8982C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F0FCB9492A3670974F79E603 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		F261483C7CA4A99D96F25350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,14 +151,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		889744005664D764F4B200DC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				934BFE130B60BFD99C386259 /* ZIPFoundation in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -200,7 +180,6 @@
 				08701365BA844B5987258BB3 /* ThreeMFCore.framework */,
 				7B3B44593E39C44392D00CEB /* ThreeMFCoreTests.xctest */,
 				E4B3F18C69B035351E2BA56C /* ThreeMFPreviewExtension.appex */,
-				A252A665F3CCB75626999076 /* ThreeMFQLGenerator.bundle */,
 				71098E7ADF97D26242FC818C /* ThreeMFQuickLook.app */,
 				DE5FD198F4E4B165A87F445A /* ThreeMFThumbnailExtension.appex */,
 			);
@@ -226,22 +205,10 @@
 				C93FD07C5F785A8161162E10 /* ThreeMFCore */,
 				1F230F93CEE60DBC19E37BCB /* ThreeMFCoreTests */,
 				0AB8B3B1887B87BF000E76F6 /* ThreeMFPreviewExtension */,
-				8D6F7A6FBDC88D45BD51D217 /* ThreeMFQLGenerator */,
 				4624CEC85639F2A0698D3773 /* ThreeMFQuickLookApp */,
 				C83D5E109C547E002C75C35E /* ThreeMFThumbnailExtension */,
 				2F128B08C2525F9ED47BCC82 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		8D6F7A6FBDC88D45BD51D217 /* ThreeMFQLGenerator */ = {
-			isa = PBXGroup;
-			children = (
-				D19932B673A93BC23A0E1D04 /* Generator.swift */,
-				F261483C7CA4A99D96F25350 /* Info.plist */,
-				489F95DE33EA5715053539C9 /* QLGeneratorFactory.c */,
-			);
-			name = ThreeMFQLGenerator;
-			path = Sources/ThreeMFQLGenerator;
 			sourceTree = "<group>";
 		};
 		C83D5E109C547E002C75C35E /* ThreeMFThumbnailExtension */ = {
@@ -332,25 +299,6 @@
 			productReference = 71098E7ADF97D26242FC818C /* ThreeMFQuickLook.app */;
 			productType = "com.apple.product-type.application";
 		};
-		6968A5E9C04D1CEB0C1A15B5 /* ThreeMFQLGenerator */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4E001CD2A13F4D8339C19C08 /* Build configuration list for PBXNativeTarget "ThreeMFQLGenerator" */;
-			buildPhases = (
-				92EB982703420DD94586B77D /* Sources */,
-				889744005664D764F4B200DC /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ThreeMFQLGenerator;
-			packageProductDependencies = (
-				82B1D669B5EC43EE655C36CC /* ZIPFoundation */,
-			);
-			productName = ThreeMFQLGenerator;
-			productReference = A252A665F3CCB75626999076 /* ThreeMFQLGenerator.bundle */;
-			productType = "com.apple.product-type.bundle";
-		};
 		9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8922324A0F69829E051EFA0D /* Build configuration list for PBXNativeTarget "ThreeMFCore" */;
@@ -397,9 +345,10 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = FB323586D0FD9DA2FA96001C /* Build configuration list for PBXProject "ThreeMFQuickLook" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -412,15 +361,15 @@
 				E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 2F128B08C2525F9ED47BCC82 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				9FE3E9E6BE026DFAADD96365 /* ThreeMFCore */,
-				15697F0C2A8B0A2A5DA7DE92 /* ThreeMFCoreTests */,
-				340269FF326B8B43FEF4BD3E /* ThreeMFPreviewExtension */,
-				6968A5E9C04D1CEB0C1A15B5 /* ThreeMFQLGenerator */,
 				342371DC68EF0FCFD1D58B5F /* ThreeMFQuickLook */,
+				340269FF326B8B43FEF4BD3E /* ThreeMFPreviewExtension */,
 				A8CFCD17A257DD7BBB03BBB9 /* ThreeMFThumbnailExtension */,
+				15697F0C2A8B0A2A5DA7DE92 /* ThreeMFCoreTests */,
 			);
 		};
 /* End PBXProject section */
@@ -479,20 +428,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3FB9EC172327F1AA99B9A8C /* ThumbnailProvider.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		92EB982703420DD94586B77D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				073EF58C481F904A9D06D346 /* BambuPreviewResolver.swift in Sources */,
-				92CE42045602A0905EF8C5B2 /* Generator.swift in Sources */,
-				34B96BA95892BBFABAD687D6 /* ImageNormalizer.swift in Sources */,
-				A3CB6BF830792E8C98C619AB /* PreviewExtractionResult.swift in Sources */,
-				1DABD376EDC8C03032BF70A7 /* QLGeneratorFactory.c in Sources */,
-				8CCE85FA673B681A19011D2F /* ThreeMFPackageReader.swift in Sources */,
-				D66D88E83A85569A5F37F6CE /* ThreeMFPreviewExtractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -677,23 +612,6 @@
 			};
 			name = Release;
 		};
-		906F0D5DC045032167F6E604 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Sources/ThreeMFQLGenerator/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACH_O_TYPE = mh_bundle;
-				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.generator;
-				PRODUCT_NAME = ThreeMFQLGenerator;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = qlgenerator;
-			};
-			name = Release;
-		};
 		9BFBA34722318068654AEE70 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -725,23 +643,6 @@
 				SDKROOT = macosx;
 			};
 			name = Release;
-		};
-		A56E127C72D873E71CB7264C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Sources/ThreeMFQLGenerator/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACH_O_TYPE = mh_bundle;
-				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.ThreeMFQuickLook.generator;
-				PRODUCT_NAME = ThreeMFQLGenerator;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = qlgenerator;
-			};
-			name = Debug;
 		};
 		C65DE6043D6EC7F4B5DE4272 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -879,15 +780,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4E001CD2A13F4D8339C19C08 /* Build configuration list for PBXNativeTarget "ThreeMFQLGenerator" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A56E127C72D873E71CB7264C /* Debug */,
-				906F0D5DC045032167F6E604 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		8922324A0F69829E051EFA0D /* Build configuration list for PBXNativeTarget "ThreeMFCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -944,11 +836,6 @@
 			productName = ZIPFoundation;
 		};
 		574163CB617A89E854F232D7 /* ZIPFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
-			productName = ZIPFoundation;
-		};
-		82B1D669B5EC43EE655C36CC /* ZIPFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E660DE8D80CE52EF55A80E7D /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
 			productName = ZIPFoundation;

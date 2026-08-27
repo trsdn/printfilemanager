@@ -25,9 +25,69 @@ final class ThreeMFCoreTests: XCTestCase {
             "Auxiliaries/.thumbnails/thumbnail_middle.png",
             "Auxiliaries/.thumbnails/thumbnail_3mf.png",
             "Auxiliaries/.thumbnails/thumbnail_small.png",
-            "Metadata/top_1.png",
             "Metadata/plate_1.png",
-            "Metadata/plate_1_small.png"
+            "Metadata/plate_1_small.png",
+            "Metadata/top_1.png"
+        ])
+    }
+
+    func testBambuResolverPrefersPlateHeroImageOverTopDownView() throws {
+        let resolver = BambuPreviewResolver()
+        let entries = [
+            ThreeMFPackageEntry(path: "Metadata/top_1.png", uncompressedSize: 10),
+            ThreeMFPackageEntry(path: "Metadata/plate_no_light_1.png", uncompressedSize: 10),
+            ThreeMFPackageEntry(path: "Metadata/plate_1.png", uncompressedSize: 10)
+        ]
+
+        let candidates = resolver.orderedPreviewCandidates(in: entries)
+
+        XCTAssertEqual(candidates.map(\.path), [
+            "Metadata/plate_1.png",
+            "Metadata/plate_no_light_1.png",
+            "Metadata/top_1.png"
+        ])
+    }
+
+    func testBambuResolverExcludesObjectPickingMasks() throws {
+        let resolver = BambuPreviewResolver()
+        let entries = [
+            ThreeMFPackageEntry(path: "Metadata/pick_1.png", uncompressedSize: 10),
+            ThreeMFPackageEntry(path: "Metadata/top_pick_1.png", uncompressedSize: 10),
+            ThreeMFPackageEntry(path: "Metadata/plate_1.png", uncompressedSize: 10)
+        ]
+
+        let candidates = resolver.orderedPreviewCandidates(in: entries)
+
+        XCTAssertEqual(candidates.map(\.path), ["Metadata/plate_1.png"])
+    }
+
+    func testBambuResolverPrefersMetadataPreviewOverUnrelatedTexture() throws {
+        let resolver = BambuPreviewResolver()
+        let entries = [
+            ThreeMFPackageEntry(path: "3D/textures/wood.png", uncompressedSize: 10),
+            ThreeMFPackageEntry(path: "Metadata/plate_1.png", uncompressedSize: 10)
+        ]
+
+        let candidates = resolver.orderedPreviewCandidates(in: entries)
+
+        XCTAssertEqual(candidates.map(\.path), [
+            "Metadata/plate_1.png",
+            "3D/textures/wood.png"
+        ])
+    }
+
+    func testBambuResolverFindsGenericSlicerThumbnail() throws {
+        let resolver = BambuPreviewResolver()
+        let entries = [
+            ThreeMFPackageEntry(path: "Metadata/thumbnail.png", uncompressedSize: 10),
+            ThreeMFPackageEntry(path: "Metadata/top_1.png", uncompressedSize: 10)
+        ]
+
+        let candidates = resolver.orderedPreviewCandidates(in: entries)
+
+        XCTAssertEqual(candidates.map(\.path), [
+            "Metadata/thumbnail.png",
+            "Metadata/top_1.png"
         ])
     }
 
@@ -91,7 +151,7 @@ final class ThreeMFCoreTests: XCTestCase {
 
     private func externalRealFixtureURL() throws -> URL? {
         if let fixturePath = ProcessInfo.processInfo.environment["THREEMF_REAL_FIXTURE"], !fixturePath.isEmpty {
-            return URL(fileURLWithPath: fixturePath)
+            return existingFileURL(atPath: fixturePath)
         }
 
         let testFileURL = URL(fileURLWithPath: #filePath)
@@ -107,7 +167,13 @@ final class ThreeMFCoreTests: XCTestCase {
 
         let fixturePath = try String(contentsOf: pathFileURL, encoding: .utf8)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        return fixturePath.isEmpty ? nil : URL(fileURLWithPath: fixturePath)
+        return fixturePath.isEmpty ? nil : existingFileURL(atPath: fixturePath)
+    }
+
+    /// The pointer file may outlive the file it points at, so the target itself must be checked —
+    /// otherwise a fixture that has since been deleted fails the test instead of skipping it.
+    private func existingFileURL(atPath path: String) -> URL? {
+        FileManager.default.fileExists(atPath: path) ? URL(fileURLWithPath: path) : nil
     }
 
     private func makePackage(entries: [String: Data]) throws -> URL {

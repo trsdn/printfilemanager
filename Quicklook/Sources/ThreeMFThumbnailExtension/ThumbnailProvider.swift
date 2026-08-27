@@ -21,18 +21,18 @@ final class ThumbnailProvider: QLThumbnailProvider {
         }
 
         let maxPixelDimension = Int(max(request.maximumSize.width, request.maximumSize.height) * request.scale)
-        logger.info("Thumbnail request started file=\(request.fileURL.path, privacy: .public) maxPixelDimension=\(maxPixelDimension) securityScoped=\(hasSecurityScopedAccess)")
+        logger.info("Thumbnail request started file=\(request.fileURL.path, privacy: .private) maxPixelDimension=\(maxPixelDimension) securityScoped=\(hasSecurityScopedAccess)")
 
         switch extractor.preview(for: request.fileURL, maxPixelDimension: maxPixelDimension) {
         case .preview(let image):
-            logger.info("Thumbnail preview extracted file=\(request.fileURL.lastPathComponent, privacy: .public) bytes=\(image.data.count) width=\(image.pixelSize.width) height=\(image.pixelSize.height)")
+            logger.info("Thumbnail preview extracted file=\(request.fileURL.lastPathComponent, privacy: .private) bytes=\(image.data.count) width=\(image.pixelSize.width) height=\(image.pixelSize.height)")
             let reply = QLThumbnailReply(contextSize: request.maximumSize) { context in
                 Self.draw(image: image, in: context, canvasSize: request.maximumSize)
             }
             handler(reply, nil)
 
         case .fallback:
-            logger.error("Thumbnail extraction fell back file=\(request.fileURL.path, privacy: .public)")
+            logger.error("Thumbnail extraction fell back file=\(request.fileURL.path, privacy: .private)")
             handler(nil, nil)
         }
     }

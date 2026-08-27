@@ -867,6 +867,169 @@ final class PrintFileManagerCoreTests: XCTestCase {
                 XCTAssertEqual(plan.skippedCount, 1)
             }
 
+    // MARK: - Persistence safety
+
+    func testDatabaseQuarantinesUnreadableIndexInsteadOfLosingIt() throws {
+        let folderURL = try makeTemporaryDirectory()
+        let indexURL = folderURL.appendingPathComponent("library-index.json")
+        try Data("{ this is not valid json".utf8).write(to: indexURL)
+        let database = LibraryDatabase(fileURL: indexURL)
+
+        XCTAssertThrowsError(try database.load())
+
+        let quarantinedURL = try database.quarantineUnreadableIndex()
+
+        let unwrappedQuarantineURL = try XCTUnwrap(quarantinedURL)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: unwrappedQuarantineURL.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: indexURL.path))
+        XCTAssertTrue(unwrappedQuarantineURL.lastPathComponent.contains("corrupt-"))
+        XCTAssertEqual(try String(contentsOf: unwrappedQuarantineURL, encoding: .utf8), "{ this is not valid json")
+    }
+
+    func testDatabaseWritesOneBackupPerSessionBeforeOverwriting() throws {
+        let folderURL = try makeTemporaryDirectory()
+        let indexURL = folderURL.appendingPathComponent("library-index.json")
+        let database = LibraryDatabase(fileURL: indexURL)
+
+        try database.save(LibrarySnapshot(roots: [], records: [], managedFolderURL: nil))
+        let firstGeneration = try Data(contentsOf: indexURL)
+
+        try database.save(LibrarySnapshot(managedFolderURL: URL(fileURLWithPath: "/tmp/second")))
+        try database.save(LibrarySnapshot(managedFolderURL: URL(fileURLWithPath: "/tmp/third")))
+
+        // The backup must capture the last known-good state, not be overwritten by every save.
+        let backupURL = indexURL.appendingPathExtension("bak")
+        XCTAssertEqual(try Data(contentsOf: backupURL), firstGeneration)
+    }
+
+    func testSnapshotWithoutSchemaVersionDecodesAsVersionOne() throws {
+        let folderURL = try makeTemporaryDirectory()
+        let indexURL = folderURL.appendingPathComponent("library-index.json")
+        try Data(#"{"roots":[],"records":[]}"#.utf8).write(to: indexURL)
+
+        let snapshot = try LibraryDatabase(fileURL: indexURL).load()
+
+        XCTAssertEqual(snapshot.schemaVersion, LibrarySnapshot.currentSchemaVersion)
+        XCTAssertTrue(snapshot.records.isEmpty)
+    }
+
+    func testDatabaseRejectsIndexWrittenByANewerSchema() throws {
+        let folderURL = try makeTemporaryDirectory()
+        let indexURL = folderURL.appendingPathComponent("library-index.json")
+        let futureVersion = LibrarySnapshot.currentSchemaVersion + 1
+        try Data(#"{"schemaVersion":\#(futureVersion),"roots":[],"records":[]}"#.utf8).write(to: indexURL)
+
+        XCTAssertThrowsError(try LibraryDatabase(fileURL: indexURL).load()) { error in
+            XCTAssertEqual(
+                error as? LibrarySchemaError,
+                .unsupportedSchemaVersion(found: futureVersion, supported: LibrarySnapshot.currentSchemaVersion)
+            )
+        }
+    }
+
+    // MARK: - Untrusted input hardening
+
+    func testPackageReaderRefusesEntriesLargerThanTheConfiguredLimit() throws {
+        let packageURL = try makeTemporaryDirectory().appendingPathComponent("bomb.3mf")
+        let payload = Data(repeating: 0, count: 64 * 1024)
+        try makePackage(at: packageURL, entries: ["Metadata/plate_1.png": payload])
+
+        let reader = ZIPFoundationThreeMFPackageReader(maximumEntrySize: 1_024)
+        let entry = try XCTUnwrap(try reader.fileEntries(in: packageURL).first)
+
+        XCTAssertThrowsError(try reader.data(for: entry, in: packageURL)) { error in
+            XCTAssertEqual(
+                error as? ThreeMFPackageReaderError,
+                .entryTooLarge(path: entry.path, limit: 1_024)
+            )
+        }
+    }
+
+    func testMeshExtractorDropsTrianglesWithOutOfRangeIndices() throws {
+        let packageURL = try makeTemporaryDirectory().appendingPathComponent("malformed.3mf")
+        try makePackage(at: packageURL, entries: [
+            "3D/3dmodel.model": Data("""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <model unit="millimeter">
+              <resources><object id="1" type="model"><mesh>
+                <vertices>
+                  <vertex x="0" y="0" z="0"/>
+                  <vertex x="1" y="0" z="0"/>
+                  <vertex x="0" y="1" z="0"/>
+                </vertices>
+                <triangles>
+                  <triangle v1="0" v2="1" v3="2"/>
+                  <triangle v1="0" v2="1" v3="99"/>
+                  <triangle v1="-1" v2="1" v3="2"/>
+                  <triangle v1="2147483647" v2="2147483647" v3="2147483647"/>
+                </triangles>
+              </mesh></object></resources>
+            </model>
+            """.utf8)
+        ])
+
+        let mesh = try XCTUnwrap(ThreeMFMeshExtractor().mesh(for: packageURL))
+
+        XCTAssertEqual(mesh.vertices.count, 3)
+        XCTAssertEqual(mesh.triangles, [ThreeMFTriangle(a: 0, b: 1, c: 2)])
+        for triangle in mesh.triangles {
+            for index in [triangle.a, triangle.b, triangle.c] {
+                XCTAssertTrue((0..<Int32(mesh.vertices.count)).contains(index))
+            }
+        }
+    }
+
+    // MARK: - Incremental scanning
+
+    func testScanReusesRecordsForFilesThatHaveNotChanged() throws {
+        let rootURL = try makeTemporaryDirectory()
+        let packageURL = rootURL.appendingPathComponent("clip.3mf")
+        try makePackage(at: packageURL, entries: [
+            "Metadata/plate_1.png": try makePNG(width: 8, height: 8),
+            "3D/3dmodel.model": Data("<model/>".utf8)
+        ])
+        let root = LibraryRoot(url: rootURL)
+        let indexer = LibraryIndexer()
+
+        let firstScan = try indexer.scan(root: root)
+        let firstRecord = try XCTUnwrap(firstScan.records.first)
+
+        let secondScan = try indexer.scan(root: root, previousRecords: firstScan.records)
+        let secondRecord = try XCTUnwrap(secondScan.records.first)
+
+        // A carried-over record keeps its original identity and indexing timestamp, which is what
+        // proves the file was not re-hashed and re-parsed.
+        XCTAssertEqual(secondRecord.id, firstRecord.id)
+        XCTAssertEqual(secondRecord.indexedAt, firstRecord.indexedAt)
+    }
+
+    func testScanReindexesFilesWhoseContentChanged() throws {
+        let rootURL = try makeTemporaryDirectory()
+        let packageURL = rootURL.appendingPathComponent("clip.3mf")
+        try makePackage(at: packageURL, entries: [
+            "Metadata/plate_1.png": try makePNG(width: 8, height: 8),
+            "3D/3dmodel.model": Data("<model/>".utf8)
+        ])
+        let root = LibraryRoot(url: rootURL)
+        let indexer = LibraryIndexer()
+        let firstScan = try indexer.scan(root: root)
+
+        try FileManager.default.removeItem(at: packageURL)
+        try makePackage(at: packageURL, entries: [
+            "Metadata/plate_1.png": try makePNG(width: 16, height: 16),
+            "3D/3dmodel.model": Data("<model><changed/></model>".utf8)
+        ])
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(60)],
+            ofItemAtPath: packageURL.path
+        )
+
+        let secondScan = try indexer.scan(root: root, previousRecords: firstScan.records)
+        let secondRecord = try XCTUnwrap(secondScan.records.first)
+
+        XCTAssertNotEqual(secondRecord.contentHash, firstScan.records.first?.contentHash)
+    }
+
     private func makePackage(at url: URL, entries: [String: Data]) throws {
         let archive = try Archive(url: url, accessMode: .create)
 

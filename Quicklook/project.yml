@@ -70,22 +70,6 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Sources/ThreeMFThumbnailExtension/ThreeMFThumbnailExtension.entitlements
         APPLICATION_EXTENSION_API_ONLY: "YES"
 
-  ThreeMFQLGenerator:
-    type: bundle
-    platform: macOS
-    sources:
-      - Sources/ThreeMFQLGenerator
-      - Sources/ThreeMFCore
-    dependencies:
-      - package: ZIPFoundation
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.ThreeMFQuickLook.generator
-        PRODUCT_NAME: ThreeMFQLGenerator
-        INFOPLIST_FILE: Sources/ThreeMFQLGenerator/Info.plist
-        WRAPPER_EXTENSION: qlgenerator
-        MACH_O_TYPE: mh_bundle
-
   ThreeMFCoreTests:
     type: bundle.unit-test
     platform: macOS
@@ -103,7 +87,6 @@ schemes:
     build:
       targets:
         ThreeMFQuickLook: all
-        ThreeMFQLGenerator: all
         ThreeMFCoreTests: [test]
     test:
       targets:

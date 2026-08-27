@@ -90,6 +90,9 @@ struct SourcePageMetadata: Equatable, Sendable {
 }
 
 public struct SourceLookupClient {
+    /// Web search and page fetches are best-effort enrichment, so they must fail fast rather than
+    /// block the inspector on an unresponsive host.
+    static let requestTimeout: TimeInterval = 20
     public init() {}
 
     public func lookup(record: PrintFileRecord, settings: AIEnrichmentSettings? = nil) async throws -> SourceLookupResult {
@@ -154,7 +157,7 @@ public struct SourceLookupClient {
         components?.queryItems = [URLQueryItem(name: "q", value: query)]
         guard let url = components?.url else { throw SourceLookupError.invalidSearchResponse }
 
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, timeoutInterval: Self.requestTimeout)
         request.setValue("Mozilla/5.0 PrintFileManager/1.0", forHTTPHeaderField: "User-Agent")
 
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -166,7 +169,7 @@ public struct SourceLookupClient {
     }
 
     private func fetchPageMetadata(from url: URL) async throws -> SourcePageMetadata {
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, timeoutInterval: Self.requestTimeout)
         request.setValue("Mozilla/5.0 PrintFileManager/1.0", forHTTPHeaderField: "User-Agent")
 
         let (data, response) = try await URLSession.shared.data(for: request)

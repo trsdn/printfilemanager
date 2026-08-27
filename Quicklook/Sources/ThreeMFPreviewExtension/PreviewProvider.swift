@@ -17,18 +17,18 @@ final class PreviewProvider: QLPreviewProvider, QLPreviewingController {
         }
       }
 
-      logger.info("Preview request started file=\(request.fileURL.path, privacy: .public) securityScoped=\(hasSecurityScopedAccess)")
+      logger.info("Preview request started file=\(request.fileURL.path, privacy: .private) securityScoped=\(hasSecurityScopedAccess)")
 
         switch extractor.preview(for: request.fileURL, maxPixelDimension: 1_600) {
         case .preview(let image):
-        logger.info("Preview extracted file=\(request.fileURL.lastPathComponent, privacy: .public) bytes=\(image.data.count) width=\(image.pixelSize.width) height=\(image.pixelSize.height)")
+        logger.info("Preview extracted file=\(request.fileURL.lastPathComponent, privacy: .private) bytes=\(image.data.count) width=\(image.pixelSize.width) height=\(image.pixelSize.height)")
             let contentType = UTType(image.contentTypeIdentifier) ?? .png
             return QLPreviewReply(dataOfContentType: contentType, contentSize: image.pixelSize) { _ in
                 image.data
             }
 
         case .fallback(let fallback):
-        logger.error("Preview extraction fell back file=\(request.fileURL.path, privacy: .public)")
+        logger.error("Preview extraction fell back file=\(request.fileURL.path, privacy: .private)")
             return QLPreviewReply(dataOfContentType: .html, contentSize: CGSize(width: 640, height: 420)) { reply in
                 reply.stringEncoding = .utf8
                 return Self.fallbackHTML(for: fallback)

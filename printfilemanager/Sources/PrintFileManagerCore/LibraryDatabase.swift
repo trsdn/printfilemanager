@@ -3,6 +3,10 @@ import Foundation
 public final class LibraryDatabase {
     public let fileURL: URL
 
+    /// Set once a `.bak` has been written for this session, so the backup captures the last
+    /// known-good state rather than being overwritten by every subsequent save.
+    private var hasWrittenSessionBackup = false
+
     public init(fileURL: URL) {
         self.fileURL = fileURL
     }
@@ -27,15 +31,45 @@ public final class LibraryDatabase {
         let data = try Data(contentsOf: fileURL)
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode(LibrarySnapshot.self, from: data)
+        let snapshot = try decoder.decode(LibrarySnapshot.self, from: data)
+
+        guard snapshot.schemaVersion <= LibrarySnapshot.currentSchemaVersion else {
+            throw LibrarySchemaError.unsupportedSchemaVersion(
+                found: snapshot.schemaVersion,
+                supported: LibrarySnapshot.currentSchemaVersion
+            )
+        }
+
+        return migrate(snapshot)
+    }
+
+    /// Moves an index file that could not be decoded out of the way so it is never overwritten,
+    /// and returns the location it was preserved at.
+    @discardableResult
+    public func quarantineUnreadableIndex() throws -> URL? {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            return nil
+        }
+
+        let timestamp = DateFormatter.quarantineFormatter.string(from: Date())
+        let quarantineURL = fileURL
+            .deletingPathExtension()
+            .appendingPathExtension("corrupt-\(timestamp)")
+            .appendingPathExtension("json")
+
+        try FileManager.default.moveItem(at: fileURL, to: quarantineURL)
+        return quarantineURL
     }
 
     public func save(_ snapshot: LibrarySnapshot) throws {
         let folderURL = fileURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
 
+        try writeSessionBackupIfNeeded()
+
         var updatedSnapshot = snapshot
         updatedSnapshot.updatedAt = Date()
+        updatedSnapshot.schemaVersion = LibrarySnapshot.currentSchemaVersion
 
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -43,6 +77,40 @@ public final class LibraryDatabase {
         let data = try encoder.encode(updatedSnapshot)
         try data.write(to: fileURL, options: [.atomic])
     }
+
+    /// Applies forward migrations for older on-disk formats.
+    private func migrate(_ snapshot: LibrarySnapshot) -> LibrarySnapshot {
+        var migrated = snapshot
+        migrated.schemaVersion = LibrarySnapshot.currentSchemaVersion
+        return migrated
+    }
+
+    private func writeSessionBackupIfNeeded() throws {
+        guard !hasWrittenSessionBackup, FileManager.default.fileExists(atPath: fileURL.path) else {
+            return
+        }
+
+        let backupURL = fileURL.appendingPathExtension("bak")
+        if FileManager.default.fileExists(atPath: backupURL.path) {
+            try FileManager.default.removeItem(at: backupURL)
+        }
+        try FileManager.default.copyItem(at: fileURL, to: backupURL)
+        hasWrittenSessionBackup = true
+    }
+}
+
+private extension DateFormatter {
+    /// Compact, colon-free timestamp so quarantined files stay readable in Finder.
+    static let quarantineFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyyMMdd-HHmmss"
+        return formatter
+    }()
+}
+
+extension LibraryDatabase {
 
     public func upsert(root: LibraryRoot, into snapshot: LibrarySnapshot) -> LibrarySnapshot {
         var next = snapshot

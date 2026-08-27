@@ -29,20 +29,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6968A5E9C04D1CEB0C1A15B5"
-               BuildableName = "ThreeMFQLGenerator.bundle"
-               BlueprintName = "ThreeMFQLGenerator"
-               ReferencedContainer = "container:ThreeMFQuickLook.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "342371DC68EF0FCFD1D58B5F"
                BuildableName = "ThreeMFQuickLook.app"
                BlueprintName = "ThreeMFQuickLook"
@@ -60,9 +46,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6968A5E9C04D1CEB0C1A15B5"
-            BuildableName = "ThreeMFQLGenerator.bundle"
-            BlueprintName = "ThreeMFQLGenerator"
+            BlueprintIdentifier = "342371DC68EF0FCFD1D58B5F"
+            BuildableName = "ThreeMFQuickLook.app"
+            BlueprintName = "ThreeMFQuickLook"
             ReferencedContainer = "container:ThreeMFQuickLook.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -92,15 +78,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6968A5E9C04D1CEB0C1A15B5"
-            BuildableName = "ThreeMFQLGenerator.bundle"
-            BlueprintName = "ThreeMFQLGenerator"
+            BlueprintIdentifier = "342371DC68EF0FCFD1D58B5F"
+            BuildableName = "ThreeMFQuickLook.app"
+            BlueprintName = "ThreeMFQuickLook"
             ReferencedContainer = "container:ThreeMFQuickLook.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -108,15 +95,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6968A5E9C04D1CEB0C1A15B5"
-            BuildableName = "ThreeMFQLGenerator.bundle"
-            BlueprintName = "ThreeMFQLGenerator"
+            BlueprintIdentifier = "342371DC68EF0FCFD1D58B5F"
+            BuildableName = "ThreeMFQuickLook.app"
+            BlueprintName = "ThreeMFQuickLook"
             ReferencedContainer = "container:ThreeMFQuickLook.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

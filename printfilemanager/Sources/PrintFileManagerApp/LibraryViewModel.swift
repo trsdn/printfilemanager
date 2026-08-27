@@ -26,18 +26,34 @@ final class LibraryViewModel: ObservableObject {
     @Published var deleteCandidate: PrintFileRecord?
     @Published private(set) var statusMessage = ""
 
+    /// Set when the library file exists but could not be decoded. While this holds a value the
+    /// in-memory snapshot does not represent the user's library, so persistence is refused to
+    /// avoid overwriting a recoverable file with empty data.
+    @Published private(set) var persistenceLockout: PersistenceLockout?
+
+    struct PersistenceLockout: Equatable {
+        let reason: String
+        let quarantinedFileURL: URL?
+    }
+
     private let database: LibraryDatabase
     private let search = LibrarySearch()
     private let folderWatcher = FolderWatcher()
+    private let isUsingVolatileFallbackStore: Bool
 
     init(database: LibraryDatabase? = nil) {
         if let database {
             self.database = database
+            isUsingVolatileFallbackStore = false
         } else if let database = try? LibraryDatabase.applicationSupport() {
             self.database = database
+            isUsingVolatileFallbackStore = false
         } else {
+            // Application Support is unavailable. The temporary directory is purgeable, so the
+            // user must be told that this index is not durable rather than losing it silently.
             let fallbackURL = FileManager.default.temporaryDirectory.appendingPathComponent("print-file-manager-index.json")
             self.database = LibraryDatabase(fileURL: fallbackURL)
+            isUsingVolatileFallbackStore = true
         }
     }
 
@@ -203,14 +219,36 @@ final class LibraryViewModel: ObservableObject {
         do {
             let loadedSnapshot = try database.load()
             snapshot = promoteAcceptedGeneratedTags(in: pruneGeneratedTagState(in: loadedSnapshot))
+            persistenceLockout = nil
             if snapshot != loadedSnapshot {
                 try? database.save(snapshot)
             }
             statusMessage = snapshot.records.isEmpty ? "No files indexed" : "\(snapshot.records.count) files indexed"
+            if isUsingVolatileFallbackStore {
+                statusMessage += " — warning: Application Support is unavailable, this index is stored in a temporary location and may be purged."
+            }
             startWatchingFolders()
         } catch {
-            statusMessage = "Library index could not be loaded"
+            // The library file exists but is unusable. Preserve it and refuse to write until the
+            // user has decided what to do, otherwise the next edit would destroy it.
+            let quarantinedURL = try? database.quarantineUnreadableIndex()
+            persistenceLockout = PersistenceLockout(
+                reason: error.localizedDescription,
+                quarantinedFileURL: quarantinedURL
+            )
+            statusMessage = quarantinedURL == nil
+                ? "Library index could not be loaded — changes will not be saved."
+                : "Library index could not be loaded. A copy was preserved; changes will not be saved until you resolve it."
         }
+    }
+
+    /// Discards the unreadable library and starts over, releasing the write lock.
+    func startFreshLibraryAfterLoadFailure() {
+        guard persistenceLockout != nil else { return }
+        snapshot = LibrarySnapshot()
+        persistenceLockout = nil
+        statusMessage = "Started a new library index"
+        saveSnapshot()
     }
 
     func addFolderFromPanel() {
@@ -320,8 +358,9 @@ final class LibraryViewModel: ObservableObject {
 
         Task {
             do {
+                let knownRecords = snapshot.records.filter { $0.rootID == root.id }
                 let result = try await Task.detached(priority: .userInitiated) {
-                    try LibraryIndexer().scan(root: root)
+                    try LibraryIndexer().scan(root: root, previousRecords: knownRecords)
                 }.value
 
                 snapshot = database.merge(scanResult: result, into: snapshot)
@@ -381,10 +420,10 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    func enrich(record: PrintFileRecord, settings: AIEnrichmentSettings) {
+    func enrich(record: PrintFileRecord, settings: AIEnrichmentSettings, allowSourceLookup: Bool) {
         isEnriching = true
-        isLookingUpSource = true
-        statusMessage = "AI enrichment and source lookup running"
+        isLookingUpSource = allowSourceLookup
+        statusMessage = allowSourceLookup ? "AI enrichment and source lookup running" : "AI enrichment running"
 
         Task {
             do {
@@ -393,7 +432,11 @@ final class LibraryViewModel: ObservableObject {
                 if let sourceInfo = result.sourceInfo {
                     lookupRecord.sourceInfo = mergeSourceInfo(existing: lookupRecord.sourceInfo, incoming: sourceInfo)
                 }
-                let sourceResult = try? await SourceLookupClient().lookup(record: lookupRecord, settings: settings)
+                // Web lookup is a separate provider and a separate consent decision, so it only
+                // runs when the user has explicitly enabled it.
+                let sourceResult = allowSourceLookup
+                    ? try? await SourceLookupClient().lookup(record: lookupRecord, settings: settings)
+                    : nil
 
                 update(record) { mutableRecord in
                     applyAIEnrichmentResult(result, to: &mutableRecord)
@@ -411,7 +454,12 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    func lookupSource(record: PrintFileRecord, settings: AIEnrichmentSettings?) {
+    func lookupSource(record: PrintFileRecord, settings: AIEnrichmentSettings?, isEnabled: Bool) {
+        guard isEnabled else {
+            statusMessage = "Web source lookup is disabled. Enable it in Settings to search for the original model page."
+            return
+        }
+
         isLookingUpSource = true
         statusMessage = "Source lookup running"
 
@@ -931,10 +979,15 @@ final class LibraryViewModel: ObservableObject {
     }
 
     private func saveSnapshot() {
+        if let lockout = persistenceLockout {
+            statusMessage = "Changes are not being saved: \(lockout.reason)"
+            return
+        }
+
         do {
             try database.save(snapshot)
         } catch {
-            statusMessage = "Library index could not be saved"
+            statusMessage = "Library index could not be saved: \(error.localizedDescription)"
         }
     }
 

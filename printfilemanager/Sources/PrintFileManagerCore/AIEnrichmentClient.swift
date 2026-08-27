@@ -83,11 +83,14 @@ public enum AIEnrichmentError: Error, Equatable, LocalizedError {
 }
 
 public struct AIEnrichmentClient {
+    /// Bounded so a hung or slow provider cannot stall enrichment for the URLSession default of
+    /// 60 seconds per request, which is painful when a batch action iterates over many files.
+    static let requestTimeout: TimeInterval = 30
     public init() {}
 
     public func models(endpointURL: URL, apiKey: String) async throws -> [AIModelInfo] {
         let modelsURL = Self.modelsURL(for: endpointURL)
-        var request = URLRequest(url: modelsURL)
+        var request = URLRequest(url: modelsURL, timeoutInterval: Self.requestTimeout)
         request.httpMethod = "GET"
         Self.applyAuthorization(apiKey: apiKey, to: &request)
 
@@ -125,7 +128,7 @@ public struct AIEnrichmentClient {
         settings: AIEnrichmentSettings,
         folderContext: OrganizationFolderContext = OrganizationFolderContext()
     ) async throws -> OrganizationSuggestion {
-        var request = URLRequest(url: Self.chatCompletionsURL(for: settings.endpointURL))
+        var request = URLRequest(url: Self.chatCompletionsURL(for: settings.endpointURL), timeoutInterval: Self.requestTimeout)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         Self.applyAuthorization(apiKey: settings.apiKey, to: &request)
@@ -149,7 +152,7 @@ public struct AIEnrichmentClient {
         settings: AIEnrichmentSettings
     ) async throws -> (candidate: SourceLookupCandidate, confidence: Double)? {
         guard !candidates.isEmpty else { return nil }
-        var request = URLRequest(url: Self.chatCompletionsURL(for: settings.endpointURL))
+        var request = URLRequest(url: Self.chatCompletionsURL(for: settings.endpointURL), timeoutInterval: Self.requestTimeout)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         Self.applyAuthorization(apiKey: settings.apiKey, to: &request)
@@ -168,7 +171,7 @@ public struct AIEnrichmentClient {
     }
 
     private func enrich(record: PrintFileRecord, settings: AIEnrichmentSettings, includeThumbnail: Bool) async throws -> AIEnrichmentResult {
-        var request = URLRequest(url: Self.chatCompletionsURL(for: settings.endpointURL))
+        var request = URLRequest(url: Self.chatCompletionsURL(for: settings.endpointURL), timeoutInterval: Self.requestTimeout)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         Self.applyAuthorization(apiKey: settings.apiKey, to: &request)

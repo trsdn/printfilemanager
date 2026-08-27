@@ -18,7 +18,12 @@ public struct LibraryScanResult: Equatable, Sendable {
 public struct LibraryIndexer {
     public init() {}
 
-    public func scan(root: LibraryRoot) throws -> LibraryScanResult {
+    /// Scans a root for `.3mf` files.
+    ///
+    /// - Parameter previousRecords: records from an earlier scan of the same root. Files whose
+    ///   size and modification date are unchanged are carried over verbatim instead of being
+    ///   re-hashed and re-parsed, which is what makes repeated scans cheap on a large library.
+    public func scan(root: LibraryRoot, previousRecords: [PrintFileRecord] = []) throws -> LibraryScanResult {
         let rootURL = root.url.standardizedFileURL
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: rootURL.path, isDirectory: &isDirectory), isDirectory.boolValue else {
@@ -38,24 +43,45 @@ public struct LibraryIndexer {
         let metadataExtractor = ThreeMFMetadataExtractor()
         var records: [PrintFileRecord] = []
 
+        var reusableRecords: [String: PrintFileRecord] = [:]
+        for record in previousRecords where record.indexingStatus == .indexed && record.contentHash != nil {
+            reusableRecords[record.url.standardizedFileURL.path] = record
+        }
+
         for case let fileURL as URL in enumerator {
             guard fileURL.pathExtension.lowercased() == "3mf" else { continue }
             let standardizedURL = fileURL.standardizedFileURL
             let values = try standardizedURL.resourceValues(forKeys: Set(resourceKeys))
             guard values.isRegularFile == true else { continue }
 
+            let fileSize = Int64(values.fileSize ?? 0)
+            let modifiedAt = values.contentModificationDate
+
+            if let previous = reusableRecords[standardizedURL.path],
+               previous.fileSize == fileSize,
+               Self.isSameModificationDate(previous.modifiedAt, modifiedAt) {
+                records.append(previous)
+                continue
+            }
+
             records.append(indexFile(
                 fileURL: standardizedURL,
                 root: root,
                 rootURL: rootURL,
-                fileSize: Int64(values.fileSize ?? 0),
-                modifiedAt: values.contentModificationDate,
+                fileSize: fileSize,
+                modifiedAt: modifiedAt,
                 extractor: extractor,
                 metadataExtractor: metadataExtractor
             ))
         }
 
         return LibraryScanResult(root: root, rootIsAvailable: true, records: records)
+    }
+
+    /// File systems store modification dates at differing resolutions, so compare at whole seconds.
+    private static func isSameModificationDate(_ lhs: Date?, _ rhs: Date?) -> Bool {
+        guard let lhs, let rhs else { return lhs == nil && rhs == nil }
+        return abs(lhs.timeIntervalSince(rhs)) < 1
     }
 
     private func indexFile(

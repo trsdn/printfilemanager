@@ -37,11 +37,17 @@ public struct ThreeMFMesh: Equatable, Sendable {
 }
 
 public struct PlatePreviewExtractor {
+    /// Preview images are small by nature, so they get a much tighter budget than the general
+    /// package reader allows for model geometry.
+    public static let maximumPreviewImageSize: UInt64 = 64 * 1024 * 1024
+
     private let reader: any ThreeMFPackageReading
     private let normalizer: any ImageNormalizing
 
     public init(
-        reader: any ThreeMFPackageReading = ZIPFoundationThreeMFPackageReader(),
+        reader: any ThreeMFPackageReading = ZIPFoundationThreeMFPackageReader(
+            maximumEntrySize: PlatePreviewExtractor.maximumPreviewImageSize
+        ),
         normalizer: any ImageNormalizing = CGImagePreviewImageNormalizer()
     ) {
         self.reader = reader
@@ -165,15 +171,29 @@ private final class ThreeMFMeshXMLParser: NSObject, XMLParserDelegate {
             }
             vertices.append(SIMD3<Float>(x, y, z))
         case "triangle":
-            guard let v1 = Int32(attributeDict["v1"] ?? ""),
-                  let v2 = Int32(attributeDict["v2"] ?? ""),
-                  let v3 = Int32(attributeDict["v3"] ?? "") else {
+            // Indices come from an untrusted package. Parse them as `Int` and range-check the
+            // result: `Int32` arithmetic would trap on overflow, and a trap cannot be caught by
+            // the per-file error handling, so one crafted file would take down the whole app.
+            guard let v1 = Int(attributeDict["v1"] ?? ""),
+                  let v2 = Int(attributeDict["v2"] ?? ""),
+                  let v3 = Int(attributeDict["v3"] ?? ""),
+                  let a = resolvedIndex(v1),
+                  let b = resolvedIndex(v2),
+                  let c = resolvedIndex(v3) else {
                 return
             }
-            let base = Int32(currentMeshVertexBase)
-            triangles.append(ThreeMFTriangle(a: base + v1, b: base + v2, c: base + v3))
+            triangles.append(ThreeMFTriangle(a: a, b: b, c: c))
         default:
             return
         }
+    }
+
+    /// Maps a mesh-local vertex index to a global one, rejecting anything that does not refer to a
+    /// vertex that has actually been parsed.
+    private func resolvedIndex(_ localIndex: Int) -> Int32? {
+        guard localIndex >= 0 else { return nil }
+        let globalIndex = currentMeshVertexBase + localIndex
+        guard globalIndex < vertices.count, globalIndex <= Int(Int32.max) else { return nil }
+        return Int32(globalIndex)
     }
 }

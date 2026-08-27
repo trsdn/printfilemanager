@@ -312,6 +312,14 @@ public enum ReviewReason: String, Codable, CaseIterable, Identifiable, Sendable 
 }
 
 public struct LibrarySnapshot: Codable, Equatable, Sendable {
+    /// Schema revision of the persisted library file.
+    ///
+    /// Bump this whenever the on-disk shape changes in a way that older or newer builds cannot
+    /// read, and extend `migrate(from:)` accordingly. Files written before versioning existed
+    /// decode as version 1 because the property is optional in `init(from:)`.
+    public static let currentSchemaVersion = 1
+
+    public var schemaVersion: Int
     public var roots: [LibraryRoot]
     public var records: [PrintFileRecord]
     public var managedFolderURL: URL?
@@ -321,12 +329,34 @@ public struct LibrarySnapshot: Codable, Equatable, Sendable {
         roots: [LibraryRoot] = [],
         records: [PrintFileRecord] = [],
         managedFolderURL: URL? = nil,
-        updatedAt: Date? = nil
+        updatedAt: Date? = nil,
+        schemaVersion: Int = LibrarySnapshot.currentSchemaVersion
     ) {
         self.roots = roots
         self.records = records
         self.managedFolderURL = managedFolderURL
         self.updatedAt = updatedAt
+        self.schemaVersion = schemaVersion
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        roots = try container.decodeIfPresent([LibraryRoot].self, forKey: .roots) ?? []
+        records = try container.decodeIfPresent([PrintFileRecord].self, forKey: .records) ?? []
+        managedFolderURL = try container.decodeIfPresent(URL.self, forKey: .managedFolderURL)
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+    }
+}
+
+public enum LibrarySchemaError: Error, Equatable, LocalizedError {
+    case unsupportedSchemaVersion(found: Int, supported: Int)
+
+    public var errorDescription: String? {
+        switch self {
+        case let .unsupportedSchemaVersion(found, supported):
+            return "The library index was written by a newer version of the app (format \(found), this build supports \(supported))."
+        }
     }
 }
 

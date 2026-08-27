@@ -1078,12 +1078,18 @@ private struct FileInspectorView: View {
         DetailSection(title: "Source and License", accessory: {
             HStack(spacing: 8) {
                 Button {
-                    viewModel.lookupSource(record: record, settings: aiSettings.enrichmentSettings())
+                    viewModel.lookupSource(
+                        record: record,
+                        settings: aiSettings.enrichmentSettings(),
+                        isEnabled: aiSettings.sourceLookupEnabled
+                    )
                 } label: {
                     Label("Find", systemImage: "magnifyingglass")
                 }
-                .disabled(viewModel.isLookingUpSource)
-                .help("Find source page")
+                .disabled(viewModel.isLookingUpSource || !aiSettings.sourceLookupEnabled)
+                .help(aiSettings.sourceLookupEnabled
+                      ? "Search the web for this model's original page. The project or file name is sent to a search engine."
+                      : "Enable web source lookup in Settings to use this.")
 
                 if viewModel.isLookingUpSource {
                     ProgressView()
@@ -1514,11 +1520,16 @@ private struct AIEnrichmentSection: View {
                 }
 
                 if aiSettings.isConfigured {
-                    Label("Configured in Settings", systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Label("AI enrichment enabled in Settings", systemImage: "checkmark.circle.fill")
+                        Text(aiSettings.includeThumbnail
+                             ? "Sends the file name, its folder path, extracted metadata and the preview image to your configured provider."
+                             : "Sends the file name, its folder path and extracted metadata to your configured provider.")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 } else {
-                    Label("Configure AI in Application Settings", systemImage: "gearshape")
+                    Label("Enable AI enrichment in Application Settings", systemImage: "gearshape")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -1543,7 +1554,11 @@ private struct AIEnrichmentSection: View {
 
     private func enrich() {
         guard let settings = aiSettings.enrichmentSettings() else { return }
-        viewModel.enrich(record: record, settings: settings)
+        viewModel.enrich(
+            record: record,
+            settings: settings,
+            allowSourceLookup: aiSettings.sourceLookupEnabled
+        )
     }
 }
 

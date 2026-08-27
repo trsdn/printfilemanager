@@ -25,6 +25,23 @@ final class AISettingsStore: ObservableObject {
         didSet { defaults.set(includeThumbnail, forKey: Keys.includeThumbnail) }
     }
 
+    /// Master switch for sending anything to the configured AI provider.
+    ///
+    /// Defaults to `false`: the endpoint and model fields are pre-filled for convenience, so
+    /// without an explicit opt-in the app would otherwise appear "configured" and transmit file
+    /// names, paths, metadata and preview thumbnails on first use.
+    @Published var enrichmentEnabled: Bool {
+        didSet { defaults.set(enrichmentEnabled, forKey: Keys.enrichmentEnabled) }
+    }
+
+    /// Master switch for the web search used to find a model's original source page.
+    ///
+    /// Kept separate from `enrichmentEnabled` because it sends project and file names to a search
+    /// engine and to arbitrary result pages — a different provider and a different decision.
+    @Published var sourceLookupEnabled: Bool {
+        didSet { defaults.set(sourceLookupEnabled, forKey: Keys.sourceLookupEnabled) }
+    }
+
     @Published var apiKey: String {
         didSet { persistAPIKey(apiKey) }
     }
@@ -37,6 +54,8 @@ final class AISettingsStore: ObservableObject {
         endpointURL = defaults.string(forKey: Keys.endpointURL) ?? "https://api.openai.com/v1/chat/completions"
         model = defaults.string(forKey: Keys.model) ?? "gpt-4o-mini"
         includeThumbnail = defaults.object(forKey: Keys.includeThumbnail) as? Bool ?? true
+        enrichmentEnabled = defaults.bool(forKey: Keys.enrichmentEnabled)
+        sourceLookupEnabled = defaults.bool(forKey: Keys.sourceLookupEnabled)
         enabledModelNames = Set(defaults.stringArray(forKey: Keys.enabledModelNames) ?? [])
         apiKey = defaults.bool(forKey: Keys.apiKeyStored) ? (try? keychain.load()) ?? "" : ""
     }
@@ -46,7 +65,13 @@ final class AISettingsStore: ObservableObject {
     }
 
     func enrichmentSettings() -> AIEnrichmentSettings? {
+        guard enrichmentEnabled else {
+            return nil
+        }
+
         guard let url = URL(string: endpointURL),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "https" || url.isLocalhost,
               !selectedModelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return nil
         }
@@ -77,8 +102,15 @@ final class AISettingsStore: ObservableObject {
     }
 
     func loadModels() {
-        guard let url = URL(string: endpointURL) else {
-            modelLoadStatus = "Endpoint is required"
+        guard enrichmentEnabled else {
+            modelLoadStatus = "Enable AI enrichment first"
+            return
+        }
+
+        guard let url = URL(string: endpointURL),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "https" || url.isLocalhost else {
+            modelLoadStatus = "An https endpoint is required (http is allowed for localhost)"
             return
         }
 
@@ -129,6 +161,8 @@ final class AISettingsStore: ObservableObject {
         static let includeThumbnail = "ai.includeThumbnail"
         static let enabledModelNames = "ai.enabledModelNames"
         static let apiKeyStored = "ai.apiKeyStored"
+        static let enrichmentEnabled = "ai.enrichmentEnabled"
+        static let sourceLookupEnabled = "ai.sourceLookupEnabled"
     }
 
     private func persistAPIKey(_ value: String) {
@@ -199,5 +233,14 @@ private struct APIKeyKeychain {
 
     private enum KeychainError: Error {
         case unexpectedStatus(OSStatus)
+    }
+}
+
+private extension URL {
+    /// Local model servers are commonly plain http, which is fine because the traffic never
+    /// leaves the machine. Everything else must be https.
+    var isLocalhost: Bool {
+        guard let host = host?.lowercased() else { return false }
+        return host == "localhost" || host == "127.0.0.1" || host == "::1" || host.hasSuffix(".local")
     }
 }
