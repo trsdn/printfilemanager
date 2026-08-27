@@ -228,7 +228,13 @@ public struct AIEnrichmentClient {
 
     private static func prompt(for record: PrintFileRecord) -> String {
         """
-        Analyze this 3MF print file catalog record. Return compact JSON only with keys: description (string), tags (array of 5-12 lowercase short tags), category (string), variantName (string or null), printability (one of readyToPrint, needsSlicing, needsReview, multiMaterial, printerSpecific, archived), sourcePlatform (string or null), sourceAuthor (string or null), sourceLicense (string or null), sourceURL (string or null), materialHints (array), workflowNotes (string or null). Do not invent source, license, author, URL, printer, material, or print settings; use null when not evidenced.
+        Analyze this 3MF print file catalog record. Return compact JSON only with keys: \
+        description (string), tags (array of 5-12 lowercase short tags), category (string), \
+        variantName (string or null), printability (one of readyToPrint, needsSlicing, \
+        needsReview, multiMaterial, printerSpecific, archived), sourcePlatform (string or null), \
+        sourceAuthor (string or null), sourceLicense (string or null), sourceURL (string or null), \
+        materialHints (array), workflowNotes (string or null). Do not invent source, license, \
+        author, URL, printer, material, or print settings; use null when not evidenced.
 
         File: \(record.fileName)
         Project: \(record.projectName ?? "unknown")

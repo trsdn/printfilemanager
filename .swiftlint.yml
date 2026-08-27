@@ -1,0 +1,81 @@
+# SwiftLint configuration.
+#
+# Thresholds are set so the current codebase passes without errors, while still flagging the
+# oversized files that the 2026-08-28 assessment identified for decomposition. Tighten the
+# `warning` values as those files are broken up.
+
+included:
+  - printfilemanager/Sources
+  - printfilemanager/Tests
+  - Quicklook/Sources
+  - Quicklook/Tests
+
+excluded:
+  - "**/.build"
+  - "**/build"
+  - "**/DerivedData"
+
+disabled_rules:
+  # SwiftUI view bodies are legitimately deeply nested.
+  - multiple_closures_with_trailing_closure
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - first_where
+  - last_where
+  - redundant_nil_coalescing
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - yoda_condition
+
+line_length:
+  warning: 160
+  error: 260
+  ignores_comments: true
+  ignores_urls: true
+
+file_length:
+  warning: 500
+  error: 2000
+  ignore_comment_only_lines: true
+
+type_body_length:
+  warning: 400
+  error: 1200
+
+function_body_length:
+  warning: 80
+  error: 250
+
+function_parameter_count:
+  warning: 8
+  error: 12
+
+cyclomatic_complexity:
+  warning: 15
+  error: 30
+
+nesting:
+  type_level: 2
+
+identifier_name:
+  min_length: 1
+  excluded:
+    - id
+    - a
+    - b
+    - c
+    - x
+    - y
+    - z
+
+type_name:
+  min_length: 3
+  max_length: 60
+
+large_tuple:
+  warning: 3
+  error: 4
+
+reporter: xcode

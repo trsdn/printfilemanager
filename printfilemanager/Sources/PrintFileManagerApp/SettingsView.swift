@@ -74,7 +74,15 @@ struct SettingsView: View {
                 Label("AI Enrichment", systemImage: "sparkles")
                     .font(.headline)
             } footer: {
-                Text("Disabled by default. Nothing is sent anywhere until you enable it. When enabled, enriching a file sends its name, folder path, extracted metadata and — if the toggle above is on — its preview image to the endpoint you configure. Base URLs like /v1 are expanded to /v1/models and /v1/chat/completions. The endpoint must use https, except for local servers. Leave the API key empty for local endpoints that do not require authentication; non-empty keys are stored in Keychain.")
+                Text("""
+                    Disabled by default. Nothing is sent anywhere until you enable it. \
+                    When enabled, enriching a file sends its name, folder path, extracted metadata \
+                    and — if the toggle above is on — its preview image to the endpoint you configure. \
+                    Base URLs like /v1 are expanded to /v1/models and /v1/chat/completions. \
+                    The endpoint must use https, except for local servers. \
+                    Leave the API key empty for local endpoints that do not require authentication; \
+                    non-empty keys are stored in Keychain.
+                    """)
                     .foregroundStyle(.secondary)
             }
 
@@ -84,7 +92,12 @@ struct SettingsView: View {
                 Label("Source Lookup", systemImage: "magnifyingglass")
                     .font(.headline)
             } footer: {
-                Text("Disabled by default and independent of AI enrichment. When enabled, the Find button sends this model's project or file name to a web search engine and fetches the matching page from MakerWorld, Printables, Thingiverse or Cults to read its title, description and last update.")
+                Text("""
+                    Disabled by default and independent of AI enrichment. When enabled, the Find \
+                    button sends this model's project or file name to a web search engine and \
+                    fetches the matching page from MakerWorld, Printables, Thingiverse or Cults to \
+                    read its title, description and last update.
+                    """)
                     .foregroundStyle(.secondary)
             }
         }

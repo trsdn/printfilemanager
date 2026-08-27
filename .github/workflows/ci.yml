@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Print File Manager
+            directory: printfilemanager
+            project: PrintFileManager.xcodeproj
+            scheme: PrintFileManager
+          - name: 3MF Quick Look
+            directory: Quicklook
+            project: ThreeMFQuickLook.xcodeproj
+            scheme: ThreeMFQuickLook
+
+    steps:
+      # Both projects are checked out together on purpose: PrintFileManagerCore compiles
+      # ../Quicklook/Sources/ThreeMFCore by relative path.
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          # `isolated deinit` requires Swift 6.1 or newer.
+          xcode-version: latest-stable
+
+      - name: Install tools
+        run: brew install xcodegen xcbeautify
+
+      - name: Lint
+        # SwiftLint is configured so today's codebase produces no errors; the remaining warnings
+        # track the oversized files that are queued for decomposition.
+        run: |
+          brew install swiftlint
+          swiftlint lint --reporter github-actions-logging
+
+      # project.yml is the source of truth. Regenerating here proves it is valid and that the
+      # build works from it, without diffing against the committed project (which would be
+      # flaky whenever the runner's XcodeGen version differs from the developer's).
+      - name: Generate project
+        working-directory: ${{ matrix.directory }}
+        run: xcodegen generate
+
+      - name: Test
+        working-directory: ${{ matrix.directory }}
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project "${{ matrix.project }}" \
+            -scheme "${{ matrix.scheme }}" \
+            -destination 'platform=macOS' \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+          | xcbeautify
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.scheme }}
+          path: ${{ matrix.directory }}/TestResults.xcresult
