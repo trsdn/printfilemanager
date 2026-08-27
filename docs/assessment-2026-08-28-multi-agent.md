@@ -2,6 +2,10 @@
 
 Date: 2026-08-28
 
+> **Remediation status (2026-08-28).** All P0 findings, most P1s, and a number of P2s have since
+> been fixed — see [Remediation Log](#remediation-log) at the end of this document for exactly what
+> changed and what remains open. The findings below are preserved as written at assessment time.
+
 ## Scope and Method
 
 Read-only assessment of the whole repository (both Xcode projects, ~7,674 lines of Swift) by five
@@ -413,3 +417,84 @@ the deterministic planner suffices for MVP and the LLM path adds cost, latency a
 Slicer replacement; mesh editing or repair; printer control or print submission; marketplace browsing
 as a primary workflow; automatic deletion of duplicates; accounts, cloud sync, or multi-user
 collaboration; generic AI chat as the primary interface.
+
+---
+
+## Remediation Log
+
+Work completed on 2026-08-28, immediately following the assessment. Verified state afterwards:
+
+| Project | Builds | Tests | Compiler warnings |
+|---|---|---|---|
+| `PrintFileManager` | yes | **37 / 37 pass** (was 29) | 0 |
+| `ThreeMFQuickLook` | yes | **8 pass, 1 correctly skipped** (was 4 pass, 1 failing) | **0** (was 8) |
+
+SwiftLint: 0 errors, 24 warnings — all of them the oversized-file and long-line findings that this
+document flags for decomposition.
+
+### Fixed
+
+| Finding | What changed |
+|---|---|
+| **P0-1** Load failure overwrote the library | An unreadable index is now moved to `library-index.corrupt-<timestamp>.json` and a `persistenceLockout` blocks all writes until the user resolves it. `startFreshLibraryAfterLoadFailure()` is the explicit escape hatch. One `.bak` is written per session, capturing the last known-good state. |
+| **P0-1** No schema versioning | `LibrarySnapshot.schemaVersion` added with a custom `init(from:)` that tolerates missing keys, so pre-versioning files still load. Files from a newer schema are rejected with `LibrarySchemaError` rather than silently mis-parsed. A `migrate(_:)` hook is in place for future changes. |
+| **P0-2** 109 MB rewritten per keystroke | Saves are coalesced with a 600 ms window and flushed on app termination. Trash and move operations flush immediately so the index can never outlive the file system state. |
+| **P0-3** AI enabled by default | `enrichmentEnabled` added, defaulting to `false`. `enrichmentSettings()` and `loadModels()` both return early unless it is on, so no request can be constructed without an explicit opt-in. Endpoints must now be `https`, except for localhost and `.local` hosts. |
+| **P0-4** Ungated web source lookup | `sourceLookupEnabled` added as a separate setting, also defaulting to `false`. `enrich()` no longer bundles a lookup; it takes an explicit `allowSourceLookup` argument. The Find button is disabled when off, and Settings states exactly what each toggle transmits. |
+| **P1-1** Wrong Quick Look preview | `BambuPreviewResolver` restructured from accumulated deltas into explicit named tiers. `plate_*` is now the preferred hero image, `top_*` ranks below it, unrelated images such as textures are demoted, and `pick_*` object-picking masks are excluded outright. Four new tests pin the behaviour, replacing the assertion that had cemented the inverted order. |
+| **P1-4** Unbounded decompression | `ZIPFoundationThreeMFPackageReader` enforces a configurable `maximumEntrySize` (256 MB default, 64 MB for preview images). Both the declared size and the streamed byte count are checked, because archive metadata can lie. |
+| **P1-5** Search recomputed per render | `filteredRecords` is cached behind a snapshot revision plus the query. Sidebar counts are computed in a single pass per snapshot revision instead of a full library scan per badge per render. |
+| **P1-6** No CI, lint, README or license | Added a root `README.md`, an MIT `LICENSE`, a GitHub Actions workflow running SwiftLint and `xcodebuild test` for both projects, and a tuned `.swiftlint.yml`. CI regenerates from `project.yml` rather than diffing the committed project, which would be flaky across XcodeGen versions. |
+| **P2-1** `Int32` overflow trap | Triangle indices are parsed as `Int` and range-checked against the vertex count before narrowing. Malformed triangles are dropped instead of trapping uncatchably. |
+| **P2-3** No request timeouts | Explicit `timeoutInterval` on every request: 30 s for AI enrichment, 20 s for source lookup. |
+| **P2-6** Failing test, broken skip guard | The fixture resolver now verifies the *target* file exists, not just the pointer file, so a deleted fixture skips rather than fails. |
+| **P2-7** Deprecated QL generator | `ThreeMFQLGenerator` target and sources deleted. This removed all 8 build warnings and a third redundant compile of `ThreeMFCore`. |
+| **P2-9** `FolderWatcher` stream leak | Added an `isolated deinit` calling `stopAll()` — the Swift 6 mechanism for touching actor-isolated state during deallocation. |
+| **P2-10** Full re-hash every scan | `scan(root:previousRecords:)` carries over records whose size and modification date are unchanged, skipping both the SHA-256 pass and the ZIP parse. |
+| **P2-12** Paths logged publicly | All Quick Look logging switched from `privacy: .public` to `.private`. |
+| **P2-13** Silent temp-directory fallback | The volatile fallback store is now reported in the status line instead of degrading silently. |
+| **P2-14** Generic error messages | Save and load failures now include the underlying error description. |
+
+### Tests added
+
+Eight new core tests, covering precisely the paths that previously had none:
+
+- index quarantine preserves an unreadable file and removes the original
+- exactly one backup is written per session, capturing the first generation
+- a snapshot without `schemaVersion` decodes as the current version
+- a snapshot from a newer schema is rejected with the expected error
+- an entry exceeding the configured size limit throws `entryTooLarge`
+- out-of-range, negative and overflow-inducing triangle indices are dropped
+- an unchanged file is carried over verbatim on rescan
+- a changed file is re-indexed and gets a new content hash
+
+Plus four Quick Look ranking tests (hero preference, pick-mask exclusion, texture demotion, generic
+slicer thumbnail).
+
+### Corrected finding
+
+An earlier draft reported that the `Authorization` header was hardcoded to `"******"` and the API
+key was never transmitted. **This was a false positive.** The tooling used for the review redacts
+credential-shaped source lines in its output. The real line is 85 characters with MD5
+`f70b3fc32b59682f7ce8efc2eafd37b4`, matching `request.setValue("Bearer \(trimmedKey)", ...)`
+exactly. Authorization was always implemented correctly.
+
+### Still open
+
+Unchanged from the roadmap above, in priority order:
+
+1. **Externalize thumbnails** out of `PrintFileRecord` (Phase 2). Coalescing removed the per-keystroke
+   freeze, but the index is still ~109 MB because preview PNGs are base64-embedded in every record.
+   This is the remaining structural cost and should precede any SQLite migration.
+2. **SQLite/GRDB with FTS5** to replace the whole-file JSON store and the linear search.
+3. **Undo and an operation journal** for move/copy, plus a per-file batch result report (P2-2).
+4. **App-layer tests** — `LibraryViewModel` and the network clients still have none, which requires
+   introducing `AIEnriching`/`SourceLooking` protocols and injecting `URLSession` first (P1-3).
+5. **`ThreeMFKit` as a real SwiftPM package** to replace the `../Quicklook/...` relative-path share
+   (P2-11), then embedding the Quick Look extensions in the main app.
+6. **UTI declaration** should become imported rather than exported, with `public.zip-archive` as a
+   fallback conformer plus runtime sniffing (P1-2). This is the remaining blocker for Quick Look
+   working on machines where a slicer owns the `.3mf` type.
+7. **Decompose `ContentView.swift`** and split `LibraryViewModel` (P2-8).
+8. **App Sandbox with security-scoped bookmarks**, and a signing/notarization path (P2-4).
+9. **Prompt-injection delimiting** for untrusted metadata fed into LLM prompts (P2-5).
