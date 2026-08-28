@@ -744,7 +744,7 @@ final class PrintFileManagerCoreTests: XCTestCase {
                 let destination = try XCTUnwrap(plan.actions.first?.destinationURL)
                 XCTAssertEqual(destination.path, targetRoot.appendingPathComponent("garage/EV Charger Cable and Plug Holder 90 Degrees/EV Charger Cable and Plug Holder 90 Degrees.3mf").path)
 
-                try planner.execute(plan)
+                planner.execute(plan)
 
                 XCTAssertTrue(FileManager.default.fileExists(atPath: destination.path))
                 XCTAssertTrue(FileManager.default.fileExists(atPath: sourceURL.path))
@@ -774,7 +774,7 @@ final class PrintFileManagerCoreTests: XCTestCase {
                 XCTAssertEqual(plan.actions.first?.kind, .move)
                 let destination = try XCTUnwrap(plan.actions.first?.destinationURL)
 
-                try planner.execute(plan)
+                planner.execute(plan)
 
                 XCTAssertTrue(FileManager.default.fileExists(atPath: destination.path))
                 XCTAssertFalse(FileManager.default.fileExists(atPath: sourceURL.path))
@@ -1135,6 +1135,160 @@ final class PrintFileManagerCoreTests: XCTestCase {
         let record = try XCTUnwrap(snapshot.records.first)
         let key = try XCTUnwrap(record.thumbnailKey)
         XCTAssertEqual(store.data(forKey: key), image)
+    }
+
+    // MARK: - Organization reporting and undo
+
+    func testExecuteContinuesPastAFailureAndReportsEachOutcome() throws {
+        let sourceRoot = try makeTemporaryDirectory()
+        let targetRoot = try makeTemporaryDirectory()
+
+        let goodURL = sourceRoot.appendingPathComponent("good.3mf")
+        let blockedURL = sourceRoot.appendingPathComponent("blocked.3mf")
+        try Data("good".utf8).write(to: goodURL)
+        try Data("blocked".utf8).write(to: blockedURL)
+
+        let records = [goodURL, blockedURL].map { url in
+            PrintFileRecord(
+                rootID: UUID(),
+                url: url,
+                fileName: url.lastPathComponent,
+                relativePath: url.lastPathComponent,
+                fileSize: 4,
+                modifiedAt: Date(),
+                indexingStatus: .indexed
+            )
+        }
+
+        let planner = OrganizationPlanner()
+        let plan = planner.planMove(records: records, to: targetRoot)
+        XCTAssertEqual(plan.actions.count, 2)
+
+        // Occupy one destination so that action must fail while the other still succeeds.
+        let blockedAction = try XCTUnwrap(plan.actions.first { $0.sourceURL.lastPathComponent == "blocked.3mf" })
+        try FileManager.default.createDirectory(
+            at: blockedAction.destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data("occupied".utf8).write(to: blockedAction.destinationURL)
+
+        let report = planner.execute(plan)
+
+        XCTAssertEqual(report.succeededCount, 1)
+        XCTAssertEqual(report.failedCount, 1)
+        XCTAssertEqual(report.failures.first?.action.sourceURL.lastPathComponent, "blocked.3mf")
+
+        // A failure must not abort the batch: the healthy file still moved.
+        XCTAssertFalse(FileManager.default.fileExists(atPath: goodURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: blockedURL.path))
+    }
+
+    func testUndoMovesFilesBackToTheirOriginalLocation() throws {
+        let sourceRoot = try makeTemporaryDirectory()
+        let targetRoot = try makeTemporaryDirectory()
+        let sourceURL = sourceRoot.appendingPathComponent("hook.3mf")
+        try Data("fixture".utf8).write(to: sourceURL)
+
+        let record = PrintFileRecord(
+            rootID: UUID(),
+            url: sourceURL,
+            fileName: sourceURL.lastPathComponent,
+            relativePath: sourceURL.lastPathComponent,
+            fileSize: 7,
+            modifiedAt: Date(),
+            indexingStatus: .indexed
+        )
+
+        let planner = OrganizationPlanner()
+        let report = planner.execute(planner.planMove(records: [record], to: targetRoot))
+        let destination = try XCTUnwrap(report.successfulOutcomes.first?.action.destinationURL)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: destination.path))
+        XCTAssertTrue(report.isUndoable)
+
+        let undoReport = planner.undo(report)
+
+        XCTAssertEqual(undoReport.succeededCount, 1)
+        XCTAssertEqual(undoReport.failedCount, 0)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: sourceURL.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: destination.path))
+        XCTAssertEqual(try Data(contentsOf: sourceURL), Data("fixture".utf8))
+    }
+
+    func testUndoOfACopyRemovesTheCopyAndKeepsTheOriginal() throws {
+        let sourceRoot = try makeTemporaryDirectory()
+        let targetRoot = try makeTemporaryDirectory()
+        let sourceURL = sourceRoot.appendingPathComponent("hook.3mf")
+        try Data("fixture".utf8).write(to: sourceURL)
+
+        let record = PrintFileRecord(
+            rootID: UUID(),
+            url: sourceURL,
+            fileName: sourceURL.lastPathComponent,
+            relativePath: sourceURL.lastPathComponent,
+            fileSize: 7,
+            modifiedAt: Date(),
+            indexingStatus: .indexed
+        )
+
+        let planner = OrganizationPlanner()
+        let report = planner.execute(planner.planCopy(records: [record], to: targetRoot))
+        let destination = try XCTUnwrap(report.successfulOutcomes.first?.action.destinationURL)
+
+        planner.undo(report)
+
+        // Undoing a copy must never touch the user's original.
+        XCTAssertFalse(FileManager.default.fileExists(atPath: destination.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: sourceURL.path))
+    }
+
+    func testUndoSkipsActionsWhoseFilesTheUserAlreadyMovedAway() throws {
+        let sourceRoot = try makeTemporaryDirectory()
+        let targetRoot = try makeTemporaryDirectory()
+        let sourceURL = sourceRoot.appendingPathComponent("hook.3mf")
+        try Data("fixture".utf8).write(to: sourceURL)
+
+        let record = PrintFileRecord(
+            rootID: UUID(),
+            url: sourceURL,
+            fileName: sourceURL.lastPathComponent,
+            relativePath: sourceURL.lastPathComponent,
+            fileSize: 7,
+            modifiedAt: Date(),
+            indexingStatus: .indexed
+        )
+
+        let planner = OrganizationPlanner()
+        let report = planner.execute(planner.planMove(records: [record], to: targetRoot))
+        let destination = try XCTUnwrap(report.successfulOutcomes.first?.action.destinationURL)
+        try FileManager.default.removeItem(at: destination)
+
+        let undoReport = planner.undo(report)
+
+        XCTAssertEqual(undoReport.succeededCount, 0)
+        XCTAssertEqual(undoReport.failedCount, 0)
+        XCTAssertEqual(undoReport.skippedCount, 1)
+    }
+
+    func testReportSummaryDescribesTheBatch() {
+        let action = OrganizationAction(
+            recordID: UUID(),
+            sourceURL: URL(fileURLWithPath: "/tmp/a.3mf"),
+            destinationURL: URL(fileURLWithPath: "/tmp/library/a.3mf"),
+            kind: .move,
+            reason: "test"
+        )
+        let report = OrganizationExecutionReport(
+            targetRootURL: URL(fileURLWithPath: "/tmp/library"),
+            outcomes: [
+                OrganizationActionOutcome(action: action, result: .succeeded),
+                OrganizationActionOutcome(action: action, result: .skipped),
+                OrganizationActionOutcome(action: action, result: .failed("boom"))
+            ]
+        )
+
+        XCTAssertEqual(report.summary, "1 moved · 1 skipped · 1 failed")
+        XCTAssertEqual(report.kind, .move)
+        XCTAssertTrue(report.isUndoable)
     }
 
     private func makePackage(at url: URL, entries: [String: Data]) throws {

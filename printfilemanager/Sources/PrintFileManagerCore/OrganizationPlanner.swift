@@ -62,31 +62,93 @@ public struct OrganizationPlanner {
         )
     }
 
-    public func execute(_ plan: OrganizationPlan) throws {
+    /// Executes every action, recording the outcome of each one.
+    ///
+    /// A batch is deliberately not aborted on the first failure: stopping midway would leave the
+    /// library half-moved with no record of what happened. Instead every action is attempted and
+    /// the caller gets a report it can show the user and use to undo.
+    @discardableResult
+    public func execute(_ plan: OrganizationPlan) -> OrganizationExecutionReport {
+        var outcomes: [OrganizationActionOutcome] = []
+
         for action in plan.actions {
-            switch action.kind {
-            case .copy:
-                try copy(action)
-            case .move:
-                try move(action)
+            do {
+                let performed: Bool
+                switch action.kind {
+                case .copy:
+                    performed = try copy(action)
+                case .move:
+                    performed = try move(action)
+                }
+                outcomes.append(OrganizationActionOutcome(action: action, result: performed ? .succeeded : .skipped))
+            } catch {
+                outcomes.append(OrganizationActionOutcome(action: action, result: .failed(error.localizedDescription)))
             }
         }
+
+        return OrganizationExecutionReport(targetRootURL: plan.targetRootURL, outcomes: outcomes)
     }
 
-    private func copy(_ action: OrganizationAction) throws {
-        guard action.sourceURL.standardizedFileURL.path != action.destinationURL.standardizedFileURL.path else { return }
+    /// Reverts the actions that succeeded, most recent first.
+    ///
+    /// Moves are moved back; copies are removed from the destination, never from the source.
+    @discardableResult
+    public func undo(_ report: OrganizationExecutionReport) -> OrganizationExecutionReport {
+        var outcomes: [OrganizationActionOutcome] = []
+
+        for outcome in report.successfulOutcomes.reversed() {
+            let action = outcome.action
+            do {
+                switch action.kind {
+                case .move:
+                    guard FileManager.default.fileExists(atPath: action.destinationURL.path) else {
+                        outcomes.append(OrganizationActionOutcome(action: action, result: .skipped))
+                        continue
+                    }
+                    guard !FileManager.default.fileExists(atPath: action.sourceURL.path) else {
+                        throw OrganizationPlannerError.destinationAlreadyExists(action.sourceURL)
+                    }
+                    try FileManager.default.createDirectory(
+                        at: action.sourceURL.deletingLastPathComponent(),
+                        withIntermediateDirectories: true
+                    )
+                    try FileManager.default.moveItem(at: action.destinationURL, to: action.sourceURL)
+
+                case .copy:
+                    guard FileManager.default.fileExists(atPath: action.destinationURL.path) else {
+                        outcomes.append(OrganizationActionOutcome(action: action, result: .skipped))
+                        continue
+                    }
+                    try FileManager.default.removeItem(at: action.destinationURL)
+                }
+                outcomes.append(OrganizationActionOutcome(action: action, result: .succeeded))
+            } catch {
+                outcomes.append(OrganizationActionOutcome(action: action, result: .failed(error.localizedDescription)))
+            }
+        }
+
+        return OrganizationExecutionReport(targetRootURL: report.targetRootURL, outcomes: outcomes)
+    }
+
+    /// - Returns: whether the file was actually copied, as opposed to skipped.
+    @discardableResult
+    private func copy(_ action: OrganizationAction) throws -> Bool {
+        guard action.sourceURL.standardizedFileURL.path != action.destinationURL.standardizedFileURL.path else { return false }
         let destinationFolder = action.destinationURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
 
         if FileManager.default.fileExists(atPath: action.destinationURL.path) {
-            return
+            return false
         }
 
         try FileManager.default.copyItem(at: action.sourceURL, to: action.destinationURL)
+        return true
     }
 
-    private func move(_ action: OrganizationAction) throws {
-        guard action.sourceURL.standardizedFileURL.path != action.destinationURL.standardizedFileURL.path else { return }
+    /// - Returns: whether the file was actually moved, as opposed to skipped.
+    @discardableResult
+    private func move(_ action: OrganizationAction) throws -> Bool {
+        guard action.sourceURL.standardizedFileURL.path != action.destinationURL.standardizedFileURL.path else { return false }
         let destinationFolder = action.destinationURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
 
@@ -95,6 +157,7 @@ public struct OrganizationPlanner {
         }
 
         try FileManager.default.moveItem(at: action.sourceURL, to: action.destinationURL)
+        return true
     }
 
     private func uniqueDestinationURL(

@@ -71,6 +71,10 @@ struct ContentView: View {
             OrganizationPlanSheet(plan: plan)
                 .environmentObject(viewModel)
         }
+        .sheet(item: $viewModel.lastOrganizationReport) { report in
+            OrganizationReportSheet(report: report)
+                .environmentObject(viewModel)
+        }
         .alert("Move File to Trash?", isPresented: deleteAlertBinding, presenting: viewModel.deleteCandidate) { record in
             Button("Cancel", role: .cancel) {
                 viewModel.deleteCandidate = nil
@@ -867,6 +871,73 @@ private struct OrganizationPlanSheet: View {
         guard destinationPath.hasPrefix(targetPath) else { return destinationPath }
         let startIndex = destinationPath.index(destinationPath.startIndex, offsetBy: targetPath.count)
         return String(destinationPath[startIndex...]).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+    }
+}
+
+/// Shown after an organization batch finishes. It is the only place the user learns which files
+/// actually moved, which were skipped and which failed — and the only route to undo.
+private struct OrganizationReportSheet: View {
+    @EnvironmentObject private var viewModel: LibraryViewModel
+    let report: OrganizationExecutionReport
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(report.kind == .move ? "Move Complete" : "Copy Complete")
+                    .font(.title3.weight(.semibold))
+                Text(report.summary)
+                    .font(.callout)
+                    .foregroundStyle(report.failedCount > 0 ? .orange : .secondary)
+            }
+
+            if !report.failures.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("These files were not \(report.kind == .move ? "moved" : "copied")")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 10) {
+                            ForEach(report.failures) { outcome in
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(outcome.action.sourceURL.lastPathComponent)
+                                        .font(.callout)
+                                    if case .failed(let message) = outcome.result {
+                                        Text(message)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .frame(maxHeight: 200)
+                }
+            }
+
+            HStack {
+                if report.isUndoable {
+                    Button(report.kind == .move ? "Undo Move" : "Undo Copy") {
+                        viewModel.undoLastOrganization()
+                    }
+                    .disabled(viewModel.isOrganizing)
+                    .help(report.kind == .move
+                          ? "Move the files back to where they came from."
+                          : "Remove the copies from the managed library. Your originals are untouched.")
+                }
+
+                Spacer()
+
+                Button("Done") {
+                    viewModel.dismissOrganizationReport()
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 460)
     }
 }
 

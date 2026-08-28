@@ -21,6 +21,14 @@ struct PrintFileManagerApp: App {
         }
         .defaultSize(width: 1180, height: 760)
         .commands {
+            CommandGroup(replacing: .undoRedo) {
+                Button(undoTitle) {
+                    viewModel.undoLastOrganization()
+                }
+                .keyboardShortcut("z", modifiers: .command)
+                .disabled(!(viewModel.lastOrganizationReport?.isUndoable ?? false) || viewModel.isOrganizing)
+            }
+
             CommandMenu("Library") {
                 Button("Add Folder...") {
                     viewModel.addFolderFromPanel()
@@ -38,5 +46,12 @@ struct PrintFileManagerApp: App {
             SettingsView()
                 .environmentObject(aiSettings)
         }
+    }
+
+    private var undoTitle: String {
+        guard let report = viewModel.lastOrganizationReport, report.isUndoable else {
+            return "Undo"
+        }
+        return report.kind == .move ? "Undo Move Into Library" : "Undo Copy Into Library"
     }
 }

@@ -495,6 +495,73 @@ public struct OrganizationPlan: Identifiable, Codable, Equatable, Sendable {
     }
 }
 
+public enum OrganizationActionResult: Equatable, Sendable {
+    case succeeded
+    case skipped
+    case failed(String)
+}
+
+public struct OrganizationActionOutcome: Identifiable, Equatable, Sendable {
+    public var id: UUID { action.id }
+    public let action: OrganizationAction
+    public let result: OrganizationActionResult
+
+    public init(action: OrganizationAction, result: OrganizationActionResult) {
+        self.action = action
+        self.result = result
+    }
+}
+
+/// The outcome of executing an organization plan, retained so the batch can be reported and undone.
+public struct OrganizationExecutionReport: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public let targetRootURL: URL
+    public let outcomes: [OrganizationActionOutcome]
+    public let finishedAt: Date
+
+    public init(
+        id: UUID = UUID(),
+        targetRootURL: URL,
+        outcomes: [OrganizationActionOutcome],
+        finishedAt: Date = Date()
+    ) {
+        self.id = id
+        self.targetRootURL = targetRootURL.standardizedFileURL
+        self.outcomes = outcomes
+        self.finishedAt = finishedAt
+    }
+
+    public var successfulOutcomes: [OrganizationActionOutcome] {
+        outcomes.filter { $0.result == .succeeded }
+    }
+
+    public var succeededCount: Int { successfulOutcomes.count }
+    public var skippedCount: Int { outcomes.filter { $0.result == .skipped }.count }
+
+    public var failures: [OrganizationActionOutcome] {
+        outcomes.filter {
+            if case .failed = $0.result { return true }
+            return false
+        }
+    }
+
+    public var failedCount: Int { failures.count }
+    public var isUndoable: Bool { succeededCount > 0 }
+
+    /// The verb of the batch, used for user-facing wording. Mixed batches are described as moves
+    /// because that is the destructive half.
+    public var kind: OrganizationActionKind {
+        outcomes.contains { $0.action.kind == .move } ? .move : .copy
+    }
+
+    public var summary: String {
+        var parts = ["\(succeededCount) \(kind == .move ? "moved" : "copied")"]
+        if skippedCount > 0 { parts.append("\(skippedCount) skipped") }
+        if failedCount > 0 { parts.append("\(failedCount) failed") }
+        return parts.joined(separator: " · ")
+    }
+}
+
 public enum SortOption: String, CaseIterable, Identifiable, Codable, Sendable {
     case name
     case modifiedDate

@@ -25,6 +25,10 @@ final class LibraryViewModel: ObservableObject {
     @Published private(set) var isLookingUpSource = false
     @Published private(set) var isOrganizing = false
     @Published var organizationPlan: OrganizationPlan?
+
+    /// The most recent completed batch, kept so its result can be shown and undone.
+    @Published var lastOrganizationReport: OrganizationExecutionReport?
+
     @Published var deleteCandidate: PrintFileRecord?
     @Published private(set) var statusMessage = ""
 
@@ -870,37 +874,72 @@ final class LibraryViewModel: ObservableObject {
         statusMessage = isMovePlan ? "Moving files into managed library" : "Copying files into managed library"
 
         Task {
-            do {
-                try await Task.detached(priority: .userInitiated) {
-                    try OrganizationPlanner().execute(plan)
-                }.value
+            let report = await Task.detached(priority: .userInitiated) {
+                OrganizationPlanner().execute(plan)
+            }.value
 
-                if isMovePlan {
-                    applyMovedRecords(from: plan)
-                }
-                organizationPlan = nil
-                statusMessage = isMovePlan ? "Moved \(plan.actions.count) files" : "Copied \(plan.actions.count) files"
-                if let managedFolderURL,
-                   let root = snapshot.roots.first(where: { $0.url == managedFolderURL.standardizedFileURL }) {
-                    scan(root: root)
-                }
-            } catch {
-                statusMessage = isMovePlan ? "Move failed: \(error.localizedDescription)" : "Copy failed: \(error.localizedDescription)"
-            }
-
+            // Only the moves that actually happened may update the index.
+            applyMovedRecords(from: report)
+            organizationPlan = nil
+            lastOrganizationReport = report
+            statusMessage = report.summary
+            rescanManagedFolder()
             isOrganizing = false
         }
     }
 
-    private func applyMovedRecords(from plan: OrganizationPlan) {
-        let targetRoot = snapshot.roots.first { $0.url == plan.targetRootURL.standardizedFileURL }
+    /// Reverses the most recent organization batch: moves go back, copies are deleted from the
+    /// destination. The user's originals are never removed.
+    func undoLastOrganization() {
+        guard let report = lastOrganizationReport, report.isUndoable else { return }
 
-        for action in plan.actions where action.kind == .move {
+        isOrganizing = true
+        statusMessage = "Undoing \(report.kind == .move ? "move" : "copy")"
+
+        Task {
+            let undoReport = await Task.detached(priority: .userInitiated) {
+                OrganizationPlanner().undo(report)
+            }.value
+
+            // Undoing a move puts each file back at its original path.
+            for outcome in undoReport.outcomes where outcome.result == .succeeded && outcome.action.kind == .move {
+                guard let index = snapshot.records.firstIndex(where: { $0.id == outcome.action.recordID }) else { continue }
+                snapshot.records[index].url = outcome.action.sourceURL.standardizedFileURL
+                snapshot.records[index].fileName = outcome.action.sourceURL.lastPathComponent
+            }
+            flushPendingSave()
+
+            lastOrganizationReport = nil
+            statusMessage = undoReport.failedCount == 0
+                ? "Undo complete — \(undoReport.succeededCount) files restored"
+                : "Undo finished with problems — \(undoReport.summary)"
+            rescanManagedFolder()
+            isOrganizing = false
+        }
+    }
+
+    func dismissOrganizationReport() {
+        lastOrganizationReport = nil
+    }
+
+    private func rescanManagedFolder() {
+        guard let managedFolderURL,
+              let root = snapshot.roots.first(where: { $0.url == managedFolderURL.standardizedFileURL }) else {
+            return
+        }
+        scan(root: root)
+    }
+
+    private func applyMovedRecords(from report: OrganizationExecutionReport) {
+        let targetRoot = snapshot.roots.first { $0.url == report.targetRootURL.standardizedFileURL }
+
+        for outcome in report.successfulOutcomes where outcome.action.kind == .move {
+            let action = outcome.action
             guard let index = snapshot.records.firstIndex(where: { $0.id == action.recordID }) else { continue }
             snapshot.records[index].rootID = targetRoot?.id ?? snapshot.records[index].rootID
             snapshot.records[index].url = action.destinationURL.standardizedFileURL
             snapshot.records[index].fileName = action.destinationURL.lastPathComponent
-            snapshot.records[index].relativePath = relativePath(for: action.destinationURL, rootURL: plan.targetRootURL)
+            snapshot.records[index].relativePath = relativePath(for: action.destinationURL, rootURL: report.targetRootURL)
             snapshot.records[index].indexingStatus = .indexed
             snapshot.records[index].errorMessage = nil
         }
