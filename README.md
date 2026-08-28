@@ -67,8 +67,21 @@ and one of them will usually own it. The extensions therefore also register for 
 so they are still offered in that case, and check at runtime that the archive really contains a 3MF
 model part; any other archive is handed straight back to the system.
 
-Extensions must be code-signed to load on a machine other than the one that built them. Signing and
-notarization are not yet configured.
+Extensions will not load on a machine other than the one that built them unless they are signed,
+and macOS refuses to open an unnotarized download. Use `scripts/release.sh` for anything you intend
+to hand to someone else — it archives both apps in Release, signs them with a Developer ID under
+the Hardened Runtime, notarizes and staples them, and verifies the embedded extensions:
+
+```bash
+# Once, to store notarization credentials in the keychain:
+xcrun notarytool store-credentials "printfilemanager" \
+  --apple-id "you@example.com" --team-id "TEAMID" --password "app-specific-password"
+
+TEAM_ID=TEAMID scripts/release.sh                # signed and notarized
+TEAM_ID=TEAMID scripts/release.sh --skip-notarize  # signed only, for local checks
+```
+
+Artifacts land in `.release/`, which is gitignored.
 
 ## Privacy
 

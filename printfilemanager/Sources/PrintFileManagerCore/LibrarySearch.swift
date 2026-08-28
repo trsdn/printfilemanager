@@ -135,9 +135,34 @@ public struct LibrarySearch {
     }
 
     private func matchesText(_ record: PrintFileRecord, normalizedText: String) -> Bool {
-        guard !normalizedText.isEmpty else { return true }
+        let terms = Self.searchTerms(in: normalizedText)
+        guard !terms.isEmpty else { return true }
         let haystack = Self.searchIndexCache.haystack(for: record)
-        return normalizedText.split(separator: " ").allSatisfy { haystack.contains($0) }
+        return terms.allSatisfy { haystack.contains($0) }
+    }
+
+    /// Filler words that carry no meaning in a library query.
+    ///
+    /// Every term has to appear in a record for it to match, so a phrase people actually type —
+    /// "PLA files for Bambu P1S" — used to return nothing, because "files" and "for" are not in
+    /// any record's text. Dropping them makes natural phrasing behave the way users expect
+    /// without pretending to parse language.
+    private static let stopWords: Set<String> = [
+        "a", "an", "and", "any", "are", "as", "at", "be", "but", "by", "file", "files", "find",
+        "for", "from", "has", "have", "in", "is", "it", "me", "my", "of", "on", "or", "print",
+        "printed", "show", "that", "the", "then", "to", "with"
+    ]
+
+    /// Splits a query into the terms a record actually has to contain.
+    ///
+    /// If the query is nothing but filler, every term is kept — otherwise typing "files" would
+    /// silently show the whole library rather than telling the user nothing matched.
+    static func searchTerms(in normalizedText: String) -> [Substring] {
+        let tokens = normalizedText.split(separator: " ").filter { !$0.isEmpty }
+        guard !tokens.isEmpty else { return [] }
+
+        let meaningful = tokens.filter { !stopWords.contains(String($0)) }
+        return meaningful.isEmpty ? tokens : meaningful
     }
 
     /// Caches each record's lowercased searchable text.

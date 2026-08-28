@@ -24,3 +24,6 @@ Carthage/Build/
 
 # Misc
 *.log
+
+# Release artifacts
+.release/
