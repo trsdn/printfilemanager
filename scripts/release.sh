@@ -21,6 +21,10 @@ set -euo pipefail
 TEAM_ID="${TEAM_ID:-}"
 SIGN_IDENTITY="${SIGN_IDENTITY:-Developer ID Application}"
 NOTARY_PROFILE="${NOTARY_PROFILE:-printfilemanager}"
+# Overridable so a release can stamp the version from the tag; otherwise the value in
+# project.yml is used.
+MARKETING_VERSION="${MARKETING_VERSION:-}"
+CURRENT_PROJECT_VERSION="${CURRENT_PROJECT_VERSION:-}"
 SKIP_NOTARIZE=0
 
 for arg in "$@"; do
@@ -53,6 +57,8 @@ build_and_sign() {
     -configuration Release \
     -destination 'platform=macOS' \
     -archivePath "$BUILD_DIR/$scheme.xcarchive" \
+    ${MARKETING_VERSION:+MARKETING_VERSION="$MARKETING_VERSION"} \
+    ${CURRENT_PROJECT_VERSION:+CURRENT_PROJECT_VERSION="$CURRENT_PROJECT_VERSION"} \
     CODE_SIGN_STYLE=Manual \
     CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
     ${TEAM_ID:+DEVELOPMENT_TEAM="$TEAM_ID"} \

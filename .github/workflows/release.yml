@@ -23,7 +23,7 @@ jobs:
   release:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
 
@@ -34,16 +34,20 @@ jobs:
       - name: Install tools
         run: brew install xcodegen
 
-      - name: Verify the tag matches the marketing version
+      - name: Derive the version from the tag
+        id: version
         run: |
           set -euo pipefail
           tag="${GITHUB_REF_NAME#v}"
-          plist=printfilemanager/Sources/PrintFileManagerApp/Info.plist
-          version=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$plist")
-          if [ "$tag" != "$version" ]; then
-            echo "::error::Tag v$tag does not match CFBundleShortVersionString $version in $plist"
+          if ! [[ "$tag" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a version tag like v1.2 or v1.2.3"
             exit 1
           fi
+          echo "marketing=$tag" >> "$GITHUB_OUTPUT"
+          # A monotonic build number, so two builds of the same marketing version are
+          # distinguishable. Info.plist takes both from the build, never from a literal.
+          echo "build=$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "Building $tag ($GITHUB_RUN_NUMBER)"
 
       - name: Import signing certificate
         id: signing
@@ -70,6 +74,8 @@ jobs:
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           NOTARY_PROFILE: notary
+          MARKETING_VERSION: ${{ steps.version.outputs.marketing }}
+          CURRENT_PROJECT_VERSION: ${{ steps.version.outputs.build }}
         run: |
           set -euo pipefail
           xcrun notarytool store-credentials "$NOTARY_PROFILE" \
@@ -91,6 +97,8 @@ jobs:
             (cd "$1" && xcodegen generate --quiet)
             xcodebuild archive -project "$1/$2" -scheme "$3" -configuration Release \
               -destination 'platform=macOS' -archivePath ".release/$3.xcarchive" \
+              MARKETING_VERSION="${{ steps.version.outputs.marketing }}" \
+              CURRENT_PROJECT_VERSION="${{ steps.version.outputs.build }}" \
               CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=""
             cp -R ".release/$3.xcarchive/Products/Applications/$3.app" .release/
             ditto -c -k --keepParent ".release/$3.app" ".release/$3-unsigned.zip"
@@ -112,7 +120,7 @@ jobs:
           kill "$pid"
           echo "App launched and stayed running."
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: .release/*.zip
           generate_release_notes: true

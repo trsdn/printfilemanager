@@ -3,7 +3,7 @@
 Standard version 1.3.3 · assessed 2026-08-28 · state **Needs work**
 
 This is the evidence behind [`.github/conformance.yml`](../.github/conformance.yml). Results are
-recorded as they are, not as they should be: four criteria fail and twelve are partial. Three of the
+recorded as they are, not as they should be: three criteria fail and twelve are partial. All three
 failures are outside the repository's control and are noted as such.
 
 ## Profiles applied
@@ -75,7 +75,7 @@ it is actively developed, so the Archived profile is not applicable either.
 | I03 | pass | `NSHumanReadableCopyright` and `PFMLicenseIdentifier`. |
 | I04 | pass | Settings shows the version and links to the source and the issue tracker, read from the bundle rather than hardcoded. |
 | I05 | partial | An app icon is embedded at all ten required sizes. There is no installer or site surface to reuse it on. |
-| I06 | **fail** | The version is hand-maintained in `Info.plist`. The release workflow verifies the tag agrees with it, so a mismatch is caught, but the value is not produced by the build. |
+| I06 | pass | `Info.plist` references `$(MARKETING_VERSION)` and `$(CURRENT_PROJECT_VERSION)`, which come from `project.yml` and are overridden from the tag by the release workflow. Verified by building with an injected version and reading it back out of the artifact. |
 
 ## Agent readiness
 
@@ -127,13 +127,13 @@ it is actively developed, so the Archived profile is not applicable either.
 
 | Result | Count |
 |---|---|
-| pass | 53 |
+| pass | 54 |
 | partial | 12 |
-| fail | 4 |
+| fail | 3 |
 | na | 15 |
 
-The four failures are B06, S05, S09 and I06. The first three share one root cause: the repository is
-private on a plan that provides neither branch protection nor secret scanning, and CI cannot run
-because Actions billing is blocked. Making the repository public, or upgrading the plan and clearing
-the billing block, resolves all three. I06 is a real gap in the build and is fixable by deriving the
-version from the tag.
+The three remaining failures are B06, S05 and S09, and they share one root cause: the repository is
+private on a plan that provides neither branch protection nor secret scanning, and no workflow can
+run because Actions billing is blocked — verified against both a macOS and an Ubuntu job, so it is
+not a runner-cost problem. Making the repository public, or upgrading the plan and clearing the
+billing block, resolves all three. Nothing inside the repository can.

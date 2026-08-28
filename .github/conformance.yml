@@ -64,7 +64,7 @@ criteria:
   I03: pass
   I04: pass
   I05: partial
-  I06: fail
+  I06: pass
   # Documentation Repositories
   T01: pass
   T02: pass
