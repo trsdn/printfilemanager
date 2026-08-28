@@ -4,10 +4,14 @@ Read this before changing anything in this repository.
 
 ## What this repository is
 
-Two macOS applications and the Swift package they share. **Print File Manager** indexes a user's
-collection of `.3mf` 3D-printing files and lets them search, tag, inspect and reorganise it.
-**3MF Quick Look** provides Finder preview and thumbnail extensions for the same format.
-`ThreeMFKit` holds the 3MF package reading and preview extraction both depend on.
+**Print File Manager**, a macOS app that indexes a user's collection of `.3mf` 3D-printing files
+and lets them search, tag, inspect and reorganise it.
+
+Two things that used to live here no longer do:
+[ThreeMFKit](https://github.com/trsdn/ThreeMFKit) holds 3MF reading and preview extraction and is
+consumed here as a published package pinned to an exact version, and
+[3MF Quick Look](https://github.com/trsdn/threemf-quicklook) holds the Finder extensions. A change
+about parsing a `.3mf`, or about Finder previews, belongs in one of those repositories.
 
 The blast radius is the user's own files. The app moves, copies and trashes real `.3mf` files that
 are often irreplaceable, and it maintains a library index that carries the user's tags, notes and
@@ -27,18 +31,12 @@ client. Mesh geometry is parsed only far enough to draw a preview.
 | `printfilemanager/Sources/PrintFileManagerCore/` | Domain logic: indexing, persistence, search, organization, network clients. No UI imports. |
 | `printfilemanager/Sources/PrintFileManagerApp/` | SwiftUI layer. `LibraryViewModel` owns app state; views are grouped by area. |
 | `printfilemanager/Tests/` | `PrintFileManagerCoreTests` (core) and `PrintFileManagerAppTests` (view model). |
-| `Quicklook/Sources/` | The Quick Look host app and its two app extensions. |
-| `ThreeMFKit/` | Shared Swift package: ZIP reading, preview resolution, image normalisation. |
 | `docs/` | Product requirements and dated review documents. |
 | `scripts/release.sh` | Signs, notarizes and verifies distributable builds. |
 
-- **Generated, never hand-edit:** `printfilemanager/PrintFileManager.xcodeproj` and
-  `Quicklook/ThreeMFQuickLook.xcodeproj`. Both are produced by `xcodegen generate` from the
-  `project.yml` beside them. Edit `project.yml`, regenerate, and commit both.
+- **Generated, never hand-edit:** `printfilemanager/PrintFileManager.xcodeproj`, produced by
+  `xcodegen generate` from the `project.yml` beside it. Edit `project.yml`, regenerate, commit both.
 - **Machine-owned:** `.github/conformance.yml` is hand-written, but the badge it renders is not.
-
-The three top-level folders must stay siblings: each Xcode project depends on `../ThreeMFKit` as a
-local Swift package.
 
 ## Setup
 
@@ -56,15 +54,11 @@ cd printfilemanager && xcodegen generate
 open PrintFileManager.xcodeproj     # then run the PrintFileManager scheme
 ```
 
-Quick Look extensions only register once their host app is installed in `/Applications` and
-launched at least once; see the README for the full loop.
-
 ## Validate before proposing a change
 
 All three must pass:
 
 ```sh
-cd ThreeMFKit && swift test                                  # shared 3MF parsing
 cd printfilemanager && xcodegen generate && xcodebuild test \
   -scheme PrintFileManager -destination 'platform=macOS'     # core + app-layer tests
 swiftlint lint                                               # exits non-zero on errors only

@@ -4,6 +4,24 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **3MF Quick Look now ships from its own repository:**
+  [trsdn/threemf-quicklook](https://github.com/trsdn/threemf-quicklook). Wanting Finder previews for
+  `.3mf` files should not require installing a library manager. It versions and releases
+  independently; v1.0.0 is signed and notarized.
+- **3MF parsing moved to [ThreeMFKit](https://github.com/trsdn/ThreeMFKit)** as a published package,
+  pinned here by exact version. It was a directory in this repository consumed by two Xcode projects
+  that therefore had to sit next to each other on disk. SwiftPM cannot depend on a subdirectory, so
+  splitting the previewer out required splitting the package out first.
+
+### Removed
+
+- `Quicklook/` and `ThreeMFKit/`, along with the CI jobs, release steps and `--quick` flag that
+  existed only to build them. History for both is preserved in their new repositories.
+
 ## [0.2.0] — 2026-08-28
 
 ### Added

@@ -5,12 +5,12 @@
 # macOS app.
 
 instructions: |
-  Two Xcode projects and one Swift package share this repository, and both projects depend on
-  ThreeMFKit as a local package at ../ThreeMFKit, so the three folders must stay siblings.
+  This holds the Print File Manager app. 3MF parsing lives in trsdn/ThreeMFKit and the Finder
+  extensions in trsdn/threemf-quicklook; a change about either belongs in that repository, not
+  here. ThreeMFKit is pinned by exact version because this bundle is notarized.
 
-  Each .xcodeproj is generated from its project.yml by XcodeGen and is also committed. After
-  changing project.yml, run `xcodegen generate` in that folder and commit the result, or CI fails
-  on a stale project.
+  The .xcodeproj is generated from project.yml by XcodeGen and is also committed. After changing
+  project.yml, run `xcodegen generate` and commit the result, or CI fails on a stale project.
 
   Run `scripts/ci-local.sh` before pushing. It runs the same pipeline CI runs, plus two release
   checks CI cannot perform: `scripts/check-versions.sh` and `scripts/check-broker-profile.py`.
@@ -25,11 +25,8 @@ scripts:
   - name: Local CI
     command: ./scripts/ci-local.sh
 
-  - name: Local CI (skip Quick Look)
-    command: ./scripts/ci-local.sh --quick
-
-  - name: Regenerate Xcode projects
-    command: (cd printfilemanager && xcodegen generate) && (cd Quicklook && xcodegen generate)
+  - name: Regenerate the Xcode project
+    command: cd printfilemanager && xcodegen generate
 
 # There is no dev server to detect, and nothing to open in a browser: the deliverable is a macOS
 # application bundle.

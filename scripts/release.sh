@@ -7,7 +7,6 @@
 # in a gated environment, so Apple credentials never live in this repository:
 #
 #   scripts/request.sh printfilemanager vX.Y
-#   scripts/request.sh threemfquicklook vX.Y
 #
 # Use this script to check that entitlements and the bundle layout are right before tagging.
 #
@@ -98,7 +97,6 @@ notarize() {
 }
 
 build_and_sign "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager" "PrintFileManager.app"
-build_and_sign "Quicklook" "ThreeMFQuickLook.xcodeproj" "ThreeMFQuickLook" "ThreeMFQuickLook.app"
 
 if [ "$SKIP_NOTARIZE" -eq 1 ]; then
   echo "==> Skipping notarization as requested. The apps are signed but not distributable."
@@ -106,9 +104,6 @@ if [ "$SKIP_NOTARIZE" -eq 1 ]; then
 fi
 
 notarize "PrintFileManager.app"
-notarize "ThreeMFQuickLook.app"
 
 echo
 echo "Done. Artifacts are in $BUILD_DIR."
-echo "Install ThreeMFQuickLook.app into /Applications and launch it once so the Quick Look"
-echo "extensions register, then run: qlmanage -r && qlmanage -r cache"

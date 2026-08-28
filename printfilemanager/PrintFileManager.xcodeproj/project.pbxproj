@@ -95,7 +95,6 @@
 		35965FDB1698F900D1A99372 /* PrintFileManagerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		366E4CDB4BF93811FE2538CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		3A472815FF592C604E14F530 /* AISettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsStore.swift; sourceTree = "<group>"; };
-		400C82C3DDDDBF9A3EDA5E21 /* ThreeMFKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ThreeMFKit; path = ../ThreeMFKit; sourceTree = SOURCE_ROOT; };
 		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
 		48965A44ABCB9C2AA7A9EE12 /* OrganizationSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationSheets.swift; sourceTree = "<group>"; };
 		540D57033CB2BBF7937FB5E0 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -177,7 +176,6 @@
 		366BFE07B3C4BE7D41BF0AA5 = {
 			isa = PBXGroup;
 			children = (
-				C7BFCFD7FEF9E2BAA3949B0F /* Packages */,
 				F521545FE75030FAF0642C22 /* PrintFileManagerApp */,
 				E6FD9837C199171CBD5FEE6E /* PrintFileManagerAppTests */,
 				01C970F4FAD03044F9B82112 /* PrintFileManagerCore */,
@@ -227,14 +225,6 @@
 			);
 			name = PrintFileManagerCoreTests;
 			path = Tests/PrintFileManagerCoreTests;
-			sourceTree = "<group>";
-		};
-		C7BFCFD7FEF9E2BAA3949B0F /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				400C82C3DDDDBF9A3EDA5E21 /* ThreeMFKit */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		CEAF67032A7A8EAF60C146B5 /* Organization */ = {
@@ -393,8 +383,8 @@
 			mainGroup = 366BFE07B3C4BE7D41BF0AA5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				68CF9B3DD2381654880C9101 /* XCRemoteSwiftPackageReference "ThreeMFKit" */,
 				F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
-				E50B0302A2261EAC7BDAC786 /* XCLocalSwiftPackageReference "../ThreeMFKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 59B8082D024EAD1041EC4000 /* Products */;
@@ -845,14 +835,15 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		E50B0302A2261EAC7BDAC786 /* XCLocalSwiftPackageReference "../ThreeMFKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../ThreeMFKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
+		68CF9B3DD2381654880C9101 /* XCRemoteSwiftPackageReference "ThreeMFKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/trsdn/ThreeMFKit.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.1;
+			};
+		};
 		F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
@@ -866,14 +857,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		2762624B25DEFCAE4EDBF16D /* ThreeMFKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 68CF9B3DD2381654880C9101 /* XCRemoteSwiftPackageReference "ThreeMFKit" */;
 			productName = ThreeMFKit;
 		};
 		3435479745EC244D1D26A8C1 /* ThreeMFKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 68CF9B3DD2381654880C9101 /* XCRemoteSwiftPackageReference "ThreeMFKit" */;
 			productName = ThreeMFKit;
 		};
 		6D8E13AEF3D71953642F53AD /* ThreeMFKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 68CF9B3DD2381654880C9101 /* XCRemoteSwiftPackageReference "ThreeMFKit" */;
 			productName = ThreeMFKit;
 		};
 		C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */ = {

@@ -25,7 +25,7 @@ not applicable.
 | B04 | pass | `.gitignore` excludes build output, DerivedData and `.release/`; no secrets are tracked. The API key lives in the Keychain. |
 | B05 | pass | Three validation commands documented in `README.md`, `CONTRIBUTING.md` and `AGENTS.md`, all verified from a clean clone. |
 | B06 | pass | `main` requires the four CI checks, with force pushes and deletions blocked. Enabled once the repository became public. |
-| B07 | pass | macOS 15 and Xcode 26 stated; Swift 6 pinned in each `project.yml`; one dependency pinned in `ThreeMFKit/Package.swift`. |
+| B07 | pass | macOS 15 and Xcode 26 stated; Swift 6 pinned in each `project.yml`; dependencies pinned by exact version in `printfilemanager/project.yml`. |
 | B08 | pass | `CHANGELOG.md`, plus commit messages that state rationale. |
 | B09 | pass | Public, described, and carrying six topics including `trsdn-standard`. No homepage, which is intentional for an app distributed as a signed download. |
 | B10 | pass | `.github/CODEOWNERS` and the ownership section of `CONTRIBUTING.md`. |
@@ -42,18 +42,18 @@ not applicable.
 | S04 | pass | CI covers macOS, the only supported platform, and now actually runs: three green jobs on `main`. |
 | S05 | pass | Secret scanning and push protection are enabled. The history was also scanned by hand before publishing: no credential-shaped file was ever added and no diff contains a key or token pattern. |
 | S06 | pass | No configuration is compiled in. The endpoint, model and both feature switches are user settings; the API key is in the Keychain. |
-| S07 | pass | Errors carry the underlying description; the API key is never logged; Quick Look logs file paths at `.private`. |
+| S07 | pass | Errors carry the underlying description; the API key is never logged; file paths are logged at `.private`. |
 | S08 | pass | `.github/dependabot.yml` for both ecosystems, owner named in `CODEOWNERS`, triage process in `SECURITY.md`. |
-| S09 | pass | `main` requires "Print File Manager", "3MF Quick Look", "ThreeMFKit" and "Conformance record". Before going public every run failed with "recent account payments have failed or your spending limit needs to be increased" before starting a job — including the Ubuntu one, so it was the private-repository quota rather than macOS runner cost. |
+| S09 | pass | `main` requires "Print File Manager", "Versions" and "conformance / Conformance record" — the context name matters: it must match the check-run name the workflow reports, including the job prefix a reusable workflow adds. Before going public every run failed with "recent account payments have failed or your spending limit needs to be increased" before starting a job — including the Ubuntu one, so it was the private-repository quota rather than macOS runner cost. |
 | S10 | pass | `docs/assessment-2026-08-28-multi-agent.md` documents architecture and constraints with measurements; `AGENTS.md` states the non-obvious ones. |
 
 ## Deployable
 
 | ID | Result | Evidence |
 |---|---|---|
-| D01 | pass | `README.md` documents the target, prerequisites and the install loop, including the Quick Look registration steps. |
+| D01 | pass | `README.md` documents the target, prerequisites and the install loop, and points at the separate Quick Look app for Finder previews. |
 | D02 | pass | `scripts/release.sh` and `.github/workflows/release.yml` reference credentials; none are committed. `SECURITY.md` states where the API key lives. |
-| D03 | pass | README **Rolling back** documents replacing the app with an older signed release, the `spctl` and version checks that confirm what is installed, the Quick Look re-registration step, and the index-migration caveat with the export that avoids it. |
+| D03 | pass | README **Rolling back** documents replacing the app with an older signed release, the `spctl` and version checks that confirm what is installed, and the index-migration caveat with the export that avoids it. The Quick Look app versions and rolls back independently. |
 | D04 | pass | Deployment target, Swift version and the single dependency are pinned. |
 | D05 | pass | `CHANGELOG.md` records operational changes. |
 | D06 | pass | The library index is quarantined rather than overwritten when unreadable, one backup is written per session, the schema is versioned with a migration path, and every destructive batch is reviewed and undoable. |
@@ -64,7 +64,7 @@ not applicable.
 |---|---|---|
 | R01 | pass | Bundle identifier, name, version and copyright agree with the repository. |
 | R02 | pass | README **Compatibility before 1.0** states that the interface is unstable below 1.0, the two guarantees that hold regardless (files are never the migration; the index migrates forward or is quarantined), and that breaking changes require a major version from 1.0. |
-| R03 | pass | `.github/workflows/release.yml` builds from a `vX.Y.Z` tag, and v0.1.5 publishes signed, notarized DMG and ZIP artifacts for both the application and the Quick Look extension, with checksums and a provenance record. Signing runs in `macos-notarization-broker`, which builds this source without credentials present and gates certificate import behind manual approval. Verified with `spctl -a`: accepted, `source=Notarized Developer ID`. |
+| R03 | pass | `.github/workflows/release.yml` builds from a `vX.Y.Z` tag, and v0.2.0 publishes signed, notarized, universal DMG and ZIP artifacts with checksums and a provenance record. Signing runs in `macos-notarization-broker`, which builds this source without credentials present and gates certificate import behind manual approval. Verified with `spctl -a`: accepted, `source=Notarized Developer ID`. |
 | R04 | pass | The workflow fails when the tag does not match `CFBundleShortVersionString`. |
 | R05 | pass | The workflow launches the built app and fails if it exits within ten seconds. Also verified by hand. |
 | R06 | pass | Release notes are hand-written per release and exercised: v0.1.5 and v0.1.6 document downloads, verification commands and what changed. `release.yml` also generates notes from commits for the draft. |

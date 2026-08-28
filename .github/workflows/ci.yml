@@ -23,20 +23,6 @@ jobs:
       - name: Check README badges
         run: ./scripts/badges.py --check
 
-  package:
-    name: ThreeMFKit
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
-      - name: Test
-        working-directory: ThreeMFKit
-        run: swift test
-
   test:
     name: ${{ matrix.name }}
     runs-on: macos-15
@@ -49,13 +35,6 @@ jobs:
             project: PrintFileManager.xcodeproj
             scheme: PrintFileManager
             action: test
-          - name: 3MF Quick Look
-            directory: Quicklook
-            project: ThreeMFQuickLook.xcodeproj
-            scheme: ThreeMFQuickLook
-            # No test target of its own: the shared parsing is tested in the ThreeMFKit
-            # package job, and the extensions themselves are covered by building them.
-            action: build
 
     steps:
       # Both projects and the shared package are checked out together: each Xcode project

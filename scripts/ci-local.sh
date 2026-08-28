@@ -10,15 +10,12 @@
 #
 # Usage:
 #   scripts/ci-local.sh            # everything
-#   scripts/ci-local.sh --quick    # skip the Quick Look project
 #
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-QUICK=0
-[ "${1:-}" = "--quick" ] && QUICK=1
 
 # XcodeGen and SwiftPM shell out to git, and this checkout may sit under a git configuration
 # that refuses bare repositories, which breaks dependency resolution. Scope the override to
@@ -50,13 +47,6 @@ else
   record_failure "swiftlint"
 fi
 
-step "ThreeMFKit (swift test)"
-if (cd ThreeMFKit && swift test 2>&1 | tail -20); then
-  :
-else
-  record_failure "ThreeMFKit tests"
-fi
-
 run_project() {
   local dir="$1" project="$2" scheme="$3"
   step "$scheme"
@@ -71,8 +61,6 @@ run_project() {
   fi
 
   local action="test"
-  # The Quick Look project has no test target of its own; its tests live in ThreeMFKit.
-  [ "$scheme" = "ThreeMFQuickLook" ] && action="build"
 
   local log="$DERIVED/$scheme.log"
   local status=0
@@ -117,7 +105,6 @@ step "README badges"
 ./scripts/badges.py --check || record_failure "README badges are out of date; run scripts/badges.py"
 
 run_project "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager" "printfilemanager"
-[ "$QUICK" -eq 0 ] && run_project "Quicklook" "ThreeMFQuickLook.xcodeproj" "ThreeMFQuickLook" "threemfquicklook"
 
 step "Conformance record"
 if [ -f .github/conformance.yml ]; then

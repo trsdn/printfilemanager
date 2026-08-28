@@ -25,7 +25,6 @@ Requires macOS 15 or later and Xcode 26 or later.
 All three must pass:
 
 ```sh
-cd ThreeMFKit && swift test
 cd printfilemanager && xcodegen generate && xcodebuild test \
   -scheme PrintFileManager -destination 'platform=macOS'
 swiftlint lint

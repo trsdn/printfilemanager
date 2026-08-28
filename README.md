@@ -6,8 +6,13 @@
 [![Release](https://img.shields.io/github/v/release/trsdn/printfilemanager?display_name=tag&sort=semver)](https://github.com/trsdn/printfilemanager/releases/latest)
 [![Conformance](.github/badges/conformance.svg)](docs/self-assessment.md)
 
-Local macOS tooling for large collections of `.3mf` 3D-printing files: a library manager that
-indexes, searches and organizes them, plus a Quick Look plug-in that previews them in Finder.
+A local macOS library manager for large collections of `.3mf` 3D-printing files: it indexes,
+searches, tags and organizes them.
+
+For Finder previews and thumbnails, install
+[3MF Quick Look](https://github.com/trsdn/threemf-quicklook) alongside it. It used to ship from
+this repository and is now its own app, because wanting `.3mf` previews in Finder should not
+require a library manager.
 
 Everything runs locally. Nothing is sent anywhere unless you explicitly turn it on.
 
@@ -16,23 +21,19 @@ Everything runs locally. Nothing is sent anywhere unless you explicitly turn it 
 | Path | What it is |
 |---|---|
 | `printfilemanager/` | The **Print File Manager** app — indexing, search, tagging, previews, Auto Sort |
-| `Quicklook/` | **3MF Quick Look** — Finder preview and thumbnail extensions plus their host app |
-| `ThreeMFKit/` | Shared Swift package: 3MF package reading and preview extraction |
 | `docs/` | Product requirements and dated review documents |
+| `scripts/` | Local CI and the checks that run before a release is tagged |
 
-Both Xcode projects depend on `ThreeMFKit` as a local Swift package at `../ThreeMFKit`, so the
-three folders must stay siblings.
+3MF parsing and preview extraction come from
+[ThreeMFKit](https://github.com/trsdn/ThreeMFKit), pinned by exact version because this bundle is
+notarized and its inputs must be reproducible.
 
 ## Installing
 
-Download the latest signed build from [Releases](https://github.com/trsdn/printfilemanager/releases/latest):
-
-| | |
-| --- | --- |
-| **Print File Manager** | the application |
-| **3MF Quick Look** | Finder previews and thumbnails for `.3mf` files |
-
-Both are notarized, so they open without a Gatekeeper warning. To confirm before opening:
+Download the latest signed build from
+[Releases](https://github.com/trsdn/printfilemanager/releases/latest) and drag it to
+`/Applications`. It is notarized, so it opens without a Gatekeeper warning. To confirm before
+opening:
 
 ```bash
 spctl -a -vvv --type exec /Applications/PrintFileManager.app
@@ -40,8 +41,9 @@ spctl -a -vvv --type exec /Applications/PrintFileManager.app
 # source=Notarized Developer ID
 ```
 
-Quick Look extensions only register once their host app has been launched once; see
-[Installing the Quick Look extensions](#installing-the-quick-look-extensions).
+For Finder previews and thumbnails, install
+[3MF Quick Look](https://github.com/trsdn/threemf-quicklook/releases/latest) as well. It is a
+separate app and independent of this one.
 
 ## Requirements
 
@@ -54,7 +56,6 @@ changing `project.yml`, regenerate and commit the result:
 
 ```bash
 cd printfilemanager && xcodegen generate
-cd ../Quicklook  && xcodegen generate
 ```
 
 ## Build and test
@@ -63,77 +64,16 @@ CI runs on every push and pull request. `scripts/ci-local.sh` runs the same pipe
 the two release checks that CI cannot perform, so a change can be validated before it is pushed:
 
 ```bash
-scripts/ci-local.sh            # lint, package tests, both projects, conformance record
-scripts/ci-local.sh --quick    # skip the Quick Look project
+scripts/ci-local.sh            # lint, tests, broker profile check, conformance record
 ```
 
 Or run the steps individually:
 
 ```bash
-# Shared package
-cd ThreeMFKit && swift test && cd ..
-
-# Library manager
 xcodebuild -project printfilemanager/PrintFileManager.xcodeproj \
            -scheme PrintFileManager -destination 'platform=macOS' test
-
-# Quick Look extensions
-xcodebuild -project Quicklook/ThreeMFQuickLook.xcodeproj \
-           -scheme ThreeMFQuickLook -destination 'platform=macOS' test
 ```
 
-## Installing the Quick Look extensions
-
-Quick Look extensions only register once their host app has been installed and launched:
-
-1. Take `ThreeMFQuickLook.app` from the [latest release](https://github.com/trsdn/printfilemanager/releases/latest),
-   or build the `ThreeMFQuickLook` scheme in Release.
-2. Move `ThreeMFQuickLook.app` to `/Applications`.
-3. Launch it once.
-4. Refresh the Quick Look registry: `qlmanage -r && qlmanage -r cache`.
-
-Verify and debug with:
-
-```bash
-qlmanage -p some-model.3mf                          # render a preview
-pluginkit -mAvvv -p com.apple.quicklook.preview     # confirm registration
-```
-
-Note that other applications — Bambu Studio, OrcaSlicer, PrusaSlicer — also claim the `.3mf` type,
-and one of them will usually own it. The extensions therefore also register for `public.zip-archive`
-so they are still offered in that case, and check at runtime that the archive really contains a 3MF
-model part; any other archive is handed straight back to the system.
-
-Extensions will not load on a machine other than the one that built them unless they are signed,
-and macOS refuses to open an unnotarized download. Use `scripts/release.sh` for anything you intend
-to hand to someone else — it archives both apps in Release, signs them with a Developer ID under
-the Hardened Runtime, notarizes and staples them, and verifies the embedded extensions:
-
-```bash
-# Once, to store notarization credentials in the keychain:
-xcrun notarytool store-credentials "printfilemanager" \
-  --apple-id "you@example.com" --team-id "TEAMID" --password "app-specific-password"
-
-TEAM_ID=TEAMID scripts/release.sh                # signed and notarized
-TEAM_ID=TEAMID scripts/release.sh --skip-notarize  # signed only, for local checks
-```
-
-Artifacts land in `.release/`, which is gitignored.
-
-For distribution the signing happens through
-[macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker), which builds from
-a pinned commit in a secretless job and signs in a gated environment, so Apple credentials never
-reach this repository. Both apps are onboarded there as the `printfilemanager` and `threemfquicklook` profiles.
-
-Released artifacts are signed with `Developer ID Application: Torsten Mahr (G69Z5BNY97)`, built
-with the hardened runtime, and notarized by Apple with the ticket stapled. Two local checks run
-before a tag is cut, because the broker only validates bundle identity at signing time — far too
-late to learn about a typo:
-
-- `scripts/check-versions.sh` — both projects must declare the same full `X.Y.Z` version, and no
-  `Info.plist` may hardcode one instead of referencing the build setting.
-- `scripts/check-broker-profile.py` — the freshly built bundle must match the broker's profile
-  (identifier, executable, package type, minimum system version, display name).
 
 ## Privacy
 
@@ -191,8 +131,8 @@ downloading an older one. Nothing in the app requires a matching version on disk
      || defaults read /Applications/PrintFileManager.app/Contents/Info CFBundleShortVersionString
    ```
 
-4. For the Quick Look extension, replace `ThreeMFQuickLook.app`, launch it once, then
-   `qlmanage -r && qlmanage -r cache`.
+4. If you also use [3MF Quick Look](https://github.com/trsdn/threemf-quicklook), it versions and
+   rolls back independently of this app.
 
 The library index is versioned and migrated forward on load. A newer version may therefore write
 an index an older version will refuse to read — it quarantines it as `*.corrupt-<timestamp>.json`
@@ -246,7 +186,6 @@ This repository is assessed against the
 - `CHANGELOG.md` — user-facing and operational changes
 - `docs/self-assessment.md` — conformance evidence against the repository standard
 - `docs/prd-3mf-library-manager.md` — library manager requirements
-- `docs/prd-3mf-quick-look-preview.md` — Quick Look requirements
 - `docs/app-review-2026-05-03-print-file-manager.md` — earlier product review
 - `docs/assessment-2026-08-28-multi-agent.md` — current technical assessment and roadmap
 

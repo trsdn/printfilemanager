@@ -10,7 +10,6 @@ name: Release
 #
 # After this workflow succeeds, run from the broker:
 #   scripts/request.sh printfilemanager vX.Y
-#   scripts/request.sh threemfquicklook vX.Y
 
 on:
   push:
@@ -68,7 +67,6 @@ jobs:
             ditto -c -k --keepParent ".release/$3.app" ".release/$3-v$MARKETING_VERSION-macOS-arm64-unsigned.zip"
           }
           build printfilemanager PrintFileManager.xcodeproj PrintFileManager
-          build Quicklook ThreeMFQuickLook.xcodeproj ThreeMFQuickLook
 
       - name: Verify the artifact carries the tag version
         env:
@@ -117,7 +115,6 @@ jobs:
 
             ```
             scripts/request.sh printfilemanager ${{ github.ref_name }}
-            scripts/request.sh threemfquicklook ${{ github.ref_name }}
             ```
 
             Then replace the unsigned artifacts with the signed ones and publish:

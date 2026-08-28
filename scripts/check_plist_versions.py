@@ -2,8 +2,8 @@
 """Reject Info.plist files that hardcode a version instead of referencing the build setting.
 
 A literal here silently wins over MARKETING_VERSION, so the project and the shipped bundle can
-disagree. That is how the Quick Look app was still stamped 0.1 after the release had moved on --
-a mismatch the notarization broker only caught at signing time, well after CI had gone green.
+disagree. That is how a bundle was once still stamped 0.1 after the release had moved on -- a
+mismatch the notarization broker only caught at signing time, well after CI had gone green.
 
 Invoked by scripts/check-versions.sh. Uses plistlib rather than plutil so it runs on Linux too.
 """
@@ -18,7 +18,7 @@ EXPECTED = {
     "CFBundleShortVersionString": "$(MARKETING_VERSION)",
     "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
 }
-SOURCE_ROOTS = ("printfilemanager/Sources", "Quicklook/Sources")
+SOURCE_ROOTS = ("printfilemanager/Sources",)
 
 
 def main() -> int:

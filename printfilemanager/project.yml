@@ -17,10 +17,13 @@ packages:
   ZIPFoundation:
     url: https://github.com/weichsel/ZIPFoundation.git
     from: 0.9.19
-  # Shared 3MF parsing, also consumed by the Quick Look project. Previously compiled by
-  # relative path from ../Quicklook, which made the two projects positionally coupled.
+  # 3MF parsing and preview extraction. It lives in its own repository because it is independent
+  # of this app and is also consumed by threemf-quicklook, and SwiftPM cannot depend on a
+  # subdirectory. Pinned by exact version: this bundle is notarized, so its inputs must be
+  # reproducible.
   ThreeMFKit:
-    path: ../ThreeMFKit
+    url: https://github.com/trsdn/ThreeMFKit.git
+    exactVersion: 1.0.1
 targets:
   PrintFileManagerCore:
     # A static library rather than a framework: an embedded framework is a versioned bundle full
