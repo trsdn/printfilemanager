@@ -57,6 +57,20 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.4] — 2026-08-28
+
+### Added
+
+- `scripts/check-versions.sh`, run by CI and by `scripts/ci-local.sh`, which fails when the two
+  Xcode projects declare different versions, when a version is not full `X.Y.Z` semver, or when an
+  `Info.plist` hardcodes a version instead of referencing the build setting.
+
+### Fixed
+
+- The Quick Look app and both of its extensions were still stamped `0.1`, because only the
+  application project had been moved to a build-setting-driven version. The notarization broker
+  rejected the bundle for a version mismatch, so Quick Look could not be signed.
+
 ## [0.1.3] — 2026-08-28
 
 ### Fixed

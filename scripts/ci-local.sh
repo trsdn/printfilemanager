@@ -100,6 +100,9 @@ run_project() {
   fi
 }
 
+step "Version consistency"
+./scripts/check-versions.sh || exit 1
+
 run_project "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager"
 [ "$QUICK" -eq 0 ] && run_project "Quicklook" "ThreeMFQuickLook.xcodeproj" "ThreeMFQuickLook"
 
