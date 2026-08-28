@@ -57,6 +57,14 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.1] — 2026-08-28
+
+### Fixed
+
+- Replaced `isolated deinit`, which needs an experimental compiler flag on some Xcode versions and
+  made the project unbuildable on the notarization runner. Teardown now happens in a small store
+  type whose ordinary `deinit` releases the FSEvents streams.
+
 ## [0.1.0] — 2026-08-28
 
 First tagged release.

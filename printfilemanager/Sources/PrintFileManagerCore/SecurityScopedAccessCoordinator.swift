@@ -5,6 +5,11 @@ import Foundation
 /// Under the App Sandbox a stored path grants nothing after relaunch — only a security-scoped
 /// bookmark resolved back to a URL does. This centralises creating those bookmarks, resolving them
 /// at launch, and balancing the start/stop access calls so scopes are not leaked.
+///
+/// Scopes are released explicitly through `stopAccess(rootID:)` and `stopAll()` rather than in
+/// `deinit`: releasing MainActor-isolated state from a deallocator needs an isolated `deinit`,
+/// which is still behind an experimental flag on some Xcode versions. The coordinator lives as
+/// long as the view model does, so the process exiting is what ends the last scope anyway.
 @MainActor
 public final class SecurityScopedAccessCoordinator {
     public init() {}
@@ -67,9 +72,5 @@ public final class SecurityScopedAccessCoordinator {
             url.stopAccessingSecurityScopedResource()
         }
         activeURLs.removeAll()
-    }
-
-    isolated deinit {
-        stopAll()
     }
 }

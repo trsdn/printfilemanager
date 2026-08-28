@@ -4,7 +4,36 @@ import PrintFileManagerCore
 
 @MainActor
 final class FolderWatcher {
-    private var streams: [UUID: FSEventStreamRef] = [:]
+    /// Holds the live FSEvents streams.
+    ///
+    /// The streams live in their own reference type so that tearing them down does not need to
+    /// touch MainActor-isolated state from `deinit`. Doing that would require an isolated
+    /// `deinit`, which is still gated behind an experimental flag on some Xcode versions and made
+    /// the project unbuildable on a release runner.
+    private final class StreamStore: @unchecked Sendable {
+        private var streams: [UUID: FSEventStreamRef] = [:]
+
+        func insert(_ stream: FSEventStreamRef, for id: UUID) {
+            streams[id] = stream
+        }
+
+        func removeAll() {
+            for stream in streams.values {
+                FSEventStreamStop(stream)
+                FSEventStreamInvalidate(stream)
+                FSEventStreamRelease(stream)
+            }
+            streams.removeAll()
+        }
+
+        deinit {
+            // Without this, a watcher released without an explicit `update(roots: [])` leaks its
+            // FSEvents streams and the retained callback boxes.
+            removeAll()
+        }
+    }
+
+    private let store = StreamStore()
 
     func update(roots: [LibraryRoot], onChange: @escaping @MainActor (LibraryRoot) -> Void) {
         stopAll()
@@ -15,19 +44,7 @@ final class FolderWatcher {
     }
 
     func stopAll() {
-        for stream in streams.values {
-            FSEventStreamStop(stream)
-            FSEventStreamInvalidate(stream)
-            FSEventStreamRelease(stream)
-        }
-        streams.removeAll()
-    }
-
-    /// Isolated so the teardown can touch the MainActor-isolated stream table. Without this, a
-    /// watcher released without an explicit `update(roots: [])` leaks its FSEvents streams and the
-    /// retained callback boxes.
-    isolated deinit {
-        stopAll()
+        store.removeAll()
     }
 
     private func start(root: LibraryRoot, onChange: @escaping @MainActor (LibraryRoot) -> Void) {
@@ -58,7 +75,7 @@ final class FolderWatcher {
 
         FSEventStreamSetDispatchQueue(stream, DispatchQueue.main)
         FSEventStreamStart(stream)
-        streams[root.id] = stream
+        store.insert(stream, for: root.id)
     }
 }
 
