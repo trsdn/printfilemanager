@@ -513,14 +513,32 @@ no value proposition or privacy statement.
 
 | | At assessment | Now |
 |---|---|---|
-| PrintFileManager tests | 29 | **64** (47 core + 17 app) |
+| PrintFileManager tests | 29 | **67** (50 core + 17 app) |
 | ThreeMFKit tests | 4 pass, 1 failing | **10 pass, 1 skipped** |
 | Compiler warnings | 8 | **0** |
 | SwiftLint | not configured | 0 errors |
 | Largest UI file | 1,726 lines | 563 lines |
 | Library index (real install) | 109 MB | 3 MB |
 | App-layer test coverage | none | 17 tests |
+| Signed, notarizable build | no | **yes**, verified |
 
-Remaining known limitations, all deliberate and documented rather than hidden: the store is still
-JSON rather than SQLite (adequate at the measured sizes now that images are external), natural-language
-search remains keyword matching, and signing/notarization for distribution is still unconfigured.
+### Third pass — the last two open items
+
+- **Search tolerance.** The original finding was that `matchesText` required every typed token to
+  appear in a record, so *"PLA files for Bambu P1S"* returned nothing. Rather than build the
+  natural-language parser the PRD asked for, filler words are now dropped from the query, which
+  fixes the actual failure at a fraction of the cost. A query made only of filler still filters, so
+  searching for "print" behaves normally.
+- **Signing and notarization.** `scripts/release.sh` archives both apps in Release, signs them with
+  a Developer ID under the Hardened Runtime, notarizes, staples and verifies the embedded
+  extensions. Verified against a real Developer ID certificate: both apps and both `.appex` bundles
+  sign cleanly and the sandbox entitlements survive into the signed binary. This was the remaining
+  blocker on the Quick Look extensions working for anyone but the developer.
+
+The core test file was also split into five suites by concern once it outgrew the lint threshold.
+
+**One deliberate limitation remains**, documented rather than hidden: the store is still JSON rather
+than SQLite. That was justified by measurement, not assumption — with preview images externalised
+the real index is 3 MB and a full save of a 10,000-record library takes 125 ms. Migrating to SQLite
+would be the right call if the library grows by another order of magnitude, or when incremental
+per-record writes become necessary; today it would be cost without benefit.
