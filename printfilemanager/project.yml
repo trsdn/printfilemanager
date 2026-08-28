@@ -11,7 +11,7 @@ settings:
     # Single source for the version. Info.plist references these rather than carrying literals,
     # so the value cannot drift between the project and the artifact, and a release can override
     # MARKETING_VERSION from the tag instead of anyone editing a plist by hand.
-    MARKETING_VERSION: "0.1"
+    MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "2"
 packages:
   ZIPFoundation:

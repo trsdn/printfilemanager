@@ -57,6 +57,10 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.0] — 2026-08-28
+
+First tagged release.
+
 ## [0.1] — 2026-05-03
 
 Initial internal version: folder indexing, metadata extraction, search, tagging, AI enrichment,
