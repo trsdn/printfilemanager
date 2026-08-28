@@ -23,6 +23,26 @@ Everything runs locally. Nothing is sent anywhere unless you explicitly turn it 
 Both Xcode projects depend on `ThreeMFKit` as a local Swift package at `../ThreeMFKit`, so the
 three folders must stay siblings.
 
+## Installing
+
+Download the latest signed build from [Releases](https://github.com/trsdn/printfilemanager/releases/latest):
+
+| | |
+| --- | --- |
+| **Print File Manager** | the application |
+| **3MF Quick Look** | Finder previews and thumbnails for `.3mf` files |
+
+Both are notarized, so they open without a Gatekeeper warning. To confirm before opening:
+
+```bash
+spctl -a -vvv --type exec /Applications/PrintFileManager.app
+# PrintFileManager.app: accepted
+# source=Notarized Developer ID
+```
+
+Quick Look extensions only register once their host app has been launched once; see
+[Installing the Quick Look extensions](#installing-the-quick-look-extensions).
+
 ## Requirements
 
 - macOS 15 or later
@@ -39,9 +59,8 @@ cd ../Quicklook  && xcodegen generate
 
 ## Build and test
 
-GitHub Actions cannot currently run for this repository — it is private, so Actions draw on the
-paid quota, and that quota is blocked. Until that is resolved, `scripts/ci-local.sh` runs the same
-pipeline locally and is the only thing actually validating a change:
+CI runs on every push and pull request. `scripts/ci-local.sh` runs the same pipeline locally, plus
+the two release checks that CI cannot perform, so a change can be validated before it is pushed:
 
 ```bash
 scripts/ci-local.sh            # lint, package tests, both projects, conformance record
@@ -67,7 +86,8 @@ xcodebuild -project Quicklook/ThreeMFQuickLook.xcodeproj \
 
 Quick Look extensions only register once their host app has been installed and launched:
 
-1. Build the `ThreeMFQuickLook` scheme in Release.
+1. Take `ThreeMFQuickLook.app` from the [latest release](https://github.com/trsdn/printfilemanager/releases/latest),
+   or build the `ThreeMFQuickLook` scheme in Release.
 2. Move `ThreeMFQuickLook.app` to `/Applications`.
 3. Launch it once.
 4. Refresh the Quick Look registry: `qlmanage -r && qlmanage -r cache`.
@@ -103,15 +123,17 @@ Artifacts land in `.release/`, which is gitignored.
 For distribution the signing happens through
 [macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker), which builds from
 a pinned commit in a secretless job and signs in a gated environment, so Apple credentials never
-reach this repository. Both apps are onboarded there as the `printfilemanager` and `threemfquicklook` profiles, and the
-broker builds this repository successfully.
+reach this repository. Both apps are onboarded there as the `printfilemanager` and `threemfquicklook` profiles.
 
-Notarized artifacts are not published yet. The broker's preflight rejects any nested bundle it has
-not been told about, and SwiftPM emits one for ZIPFoundation's privacy manifest — 8 KB containing
-only `PrivacyInfo.xcprivacy`, no executable. Tracked as
-[macos-notarization-broker#30](https://github.com/trsdn/macos-notarization-broker/issues/30); it
-needs a way to declare an inert resource bundle without routing it through the nested-code review
-gate. Until then the releases here carry unsigned artifacts, clearly labelled as such.
+Released artifacts are signed with `Developer ID Application: Torsten Mahr (G69Z5BNY97)`, built
+with the hardened runtime, and notarized by Apple with the ticket stapled. Two local checks run
+before a tag is cut, because the broker only validates bundle identity at signing time — far too
+late to learn about a typo:
+
+- `scripts/check-versions.sh` — both projects must declare the same full `X.Y.Z` version, and no
+  `Info.plist` may hardcode one instead of referencing the build setting.
+- `scripts/check-broker-profile.py` — the freshly built bundle must match the broker's profile
+  (identifier, executable, package type, minimum system version, display name).
 
 ## Privacy
 

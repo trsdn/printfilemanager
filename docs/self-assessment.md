@@ -64,7 +64,7 @@ not applicable.
 |---|---|---|
 | R01 | pass | Bundle identifier, name, version and copyright agree with the repository. |
 | R02 | partial | Semantic versioning is declared in `CHANGELOG.md`. A compatibility policy is not meaningful before 1.0 and is not written. |
-| R03 | partial | `.github/workflows/release.yml` builds artifacts from a `vX.Y.Z` tag and publishes them, but they are unsigned. Signed artifacts come from the notarization broker, which builds this repository successfully and then fails preflight on a SwiftPM privacy-manifest resource bundle (macos-notarization-broker#30). |
+| R03 | pass | `.github/workflows/release.yml` builds from a `vX.Y.Z` tag, and v0.1.5 publishes signed, notarized DMG and ZIP artifacts for both the application and the Quick Look extension, with checksums and a provenance record. Signing runs in `macos-notarization-broker`, which builds this source without credentials present and gates certificate import behind manual approval. Verified with `spctl -a`: accepted, `source=Notarized Developer ID`. |
 | R04 | pass | The workflow fails when the tag does not match `CFBundleShortVersionString`. |
 | R05 | pass | The workflow launches the built app and fails if it exits within ten seconds. Also verified by hand. |
 | R06 | partial | Release notes are generated from commits, which are written to be readable. No release has been cut, so this is untested in practice. |
@@ -147,7 +147,7 @@ than burying:
   `STATS_TOKEN` with bypass rights. Branch protection was judged worth more than the card, so the
   card is absent rather than the protection being relaxed.
 
-The remaining ten are genuinely small: no signed release yet (R03, tracked upstream), no rollback procedure before a first release (D03), no
+The remaining nine are genuinely small: no rollback procedure before a first release (D03), no
 compatibility policy before 1.0 (R02), release notes not yet exercised (R06), no installer surface
 to reuse the icon on (I05), no `github-app.yml` (G08), file sizes not formatted through locale APIs
 (L05), no in-app export or delete-all (Y04), no retention policy for data that never leaves the

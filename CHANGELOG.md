@@ -61,6 +61,11 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- Signed and notarized artifacts. Both the application and the Quick Look extension are published
+  as DMG and ZIP, signed with a Developer ID, built with the hardened runtime, and notarized with
+  the ticket stapled, alongside checksums and a provenance record naming the broker run and the
+  source commit.
+
 - `scripts/check-broker-profile.py`, run by `scripts/ci-local.sh` against each freshly built
   bundle. It mirrors the notarization broker's identity comparison — identifier, executable,
   package type, minimum system version and display name, including the broker's fallback from
@@ -72,6 +77,14 @@ All notable changes to this project are recorded here. The format follows
 - The Quick Look app advertised itself as `ThreeMFQuickLook` rather than `3MF Quick Look`, because
   it carried no `CFBundleDisplayName` and `CFBundleName` resolved to `$(PRODUCT_NAME)`. The
   notarization broker rejected it, and the name was wrong in Finder besides.
+
+### Changed
+
+- The release workflow now publishes a **draft**. Its artifacts are unsigned and cannot open on
+  another Mac, so publishing them immediately handed users a download that could not work. The
+  draft proves the tag builds and launches; the signed artifacts replace it before anyone sees it.
+- The README no longer claims that GitHub Actions cannot run or that artifacts are unsigned;
+  neither has been true since the repository became public and the broker path started working.
 
 ## [0.1.4] — 2026-08-28
 
