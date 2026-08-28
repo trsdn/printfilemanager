@@ -150,5 +150,14 @@ adding a file:
   rules, including the short last row where no tile sits directly beneath the cursor.
 - **P09** was blocked because the stats workflow could not push while `main` requires status checks
   it does not run, and the documented fix was a `STATS_TOKEN` with bypass rights. That trade was
-  refused. The workflow now opens a pull request instead, so the card refreshes itself and the
-  protection is untouched.
+  refused. The workflow now opens a pull request instead, so the card is reproduced automatically
+  and the protection is untouched. The merge is manual, because GitHub does not start workflows
+  for events created with `GITHUB_TOKEN` and the required checks therefore never run on that pull
+  request. Dispatching CI at the branch was tried and rejected: the check runs attach to the head
+  commit but the pull request's rollup ignores them.
+
+Fixing this surfaced a separate defect. `main` required a check named `Conformance record`, but the
+reusable workflow reports it as `conformance / Conformance record`, so that requirement could never
+be satisfied. It had gone unnoticed because every change so far reached `main` by an admin push
+rather than through a pull request. The context name is corrected and the `Versions` check is now
+required as well.
