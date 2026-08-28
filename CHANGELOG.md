@@ -57,6 +57,14 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.3] — 2026-08-28
+
+### Fixed
+
+- Archiving failed under the script sandbox because the static core target still emitted and
+  copied an Objective-C interface header it has no use for. Disabled, along with installing the
+  library into the archive.
+
 ## [0.1.2] — 2026-08-28
 
 ### Fixed
