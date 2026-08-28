@@ -42,6 +42,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManager
         INFOPLIST_FILE: Sources/PrintFileManagerApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/PrintFileManagerApp/PrintFileManager.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   PrintFileManagerCoreTests:

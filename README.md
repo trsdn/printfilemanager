@@ -90,8 +90,12 @@ The original files are treated as valuable source artifacts:
 - Every move, copy and rename is shown in a review sheet before anything touches the disk.
 - Deletes go to the Trash, behind a confirmation.
 - Destination paths proposed by an AI model are sanitized before use.
+- Every batch produces a result report and can be undone with Cmd-Z: moves go back, copies are
+  removed from the managed library, and originals are never deleted.
 - If the library index cannot be read, it is preserved under a `.corrupt-<timestamp>` name and
   writes are blocked rather than overwriting it.
+- The app runs in the App Sandbox. It can only reach folders you explicitly choose, and it keeps
+  that access across launches with security-scoped bookmarks.
 
 ## Documentation
 

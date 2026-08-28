@@ -36,6 +36,7 @@
 		ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */; };
 		EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
 		F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */; };
+		F8570F7667782D43731773F3 /* SecurityScopedAccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3A62BC5F9C3D29D3AE8FDE /* SecurityScopedAccessCoordinator.swift */; };
 		FA883B4AA1D79E00B2B1B377 /* PrintFileManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -131,7 +132,9 @@
 		C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerApp.swift; sourceTree = "<group>"; };
 		CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
 		D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientProtocols.swift; sourceTree = "<group>"; };
+		DC3A62BC5F9C3D29D3AE8FDE /* SecurityScopedAccessCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityScopedAccessCoordinator.swift; sourceTree = "<group>"; };
 		EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBD6F5A6BC2CE44D290E6660 /* PrintFileManager.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PrintFileManager.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,6 +187,7 @@
 				8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */,
 				D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */,
 				770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */,
+				DC3A62BC5F9C3D29D3AE8FDE /* SecurityScopedAccessCoordinator.swift */,
 				BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */,
 				445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */,
 				7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */,
@@ -250,6 +254,7 @@
 				1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */,
 				A60DEA6D7E36AF9D9DCE9929 /* Info.plist */,
 				CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */,
+				FBD6F5A6BC2CE44D290E6660 /* PrintFileManager.entitlements */,
 				C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */,
 				366E4CDB4BF93811FE2538CD /* SettingsView.swift */,
 			);
@@ -434,6 +439,7 @@
 				D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */,
 				3003437B911101CB5B1A6BC2 /* NetworkClientProtocols.swift in Sources */,
 				92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */,
+				F8570F7667782D43731773F3 /* SecurityScopedAccessCoordinator.swift in Sources */,
 				96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */,
 				32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */,
 				2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */,
@@ -593,6 +599,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/PrintFileManagerApp/PrintFileManager.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Sources/PrintFileManagerApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -672,6 +679,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/PrintFileManagerApp/PrintFileManager.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Sources/PrintFileManagerApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

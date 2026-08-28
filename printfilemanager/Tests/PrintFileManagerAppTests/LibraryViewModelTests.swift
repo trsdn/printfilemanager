@@ -293,6 +293,48 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.lastOrganizationReport)
     }
 
+    // MARK: - Sandboxed folder access
+
+    func testAddingARootStoresASecurityScopedBookmark() async throws {
+        let folderURL = try makeTemporaryDirectory()
+        let libraryFolder = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        viewModel.addRoot(url: folderURL)
+        try await waitUntil { !viewModel.isScanning }
+
+        // Without a bookmark the folder would be inaccessible after the next launch under sandbox.
+        let root = try XCTUnwrap(viewModel.snapshot.roots.first)
+        XCTAssertNotNil(root.securityScopedBookmark)
+    }
+
+    func testRootsFromBeforeBookmarksStillLoad() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let indexURL = libraryFolder.appendingPathComponent("library-index.json")
+        let watchedFolder = try makeTemporaryDirectory()
+
+        // A schema-2 index written before bookmarks existed: the key is simply absent.
+        let legacyIndex: [String: Any] = [
+            "schemaVersion": 2,
+            "roots": [[
+                "id": UUID().uuidString,
+                "url": watchedFolder.absoluteString,
+                "displayName": watchedFolder.lastPathComponent,
+                "isWatched": true,
+                "isAvailable": true
+            ]],
+            "records": []
+        ]
+        try JSONSerialization.data(withJSONObject: legacyIndex).write(to: indexURL)
+
+        let viewModel = makeViewModel(indexURL: indexURL, folderURL: libraryFolder)
+        await viewModel.load()
+
+        XCTAssertNil(viewModel.persistenceLockout)
+        XCTAssertEqual(viewModel.snapshot.roots.count, 1)
+        XCTAssertNil(viewModel.snapshot.roots.first?.securityScopedBookmark)
+    }
+
     // MARK: - Helpers
 
     private func makeViewModel(

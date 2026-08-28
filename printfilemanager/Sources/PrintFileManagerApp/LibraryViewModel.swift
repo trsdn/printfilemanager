@@ -56,6 +56,7 @@ final class LibraryViewModel: ObservableObject {
     private let sourceLookupClient: any SourceLooking
     private let search = LibrarySearch()
     private let folderWatcher = FolderWatcher()
+    private let accessCoordinator = SecurityScopedAccessCoordinator()
     private let isUsingVolatileFallbackStore: Bool
 
     /// How long mutations are batched before the library file is rewritten.
@@ -333,6 +334,7 @@ final class LibraryViewModel: ObservableObject {
             if snapshot != loadedSnapshot {
                 try? database.save(snapshot)
             }
+            restoreSecurityScopedAccess()
             statusMessage = snapshot.records.isEmpty ? "No files indexed" : "\(snapshot.records.count) files indexed"
             if isUsingVolatileFallbackStore {
                 statusMessage += " — warning: Application Support is unavailable, this index is stored in a temporary location and may be purged."
@@ -387,6 +389,7 @@ final class LibraryViewModel: ObservableObject {
             self.selectedRecordID = nil
         }
 
+        accessCoordinator.stopAccess(rootID: root.id)
         removeRootRequest = nil
         statusMessage = "Removed \(root.displayName) and \(removedCount) indexed files. The files on disk were not touched."
         startWatchingFolders()
@@ -409,24 +412,65 @@ final class LibraryViewModel: ObservableObject {
         var next = snapshot
         next.managedFolderURL = url.standardizedFileURL
         snapshot = database.upsert(
-            root: LibraryRoot(url: url, displayName: "Managed Library", isWatched: true),
+            root: LibraryRoot(
+                url: url,
+                displayName: "Managed Library",
+                isWatched: true,
+                securityScopedBookmark: SecurityScopedAccessCoordinator.makeBookmark(for: url)
+            ),
             into: next
         )
         saveSnapshot()
         startWatchingFolders()
         if let root = snapshot.roots.first(where: { $0.url == url.standardizedFileURL }) {
+            accessCoordinator.beginAccess(to: root)
             scan(root: root)
         }
     }
 
     func addRoot(url: URL) {
-        let root = LibraryRoot(url: url, isWatched: true)
+        // The bookmark must be made now, while the open panel has granted access to this URL.
+        let root = LibraryRoot(
+            url: url,
+            isWatched: true,
+            securityScopedBookmark: SecurityScopedAccessCoordinator.makeBookmark(for: url)
+        )
         snapshot = database.upsert(root: root, into: snapshot)
         saveSnapshot()
-        startWatchingFolders()
 
         if let storedRoot = snapshot.roots.first(where: { $0.url == root.url }) {
+            accessCoordinator.beginAccess(to: storedRoot)
+            startWatchingFolders()
             scan(root: storedRoot)
+        } else {
+            startWatchingFolders()
+        }
+    }
+
+    /// Re-establishes sandboxed access to every stored root, refreshing bookmarks that went stale
+    /// because the user moved or renamed a folder.
+    private func restoreSecurityScopedAccess() {
+        var didRefreshBookmark = false
+
+        for index in snapshot.roots.indices {
+            let root = snapshot.roots[index]
+            guard let resolved = accessCoordinator.beginAccess(to: root) else {
+                snapshot.roots[index].isAvailable = false
+                continue
+            }
+
+            if let refreshedBookmark = resolved.refreshedBookmark {
+                snapshot.roots[index].securityScopedBookmark = refreshedBookmark
+                didRefreshBookmark = true
+            }
+            if resolved.url.standardizedFileURL != root.url {
+                snapshot.roots[index].url = resolved.url.standardizedFileURL
+                didRefreshBookmark = true
+            }
+        }
+
+        if didRefreshBookmark {
+            saveSnapshot()
         }
     }
 

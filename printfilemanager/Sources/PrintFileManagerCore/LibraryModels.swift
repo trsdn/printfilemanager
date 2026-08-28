@@ -8,13 +8,20 @@ public struct LibraryRoot: Identifiable, Codable, Equatable, Sendable {
     public var isAvailable: Bool
     public var lastScannedAt: Date?
 
+    /// Security-scoped bookmark for the folder the user picked.
+    ///
+    /// Under the App Sandbox a plain path grants no access after relaunch; only a bookmark
+    /// resolved back to a URL does. Optional so libraries written before sandboxing still load.
+    public var securityScopedBookmark: Data?
+
     public init(
         id: UUID = UUID(),
         url: URL,
         displayName: String? = nil,
         isWatched: Bool = true,
         isAvailable: Bool = true,
-        lastScannedAt: Date? = nil
+        lastScannedAt: Date? = nil,
+        securityScopedBookmark: Data? = nil
     ) {
         self.id = id
         self.url = url.standardizedFileURL
@@ -22,6 +29,7 @@ public struct LibraryRoot: Identifiable, Codable, Equatable, Sendable {
         self.isWatched = isWatched
         self.isAvailable = isAvailable
         self.lastScannedAt = lastScannedAt
+        self.securityScopedBookmark = securityScopedBookmark
     }
 }
 
