@@ -57,6 +57,15 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.2] — 2026-08-28
+
+### Fixed
+
+- The app bundle embedded ZIPFoundation and PrintFileManagerCore as frameworks, which are
+  versioned bundles containing symlinks, and the notarization broker rejects any archive holding
+  one. `ThreeMFKit` is now a static product and `PrintFileManagerCore` a static library, so the app
+  ships as a single binary with nothing embedded.
+
 ## [0.1.1] — 2026-08-28
 
 ### Fixed

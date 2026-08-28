@@ -60,13 +60,14 @@ fi
 run_project() {
   local dir="$1" project="$2" scheme="$3"
   step "$scheme"
+  # The committed .xcodeproj is generated from project.yml. Compare against the working tree as
+  # it was before regenerating, not against HEAD: when project.yml itself is an uncommitted
+  # change, a diff against HEAD is expected and says nothing about drift.
+  local before="$DERIVED/$project.before"
+  cp "$dir/$project/project.pbxproj" "$before" 2>/dev/null || true
   (cd "$dir" && xcodegen generate --quiet)
-
-  # The committed .xcodeproj is generated from project.yml. If regenerating changes it, the two
-  # have drifted and the committed copy is stale.
-  if ! git diff --quiet -- "$dir/$project"; then
-    record_failure "$project is out of sync with project.yml — commit the regenerated project"
-    git --no-pager diff --stat -- "$dir/$project"
+  if [ -f "$before" ] && ! diff -q "$before" "$dir/$project/project.pbxproj" >/dev/null; then
+    record_failure "$project was stale — regenerating changed it, so commit the regenerated project"
   fi
 
   local action="test"

@@ -45,12 +45,16 @@ public struct PlatePreviewExtractor {
     private let reader: any ThreeMFPackageReading
     private let normalizer: any ImageNormalizing
 
-    public init(
-        reader: any ThreeMFPackageReading = ZIPFoundationThreeMFPackageReader(
-            maximumEntrySize: PlatePreviewExtractor.maximumPreviewImageSize
-        ),
-        normalizer: any ImageNormalizing = CGImagePreviewImageNormalizer()
-    ) {
+    public init() {
+        self.init(
+            reader: ZIPFoundationThreeMFPackageReader(
+                maximumEntrySize: PlatePreviewExtractor.maximumPreviewImageSize
+            ),
+            normalizer: CGImagePreviewImageNormalizer()
+        )
+    }
+
+    public init(reader: any ThreeMFPackageReading, normalizer: any ImageNormalizing) {
         self.reader = reader
         self.normalizer = normalizer
     }
@@ -115,7 +119,11 @@ public struct PlatePreviewExtractor {
 public struct ThreeMFMeshExtractor {
     private let reader: any ThreeMFPackageReading
 
-    public init(reader: any ThreeMFPackageReading = ZIPFoundationThreeMFPackageReader()) {
+    public init() {
+        self.init(reader: ZIPFoundationThreeMFPackageReader())
+    }
+
+    public init(reader: any ThreeMFPackageReading) {
         self.reader = reader
     }
 

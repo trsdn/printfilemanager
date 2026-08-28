@@ -9,23 +9,20 @@
 /* Begin PBXBuildFile section */
 		01B8C0103775942738D391BF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366E4CDB4BF93811FE2538CD /* SettingsView.swift */; };
 		092CEEDB1E9C1302FA0221AF /* FolderWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */; };
-		0C9D7584C96EAB6603DA98F7 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
-		12ED009FE3E205CAF6984735 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = D817BC21A2DB782D9C12FA33 /* ZIPFoundation */; };
 		1545B26DC502AF5C9B94B5AF /* IndexingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 337AA15AE85601606517A1A1 /* IndexingTests.swift */; };
 		17353AE24146375FBDFFB8A4 /* OrganizationSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48965A44ABCB9C2AA7A9EE12 /* OrganizationSheets.swift */; };
 		184C867336F72DB673732CF3 /* SearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C29AC1B484A9D371862D56 /* SearchTests.swift */; };
 		187A3A2FE4B1D1A53F26357F /* LibraryBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8473F43B37FF13763ED45D19 /* LibraryBrowserView.swift */; };
 		1CA71A28824BCB7ADC25F0BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254BCB2D5C535AC4BECEE178 /* Assets.xcassets */; };
 		2289448DA49ECF246530AC72 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4427B9221B8B4CE8622564 /* LibraryViewModelTests.swift */; };
-		22C255ECB4B551368CC1ACF3 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6D8E13AEF3D71953642F53AD /* ThreeMFKit */; };
 		247C786441377F361D161879 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2762624B25DEFCAE4EDBF16D /* ThreeMFKit */; };
 		292999B27E347E3D433F1CA9 /* AppIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0337B1ED5AC62093C8261AA /* AppIdentity.swift */; };
 		29644748308DFF0DD550A30D /* NetworkClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */; };
 		2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */; };
 		2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */; };
+		2FBD07027DED35F3A101210F /* libPrintFileManagerCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */; };
 		3003437B911101CB5B1A6BC2 /* NetworkClientProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */; };
 		32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */; };
-		490A2043C61D80330F6F6C73 /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4C060D8A5D75FCED5F39819D /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540D57033CB2BBF7937FB5E0 /* SidebarView.swift */; };
 		4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A472815FF592C604E14F530 /* AISettingsStore.swift */; };
 		57BA08533E206FA346EBD6B7 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3435479745EC244D1D26A8C1 /* ThreeMFKit */; };
@@ -33,20 +30,18 @@
 		714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26AAD36474C235E41470619 /* LibraryModels.swift */; };
 		7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */; };
 		7BAAF2CACBCAF675EAED2853 /* FileInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECB807E867C8C817008E3CC /* FileInspectorView.swift */; };
-		85A2EDDBEB5C8968650A5E5F /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		87CB66AD561C453DC3BB1463 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
+		887C12741C9994744F27DE23 /* libPrintFileManagerCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */; };
 		92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */; };
 		96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */; };
 		A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */; };
 		AAEBF017381A6089C05EF0BF /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */; };
+		B196235F1BA352B2570BD1DC /* libPrintFileManagerCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */; };
 		B2E6A2D341C52AFEFF85394F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9616AAB5527A5BB86D07B666 /* ContentView.swift */; };
-		C397D037C4C389D7D728CD44 /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */; };
 		D4AF8416A642E83991DA9080 /* FilterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BC91A583A4B3A7AAF2AFAE /* FilterViews.swift */; };
 		DABCEAD0471661E17CAE9176 /* SharedUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EF1A3634812449BFB3328AF /* SharedUI.swift */; };
 		DDA60D1EF35AC680C120A67F /* PreviewViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C363217B4C3CC28FB4686AAB /* PreviewViews.swift */; };
 		ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */; };
-		EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
 		F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */; };
 		F8570F7667782D43731773F3 /* SecurityScopedAccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3A62BC5F9C3D29D3AE8FDE /* SecurityScopedAccessCoordinator.swift */; };
 		F9670B1CC3695348367CF890 /* FileTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A3D269F17663D0A3AF0795 /* FileTile.swift */; };
@@ -85,42 +80,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		0BE604D75C95B89DF34CC094 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				85A2EDDBEB5C8968650A5E5F /* PrintFileManagerCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5E7306F8552773E71751E356 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				C397D037C4C389D7D728CD44 /* PrintFileManagerCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D81140FB05EF55F25F7BA012 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				490A2043C61D80330F6F6C73 /* PrintFileManagerCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDatabase.swift; sourceTree = "<group>"; };
 		0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientTests.swift; sourceTree = "<group>"; };
@@ -135,13 +94,13 @@
 		337AA15AE85601606517A1A1 /* IndexingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexingTests.swift; sourceTree = "<group>"; };
 		35965FDB1698F900D1A99372 /* PrintFileManagerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		366E4CDB4BF93811FE2538CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PrintFileManagerCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A472815FF592C604E14F530 /* AISettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsStore.swift; sourceTree = "<group>"; };
 		400C82C3DDDDBF9A3EDA5E21 /* ThreeMFKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ThreeMFKit; path = ../ThreeMFKit; sourceTree = SOURCE_ROOT; };
 		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
 		48965A44ABCB9C2AA7A9EE12 /* OrganizationSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationSheets.swift; sourceTree = "<group>"; };
 		540D57033CB2BBF7937FB5E0 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		652011BBE18B214E599DFC0B /* PrintFileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrintFileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPrintFileManagerCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		74A3D269F17663D0A3AF0795 /* FileTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTile.swift; sourceTree = "<group>"; };
 		770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationPlanner.swift; sourceTree = "<group>"; };
 		77214A821476C7E94AB11A61 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
@@ -170,7 +129,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87CB66AD561C453DC3BB1463 /* PrintFileManagerCore.framework in Frameworks */,
+				B196235F1BA352B2570BD1DC /* libPrintFileManagerCore.a in Frameworks */,
 				57BA08533E206FA346EBD6B7 /* ThreeMFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -179,18 +138,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */,
+				2FBD07027DED35F3A101210F /* libPrintFileManagerCore.a in Frameworks */,
 				7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */,
 				247C786441377F361D161879 /* ThreeMFKit in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B5B8454C1F0570F53FAEA526 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				12ED009FE3E205CAF6984735 /* ZIPFoundation in Frameworks */,
-				22C255ECB4B551368CC1ACF3 /* ThreeMFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,7 +148,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C9D7584C96EAB6603DA98F7 /* PrintFileManagerCore.framework in Frameworks */,
+				887C12741C9994744F27DE23 /* libPrintFileManagerCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,9 +189,9 @@
 		59B8082D024EAD1041EC4000 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */,
 				652011BBE18B214E599DFC0B /* PrintFileManager.app */,
 				35965FDB1698F900D1A99372 /* PrintFileManagerAppTests.xctest */,
-				394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */,
 				EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */,
 			);
 			name = Products;
@@ -346,7 +296,6 @@
 				BB6D6F7A27435FCB8C2E8632 /* Sources */,
 				7064FF9B8C323BF7D7CB0195 /* Resources */,
 				3DEB8DBB865B92B319102EBA /* Frameworks */,
-				D81140FB05EF55F25F7BA012 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -366,11 +315,13 @@
 			buildConfigurationList = 50FED4CD4819FB70B69E3E69 /* Build configuration list for PBXNativeTarget "PrintFileManagerCore" */;
 			buildPhases = (
 				D98632FF84AC0DE17EA214BF /* Sources */,
-				B5B8454C1F0570F53FAEA526 /* Frameworks */,
+				725B07135A8C13A4C10FEFEA /* Copy Swift Objective-C Interface Header */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				86A00CB1BE30480EE6CB5D58 /* PBXTargetDependency */,
+				4CDF7341A661CB949FA990B5 /* PBXTargetDependency */,
 			);
 			name = PrintFileManagerCore;
 			packageProductDependencies = (
@@ -378,8 +329,8 @@
 				6D8E13AEF3D71953642F53AD /* ThreeMFKit */,
 			);
 			productName = PrintFileManagerCore;
-			productReference = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */;
-			productType = "com.apple.product-type.framework";
+			productReference = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		9230466F435B05F12EABD239 /* PrintFileManagerAppTests */ = {
 			isa = PBXNativeTarget;
@@ -387,7 +338,6 @@
 			buildPhases = (
 				B03B2004FA61DCECD13FC383 /* Sources */,
 				C9F7B5CEC7278D858C9D7A51 /* Frameworks */,
-				5E7306F8552773E71751E356 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -408,7 +358,6 @@
 			buildPhases = (
 				D13544530B02C7ED03546190 /* Sources */,
 				5DA7F4EA299DA71F95701E3D /* Frameworks */,
-				0BE604D75C95B89DF34CC094 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -471,6 +420,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		725B07135A8C13A4C10FEFEA /* Copy Swift Objective-C Interface Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(DERIVED_SOURCES_DIR)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)",
+			);
+			name = "Copy Swift Objective-C Interface Header";
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ditto \"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B03B2004FA61DCECD13FC383 /* Sources */ = {
@@ -542,6 +510,10 @@
 			target = 680443661C56855913C65F5D /* PrintFileManagerCore */;
 			targetProxy = 217CBD5B68BC36F6092C4E93 /* PBXContainerItemProxy */;
 		};
+		4CDF7341A661CB949FA990B5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 6D8E13AEF3D71953642F53AD /* ThreeMFKit */;
+		};
 		5BCED6487CE25617A6C9A908 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 025EBDB90973AF505BBEC5F1 /* PrintFileManager */;
@@ -551,6 +523,10 @@
 			isa = PBXTargetDependency;
 			target = 680443661C56855913C65F5D /* PrintFileManagerCore */;
 			targetProxy = DB4ADFFCA6910F42F0F4211F /* PBXContainerItemProxy */;
+		};
+		86A00CB1BE30480EE6CB5D58 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = D817BC21A2DB782D9C12FA33 /* ZIPFoundation */;
 		};
 		B4495E80A0458CCB75D54F88 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -608,7 +584,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -630,6 +606,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCoreTests;
 				SDKROOT = macosx;
 			};
@@ -645,6 +625,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerAppTests;
 				SDKROOT = macosx;
@@ -663,6 +647,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerAppTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PrintFileManager.app/Contents/MacOS/PrintFileManager";
@@ -680,6 +668,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCoreTests;
 				SDKROOT = macosx;
 			};
@@ -695,6 +687,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManager;
 				SDKROOT = macosx;
@@ -755,7 +751,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -778,6 +774,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManager;
 				SDKROOT = macosx;
 			};
@@ -786,15 +786,8 @@
 		9E73D168266661D4A17A5655 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -802,22 +795,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCore;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
 		F6AC3905E3DDBE8BD1FDB09A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -825,7 +810,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.printfilemanager.PrintFileManagerCore;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};

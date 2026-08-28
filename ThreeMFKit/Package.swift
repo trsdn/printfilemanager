@@ -11,7 +11,10 @@ let package = Package(
     name: "ThreeMFKit",
     platforms: [.macOS(.v15)],
     products: [
-        .library(name: "ThreeMFKit", targets: ["ThreeMFKit"])
+        // Static so consumers link the code in rather than embedding a package-product
+        // framework. A dynamic product produces a versioned framework bundle containing
+        // symlinks, which the notarization broker's preflight rejects outright.
+        .library(name: "ThreeMFKit", type: .static, targets: ["ThreeMFKit"])
     ],
     dependencies: [
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19")

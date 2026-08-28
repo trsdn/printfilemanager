@@ -11,7 +11,7 @@ settings:
     # Single source for the version. Info.plist references these rather than carrying literals,
     # so the value cannot drift between the project and the artifact, and a release can override
     # MARKETING_VERSION from the tag instead of anyone editing a plist by hand.
-    MARKETING_VERSION: "0.1.1"
+    MARKETING_VERSION: "0.1.2"
     CURRENT_PROJECT_VERSION: "2"
 packages:
   ZIPFoundation:
@@ -23,7 +23,10 @@ packages:
     path: ../ThreeMFKit
 targets:
   PrintFileManagerCore:
-    type: framework
+    # A static library rather than a framework: an embedded framework is a versioned bundle full
+    # of symlinks, and the notarization broker's preflight rejects any archive containing one.
+    # The app ships as a single binary, so nothing is embedded at all.
+    type: library.static
     platform: macOS
     sources:
       - Sources/PrintFileManagerCore
@@ -42,6 +45,7 @@ targets:
       - Sources/PrintFileManagerApp
     dependencies:
       - target: PrintFileManagerCore
+      # A static library does not carry its dependencies, so the app links the package too.
       - package: ThreeMFKit
     settings:
       base:
