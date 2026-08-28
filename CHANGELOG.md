@@ -57,6 +57,14 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.6] — 2026-08-28
+
+### Changed
+
+- Both apps ship as universal binaries. They declared `arm64` only, so the published artifacts
+  could not run on an Intel Mac even though both require macOS 15, which Apple still supports on
+  Intel hardware from 2018-2019 onward. Artifacts are now named `-macOS-universal`.
+
 ## [0.1.5] — 2026-08-28
 
 ### Added

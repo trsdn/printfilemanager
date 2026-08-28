@@ -45,7 +45,7 @@ Quick Look extensions only register once their host app has been launched once; 
 
 ## Requirements
 
-- macOS 15 or later
+- macOS 15 or later, Apple silicon or Intel
 - Xcode 26 or later (Swift 6 language mode)
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) — `brew install xcodegen`
 
