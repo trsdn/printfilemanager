@@ -24,6 +24,11 @@ public struct ThreeMFPreviewExtractor: Sendable {
         }
 
         let candidates = resolver.orderedPreviewCandidates(in: entries)
+
+        guard Self.isThreeMFPackage(entries: entries) else {
+            return .fallback(PreviewFallback(reason: .notAThreeMFPackage, fileName: packageURL.lastPathComponent))
+        }
+
         guard !candidates.isEmpty else {
             return .fallback(PreviewFallback(reason: .noSupportedImage, fileName: packageURL.lastPathComponent))
         }
@@ -39,5 +44,14 @@ public struct ThreeMFPreviewExtractor: Sendable {
         }
 
         return .fallback(PreviewFallback(reason: .imageNormalizationFailed, fileName: packageURL.lastPathComponent))
+    }
+
+    /// A 3MF is an OPC package that must carry the 3D model part. Checking for it distinguishes a
+    /// real 3MF from any other zip archive the extension is offered.
+    static func isThreeMFPackage(entries: [ThreeMFPackageEntry]) -> Bool {
+        entries.contains { entry in
+            let path = entry.path.lowercased()
+            return path.hasSuffix(".model") && path.hasPrefix("3d/")
+        }
     }
 }

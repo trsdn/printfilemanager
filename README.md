@@ -58,8 +58,10 @@ qlmanage -p some-model.3mf                          # render a preview
 pluginkit -mAvvv -p com.apple.quicklook.preview     # confirm registration
 ```
 
-Note that other applications — Bambu Studio, OrcaSlicer, PrusaSlicer — also claim the `.3mf` type.
-When one of them owns it, macOS may route previews to that application instead.
+Note that other applications — Bambu Studio, OrcaSlicer, PrusaSlicer — also claim the `.3mf` type,
+and one of them will usually own it. The extensions therefore also register for `public.zip-archive`
+so they are still offered in that case, and check at runtime that the archive really contains a 3MF
+model part; any other archive is handed straight back to the system.
 
 Extensions must be code-signed to load on a machine other than the one that built them. Signing and
 notarization are not yet configured.

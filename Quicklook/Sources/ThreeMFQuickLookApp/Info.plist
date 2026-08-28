@@ -30,70 +30,21 @@
             <key>LSItemContentTypes</key>
             <array>
                 <string>com.printfilemanager.threemf</string>
-                <string>com.printfilemanager.3mf</string>
-                <string>com.microsoft.3mf-package</string>
-                <string>dyn.ah62d4rv4ge8xg5pg</string>
-            </array>
-        </dict>
-    </array>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-        <dict>
-            <key>UTTypeIdentifier</key>
-            <string>com.printfilemanager.threemf</string>
-            <key>UTTypeDescription</key>
-            <string>3MF Package</string>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.3d-content</string>
-                <string>public.content</string>
                 <string>public.zip-archive</string>
-                <string>public.data</string>
             </array>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>3mf</string>
-                </array>
-                <key>public.mime-type</key>
-                <array>
-                    <string>model/3mf</string>
-                    <string>application/vnd.ms-package.3dmanufacturing-3dmodel+xml</string>
-                </array>
-            </dict>
         </dict>
     </array>
+    <!--
+        Imported, not exported: `.3mf` is an open format owned in practice by the slicers
+        (Bambu Studio, OrcaSlicer, PrusaSlicer). Claiming ownership with an exported declaration
+        would fight them for the type. Importing describes the type without asserting ownership,
+        and LSHandlerRank Alternate keeps the user's slicer as the default opener.
+    -->
     <key>UTImportedTypeDeclarations</key>
     <array>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.microsoft.3mf-package</string>
-            <key>UTTypeDescription</key>
-            <string>3MF Package</string>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.3d-content</string>
-                <string>public.content</string>
-                <string>public.zip-archive</string>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>3mf</string>
-                </array>
-                <key>public.mime-type</key>
-                <array>
-                    <string>model/3mf</string>
-                    <string>application/vnd.ms-package.3dmanufacturing-3dmodel+xml</string>
-                </array>
-            </dict>
-        </dict>
-        <dict>
-            <key>UTTypeIdentifier</key>
-            <string>com.printfilemanager.3mf</string>
+            <string>com.printfilemanager.threemf</string>
             <key>UTTypeDescription</key>
             <string>3MF Package</string>
             <key>UTTypeConformsTo</key>

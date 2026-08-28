@@ -5,6 +5,11 @@ public enum PreviewFallbackReason: String, Equatable, Sendable {
     case unreadablePackage
     case noSupportedImage
     case imageNormalizationFailed
+
+    /// The archive opened but is not a 3MF package. Because the extensions also register for
+    /// `public.zip-archive` (so they still fire when a slicer owns the `.3mf` type), ordinary
+    /// zip files reach them and must be handed back to the system rather than previewed.
+    case notAThreeMFPackage
 }
 
 public struct PreviewFallback: Equatable, Sendable {

@@ -31,9 +31,11 @@
             <key>QLSupportedContentTypes</key>
             <array>
                 <string>com.printfilemanager.threemf</string>
-                <string>com.printfilemanager.3mf</string>
-                <string>com.microsoft.3mf-package</string>
-                <string>dyn.ah62d4rv4ge8xg5pg</string>
+                <!-- Fallback: when a slicer owns .3mf, the file resolves to that app's type, which
+                     conforms to public.zip-archive but not to ours. Without this the extension is
+                     never invoked. PreviewProvider sniffs for 3D/3dmodel.model at runtime so other
+                     zip archives fall through to the system preview. -->
+                <string>public.zip-archive</string>
             </array>
             <key>QLSupportsSearchableItems</key>
             <false/>

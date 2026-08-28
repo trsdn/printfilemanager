@@ -120,6 +120,35 @@ final class ThreeMFCoreTests: XCTestCase {
         XCTAssertEqual(result, .fallback(PreviewFallback(reason: .noSupportedImage, fileName: packageURL.lastPathComponent)))
     }
 
+    func testExtractorRejectsOrdinaryZipArchivesThatAreNotThreeMFPackages() throws {
+        // The extensions also register for public.zip-archive so they still fire when a slicer
+        // owns the .3mf type; a plain zip must be handed back rather than previewed.
+        let packageURL = try makePackage(entries: [
+            "photos/holiday.png": try makePNG(width: 16, height: 16),
+            "notes.txt": Data("hello".utf8)
+        ])
+        let extractor = ThreeMFPreviewExtractor()
+
+        let result = extractor.preview(for: packageURL)
+
+        XCTAssertEqual(
+            result,
+            .fallback(PreviewFallback(reason: .notAThreeMFPackage, fileName: packageURL.lastPathComponent))
+        )
+    }
+
+    func testExtractorAcceptsPackagesWhoseModelPartHasANonStandardName() throws {
+        let packageURL = try makePackage(entries: [
+            "Metadata/plate_1.png": try makePNG(width: 16, height: 16),
+            "3D/Objects.model": Data("model".utf8)
+        ])
+        let extractor = ThreeMFPreviewExtractor()
+
+        guard case .preview = extractor.preview(for: packageURL) else {
+            return XCTFail("Expected a preview for a valid 3MF package")
+        }
+    }
+
     func testExtractorFallsBackForUnreadablePackage() throws {
         let fileURL = try makeTemporaryDirectory().appendingPathComponent("broken.3mf")
         try Data("not a zip".utf8).write(to: fileURL)

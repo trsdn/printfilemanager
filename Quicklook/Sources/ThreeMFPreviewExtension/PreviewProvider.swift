@@ -28,11 +28,32 @@ final class PreviewProvider: QLPreviewProvider, QLPreviewingController {
             }
 
         case .fallback(let fallback):
+            // The extensions also register for public.zip-archive so they still fire when a
+            // slicer owns the .3mf type. Ordinary archives must be handed back to the system
+            // rather than shown our "no preview" card.
+            guard fallback.reason != .notAThreeMFPackage else {
+                logger.info("Not a 3MF package, deferring to the system file=\(request.fileURL.lastPathComponent, privacy: .private)")
+                throw CocoaError(.fileReadCorruptFile)
+            }
+
         logger.error("Preview extraction fell back file=\(request.fileURL.path, privacy: .private)")
             return QLPreviewReply(dataOfContentType: .html, contentSize: CGSize(width: 640, height: 420)) { reply in
                 reply.stringEncoding = .utf8
                 return Self.fallbackHTML(for: fallback)
             }
+        }
+    }
+
+    private static func fallbackMessage(for reason: PreviewFallbackReason) -> String {
+        switch reason {
+        case .unreadablePackage:
+            return "This file could not be opened as a 3MF package."
+        case .noSupportedImage:
+            return "No embedded 3MF preview image was found."
+        case .imageNormalizationFailed:
+            return "The embedded preview image could not be read."
+        case .notAThreeMFPackage:
+            return "This archive is not a 3MF package."
         }
     }
 
@@ -87,7 +108,7 @@ final class PreviewProvider: QLPreviewProvider, QLPreviewingController {
           <main>
             <div class=\"icon\" aria-hidden=\"true\"></div>
             <h1>\(escapedFileName)</h1>
-            <p>No embedded 3MF preview image was found.</p>
+            <p>\(Self.fallbackMessage(for: fallback.reason))</p>
           </main>
         </body>
         </html>
