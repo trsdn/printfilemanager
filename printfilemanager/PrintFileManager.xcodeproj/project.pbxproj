@@ -19,6 +19,7 @@
 		2289448DA49ECF246530AC72 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4427B9221B8B4CE8622564 /* LibraryViewModelTests.swift */; };
 		22C255ECB4B551368CC1ACF3 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6D8E13AEF3D71953642F53AD /* ThreeMFKit */; };
 		247C786441377F361D161879 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2762624B25DEFCAE4EDBF16D /* ThreeMFKit */; };
+		292999B27E347E3D433F1CA9 /* AppIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0337B1ED5AC62093C8261AA /* AppIdentity.swift */; };
 		29644748308DFF0DD550A30D /* NetworkClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */; };
 		2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */; };
 		2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */; };
@@ -153,6 +154,7 @@
 		A60DEA6D7E36AF9D9DCE9929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B26AAD36474C235E41470619 /* LibraryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
 		BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceLookupClient.swift; sourceTree = "<group>"; };
+		C0337B1ED5AC62093C8261AA /* AppIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentity.swift; sourceTree = "<group>"; };
 		C363217B4C3CC28FB4686AAB /* PreviewViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViews.swift; sourceTree = "<group>"; };
 		C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerApp.swift; sourceTree = "<group>"; };
 		CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
@@ -314,6 +316,7 @@
 			isa = PBXGroup;
 			children = (
 				3A472815FF592C604E14F530 /* AISettingsStore.swift */,
+				C0337B1ED5AC62093C8261AA /* AppIdentity.swift */,
 				254BCB2D5C535AC4BECEE178 /* Assets.xcassets */,
 				9616AAB5527A5BB86D07B666 /* ContentView.swift */,
 				1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */,
@@ -483,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */,
+				292999B27E347E3D433F1CA9 /* AppIdentity.swift in Sources */,
 				B2E6A2D341C52AFEFF85394F /* ContentView.swift in Sources */,
 				7BAAF2CACBCAF675EAED2853 /* FileInspectorView.swift in Sources */,
 				F9670B1CC3695348367CF890 /* FileTile.swift in Sources */,

@@ -1,0 +1,20 @@
+name: Conformance
+
+# B11: validates .github/conformance.yml against the published standard and fails if the record
+# drifts from its badge, is incomplete, or has aged past the review cadence.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, so an assessment ageing out surfaces on its own rather than at the next push.
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    uses: trsdn/.github/.github/workflows/conformance.yml@main

@@ -1,5 +1,7 @@
 # Print File Manager
 
+[![Conformance](.github/badges/conformance.svg)](docs/self-assessment.md)
+
 Local macOS tooling for large collections of `.3mf` 3D-printing files: a library manager that
 indexes, searches and organizes them, plus a Quick Look plug-in that previews them in Finder.
 
@@ -110,8 +112,23 @@ The original files are treated as valuable source artifacts:
 - The app runs in the App Sandbox. It can only reach folders you explicitly choose, and it keeps
   that access across launches with security-scoped bookmarks.
 
+## Project conventions
+
+The user-facing language is English and the app is English-only; there are no string catalogs and
+no planned localization. Repository and contributor surfaces are English too.
+
+Contributions, ownership and the validation commands are described in
+[CONTRIBUTING.md](CONTRIBUTING.md). Automated agents should read [AGENTS.md](AGENTS.md) first.
+Security reporting and the threat model are in [SECURITY.md](SECURITY.md).
+
+This repository is assessed against the
+[trsdn Repository Quality Standard](https://github.com/trsdn/.github); the current result is
+**Needs work**, with the evidence in [docs/self-assessment.md](docs/self-assessment.md).
+
 ## Documentation
 
+- `CHANGELOG.md` — user-facing and operational changes
+- `docs/self-assessment.md` — conformance evidence against the repository standard
 - `docs/prd-3mf-library-manager.md` — library manager requirements
 - `docs/prd-3mf-quick-look-preview.md` — Quick Look requirements
 - `docs/app-review-2026-05-03-print-file-manager.md` — earlier product review

@@ -100,6 +100,22 @@ struct SettingsView: View {
                     """)
                     .foregroundStyle(.secondary)
             }
+
+            Section {
+                LabeledContent("Version", value: AppIdentity.versionDescription)
+                if let repositoryURL = AppIdentity.repositoryURL {
+                    Link("Source code", destination: repositoryURL)
+                }
+                if let issueTrackerURL = AppIdentity.issueTrackerURL {
+                    Link("Report an issue", destination: issueTrackerURL)
+                }
+            } header: {
+                Label("About", systemImage: "info.circle")
+                    .font(.headline)
+            } footer: {
+                Text(AppIdentity.copyright)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
         .padding(20)
