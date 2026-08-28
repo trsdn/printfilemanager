@@ -80,7 +80,11 @@ jobs:
           git switch -c "$BRANCH"
           git add -- .github/stats
           git commit -m "chore(stats): update repository stats"
-          git push --force-with-lease origin "$BRANCH"
+          # Plain --force is correct here: this branch is owned entirely by this workflow, is
+          # recreated from main every run, and is deleted on merge. --force-with-lease cannot be
+          # used because a fresh checkout has no tracking ref to lease against, which is what
+          # broke the first run after the branch was deleted.
+          git push --force origin "$BRANCH"
 
           # Reuse the open pull request when there is one, so a weekly refresh does not pile up.
           if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
