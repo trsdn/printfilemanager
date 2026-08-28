@@ -36,10 +36,14 @@ jobs:
             directory: printfilemanager
             project: PrintFileManager.xcodeproj
             scheme: PrintFileManager
+            action: test
           - name: 3MF Quick Look
             directory: Quicklook
             project: ThreeMFQuickLook.xcodeproj
             scheme: ThreeMFQuickLook
+            # No test target of its own: the shared parsing is tested in the ThreeMFKit
+            # package job, and the extensions themselves are covered by building them.
+            action: build
 
     steps:
       # Both projects and the shared package are checked out together: each Xcode project
@@ -72,7 +76,7 @@ jobs:
         working-directory: ${{ matrix.directory }}
         run: |
           set -o pipefail
-          xcodebuild test \
+          xcodebuild "${{ matrix.action }}" \
             -project "${{ matrix.project }}" \
             -scheme "${{ matrix.scheme }}" \
             -destination 'platform=macOS' \

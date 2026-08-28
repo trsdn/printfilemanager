@@ -195,20 +195,27 @@ public struct LibrarySearch {
         }
 
         private static func build(for record: PrintFileRecord) -> String {
-            var parts = [
-                record.fileName,
-                record.relativePath,
-                record.projectName ?? "",
-                record.projectKey ?? "",
-                record.variantName ?? "",
-                record.category ?? "",
-                record.printability?.title ?? "",
-                record.sourceInfo?.platform ?? "",
-                record.sourceInfo?.author ?? "",
-                record.sourceInfo?.license ?? "",
-                record.sourceInfo?.url ?? "",
-                record.notes
-            ]
+            // Built up explicitly rather than as one large heterogeneous literal: a single array
+            // literal of a dozen optional-coalescing expressions is expensive enough to type-check
+            // that it times out the compiler on slower machines.
+            var parts: [String] = []
+            parts.reserveCapacity(32)
+
+            parts.append(record.fileName)
+            parts.append(record.relativePath)
+            parts.append(record.projectName ?? "")
+            parts.append(record.projectKey ?? "")
+            parts.append(record.variantName ?? "")
+            parts.append(record.category ?? "")
+            parts.append(record.printability?.title ?? "")
+            parts.append(record.notes)
+
+            if let sourceInfo = record.sourceInfo {
+                parts.append(sourceInfo.platform ?? "")
+                parts.append(sourceInfo.author ?? "")
+                parts.append(sourceInfo.license ?? "")
+                parts.append(sourceInfo.url ?? "")
+            }
             if let printDetails = record.printDetails {
                 parts.append(contentsOf: printDetails.materials)
                 parts.append(contentsOf: printDetails.colors)
@@ -217,9 +224,13 @@ public struct LibrarySearch {
             }
             if let printHistory = record.printHistory {
                 for entry in printHistory {
-                    parts.append(contentsOf: [entry.printer, entry.material, entry.result, entry.notes])
+                    parts.append(entry.printer)
+                    parts.append(entry.material)
+                    parts.append(entry.result)
+                    parts.append(entry.notes)
                 }
             }
+
             parts.append(contentsOf: record.userTags)
             parts.append(contentsOf: record.generatedTags.map(\.value))
             parts.append(contentsOf: record.sourceHints)
