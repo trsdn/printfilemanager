@@ -10,8 +10,8 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: "YES"
     # Single source for the version, mirroring printfilemanager/project.yml. Both projects ship
     # in one release, so scripts/check-versions.sh enforces that these two values stay equal.
-    MARKETING_VERSION: "0.1.6"
-    CURRENT_PROJECT_VERSION: "5"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "6"
 packages:
   # Shared 3MF parsing and preview extraction, also consumed by the app project.
   # Its own tests live in the package and run with `swift test`.
