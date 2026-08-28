@@ -386,7 +386,7 @@ public enum SmartCollection: String, CaseIterable, Identifiable, Codable, Sendab
         case .latestEdited: "Latest Edited"
         case .untagged: "Untagged"
         case .missingPreview: "Missing Preview"
-        case .indexingErrors: "Indexing Errors"
+        case .indexingErrors: "Unreadable Files"
         case .duplicateCandidates: "Duplicate Candidates"
         }
     }

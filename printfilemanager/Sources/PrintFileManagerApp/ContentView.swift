@@ -85,6 +85,27 @@ struct ContentView: View {
         } message: { record in
             Text("This will move \(record.fileName) to the macOS Trash and remove it from the library index.")
         }
+        .alert("Remove Folder from Library?", isPresented: removeRootAlertBinding, presenting: viewModel.removeRootRequest) { root in
+            Button("Cancel", role: .cancel) {
+                viewModel.removeRootRequest = nil
+            }
+            Button("Remove", role: .destructive) {
+                viewModel.removeRoot(root)
+            }
+        } message: { root in
+            Text("\(root.displayName) will no longer be scanned and its indexed files, tags and notes will be removed from the library. The files on disk are not touched.")
+        }
+    }
+
+    private var removeRootAlertBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.removeRootRequest != nil },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.removeRootRequest = nil
+                }
+            }
+        )
     }
 
     private var deleteAlertBinding: Binding<Bool> {
@@ -343,7 +364,20 @@ private struct FolderRow: View {
             }
             .buttonStyle(.borderless)
             .controlSize(.small)
+            .accessibilityLabel("Rescan folder")
             .help("Rescan folder")
+        }
+        .contextMenu {
+            Button("Reveal in Finder") {
+                NSWorkspace.shared.activateFileViewerSelecting([root.url])
+            }
+            Button("Rescan Folder") {
+                viewModel.scan(root: root)
+            }
+            Divider()
+            Button("Remove from Library", role: .destructive) {
+                viewModel.removeRootRequest = root
+            }
         }
     }
 }
@@ -385,6 +419,7 @@ private struct LibraryBrowserView: View {
                     } label: {
                         Image(systemName: viewModel.sortAscending ? "arrow.up" : "arrow.down")
                     }
+                    .accessibilityLabel(viewModel.sortAscending ? "Sort ascending" : "Sort descending")
                     .help(viewModel.sortAscending ? "Ascending" : "Descending")
 
                     Text("\(viewModel.filteredRecords.count)")
@@ -404,20 +439,90 @@ private struct LibraryBrowserView: View {
             if viewModel.snapshot.roots.isEmpty {
                 EmptyLibraryView()
             } else if viewModel.filteredRecords.isEmpty {
-                ContentUnavailableView("No Results", systemImage: "magnifyingglass", description: Text("Try another search, filter, or collection."))
+                EmptyResultsView()
             } else {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(viewModel.filteredRecords) { record in
                             FileTile(record: record, isSelected: viewModel.selectedRecordIDs.contains(record.id))
                                 .onTapGesture {
-                                    viewModel.select(record: record, extendingSelection: NSApp.currentEvent?.modifierFlags.contains(.command) == true)
+                                    let flags = NSApp.currentEvent?.modifierFlags ?? []
+                                    let modifier: LibraryViewModel.SelectionModifier =
+                                        flags.contains(.shift) ? .extendRange
+                                        : flags.contains(.command) ? .toggle
+                                        : .replace
+                                    viewModel.select(record: record, modifier: modifier)
                                 }
                         }
                     }
                     .padding(16)
                 }
             }
+        }
+    }
+}
+
+/// Distinguishes "your search found nothing" from "this collection is legitimately empty", and
+/// always offers the action that resolves it. A single generic message leaves the user stuck.
+private struct EmptyResultsView: View {
+    @EnvironmentObject private var viewModel: LibraryViewModel
+
+    var body: some View {
+        if !viewModel.searchText.isEmpty {
+            ContentUnavailableView {
+                Label("No files match “\(viewModel.searchText)”", systemImage: "magnifyingglass")
+            } description: {
+                Text("Search looks at names, folders, tags, notes and extracted metadata.")
+            } actions: {
+                Button("Clear Search") { viewModel.searchText = "" }
+            }
+        } else if viewModel.activeFilterCount > 0 {
+            ContentUnavailableView {
+                Label("No files match your filters", systemImage: "line.3.horizontal.decrease.circle")
+            } description: {
+                Text("\(viewModel.activeFilterCount) filters are active.")
+            } actions: {
+                Button("Clear Filters") { viewModel.clearFilters() }
+            }
+        } else if viewModel.snapshot.records.isEmpty {
+            ContentUnavailableView {
+                Label("Nothing indexed yet", systemImage: "tray")
+            } description: {
+                Text("Your folders have been added but contain no .3mf files, or have not been scanned yet.")
+            } actions: {
+                Button("Rescan All") { viewModel.rescanAllRoots() }
+                    .disabled(viewModel.isScanning)
+            }
+        } else {
+            ContentUnavailableView {
+                Label(emptyCollectionTitle, systemImage: viewModel.selectedCollection?.systemImage ?? "tray")
+            } description: {
+                Text(emptyCollectionMessage)
+            } actions: {
+                Button("Show All Files") { viewModel.select(collection: .all) }
+            }
+        }
+    }
+
+    private var emptyCollectionTitle: String {
+        switch viewModel.selectedCollection {
+        case .needsReview: return "Nothing needs review"
+        case .untagged: return "Everything is tagged"
+        case .missingPreview: return "Every file has a preview"
+        case .indexingErrors: return "No unreadable files"
+        case .duplicateCandidates: return "No duplicates found"
+        default: return "Nothing here yet"
+        }
+    }
+
+    private var emptyCollectionMessage: String {
+        switch viewModel.selectedCollection {
+        case .needsReview: return "Every file has the information it needs."
+        case .untagged: return "All indexed files carry at least one tag."
+        case .missingPreview: return "Every indexed file has a usable preview image."
+        case .indexingErrors: return "Every file in your library could be read."
+        case .duplicateCandidates: return "No two files share the same contents."
+        default: return "This collection has no files in it."
         }
     }
 }
@@ -585,20 +690,74 @@ private struct EmptyLibraryView: View {
     @EnvironmentObject private var viewModel: LibraryViewModel
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "folder.badge.plus")
-                .font(.title)
-                .foregroundStyle(.secondary)
-            Text("Add a Folder")
-                .font(.title3.weight(.semibold))
+        VStack(spacing: 20) {
+            VStack(spacing: 10) {
+                Image(systemName: "shippingbox")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.tint)
+                    .accessibilityHidden(true)
+
+                Text("Find your print files again")
+                    .font(.title2.weight(.semibold))
+
+                Text("Point the app at the folders where your .3mf files already live. Nothing is moved, renamed or deleted until you ask for it.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 420)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                OnboardingStep(number: 1, title: "Add a folder", detail: "Every .3mf inside it is indexed, including subfolders.")
+                OnboardingStep(number: 2, title: "Browse and search", detail: "Previews, printer and material details, tags and notes.")
+                OnboardingStep(number: 3, title: "Sort when you are ready", detail: "Copy or move into a managed library — always previewed first, and undoable.")
+            }
+            .frame(maxWidth: 420, alignment: .leading)
+
             Button {
                 viewModel.addFolderFromPanel()
             } label: {
-                Label("Add Folder", systemImage: "plus")
+                Label("Add a Folder", systemImage: "folder.badge.plus")
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+
+            Label("Indexing runs entirely on this Mac. AI enrichment and web lookup are optional and switched off until you enable them in Settings.", systemImage: "lock")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 420)
         }
+        .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct OnboardingStep: View {
+    let number: Int
+    let title: String
+    let detail: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text("\(number)")
+                .font(.caption.monospacedDigit().weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 18, height: 18)
+                .background(Color.accentColor, in: Circle())
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(.callout.weight(.medium))
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -666,6 +825,7 @@ private struct FileTile: View {
                 }
                 .buttonStyle(.borderless)
                 .controlSize(.small)
+                .accessibilityLabel("Move to managed library")
                 .disabled(viewModel.managedFolderURL == nil)
                 .help("Move to managed folder")
 
@@ -677,6 +837,7 @@ private struct FileTile: View {
                 }
                 .buttonStyle(.borderless)
                 .controlSize(.small)
+                .accessibilityLabel("Open in Bambu Studio")
                 .help("Open in Bambu Studio")
 
                 Button(role: .destructive) {
@@ -687,6 +848,7 @@ private struct FileTile: View {
                 }
                 .buttonStyle(.borderless)
                 .controlSize(.small)
+                .accessibilityLabel("Move to Trash")
                 .help("Move to Trash")
             }
             .frame(height: 28)
@@ -704,6 +866,12 @@ private struct FileTile: View {
                 viewModel.openInDefaultApp(record: record)
             } label: {
                 Label("Open", systemImage: "arrow.up.forward.app")
+            }
+
+            Button {
+                NSWorkspace.shared.activateFileViewerSelecting([record.url])
+            } label: {
+                Label("Reveal in Finder", systemImage: "folder")
             }
 
             Button {
@@ -1191,6 +1359,7 @@ private struct FileInspectorView: View {
                         } label: {
                             Image(systemName: "plus")
                         }
+                        .accessibilityLabel("Add tag")
                         .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
@@ -1354,6 +1523,7 @@ private struct FileInspectorView: View {
                                 Image(systemName: "trash")
                             }
                             .buttonStyle(.borderless)
+                            .accessibilityLabel("Delete print log entry")
                         }
                     }
                 } else if !isAddingPrintLog {
@@ -1752,6 +1922,7 @@ private struct SuggestedTagChip: View {
                 Image(systemName: "checkmark")
             }
             .buttonStyle(.borderless)
+            .accessibilityLabel("Accept suggested tag")
             .help("Accept tag")
 
             Button {
@@ -1760,6 +1931,7 @@ private struct SuggestedTagChip: View {
                 Image(systemName: "xmark")
             }
             .buttonStyle(.borderless)
+            .accessibilityLabel("Reject suggested tag")
             .help("Reject tag")
         }
         .font(.caption)

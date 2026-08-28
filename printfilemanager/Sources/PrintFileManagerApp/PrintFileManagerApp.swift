@@ -29,6 +29,14 @@ struct PrintFileManagerApp: App {
                 .disabled(!(viewModel.lastOrganizationReport?.isUndoable ?? false) || viewModel.isOrganizing)
             }
 
+            CommandGroup(after: .pasteboard) {
+                Button("Select All") {
+                    viewModel.selectAllVisibleRecords()
+                }
+                .keyboardShortcut("a", modifiers: .command)
+                .disabled(viewModel.filteredRecords.isEmpty)
+            }
+
             CommandMenu("Library") {
                 Button("Add Folder...") {
                     viewModel.addFolderFromPanel()
@@ -39,6 +47,24 @@ struct PrintFileManagerApp: App {
                     viewModel.rescanAllRoots()
                 }
                 .keyboardShortcut("r", modifiers: [.command])
+
+                Divider()
+
+                Button("Reveal in Finder") {
+                    if let record = viewModel.selectedRecord {
+                        NSWorkspace.shared.activateFileViewerSelecting([record.url])
+                    }
+                }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
+                .disabled(viewModel.selectedRecord == nil)
+
+                Button("Move to Trash") {
+                    if let record = viewModel.selectedRecord {
+                        viewModel.requestDelete(record: record)
+                    }
+                }
+                .keyboardShortcut(.delete, modifiers: .command)
+                .disabled(viewModel.selectedRecord == nil)
             }
         }
 

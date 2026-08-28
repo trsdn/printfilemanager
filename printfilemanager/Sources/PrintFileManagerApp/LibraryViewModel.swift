@@ -30,6 +30,9 @@ final class LibraryViewModel: ObservableObject {
     @Published var lastOrganizationReport: OrganizationExecutionReport?
 
     @Published var deleteCandidate: PrintFileRecord?
+
+    /// A root the user asked to remove, held until they confirm.
+    @Published var removeRootRequest: LibraryRoot?
     @Published private(set) var statusMessage = ""
 
     /// Set when the library file exists but could not be decoded. While this holds a value the
@@ -54,6 +57,7 @@ final class LibraryViewModel: ObservableObject {
     private var pendingSaveTask: Task<Void, Never>?
 
     private var snapshotRevision: UInt64 = 0
+    private var selectionAnchorID: UUID?
     private var cachedFilterKey: FilterCacheKey?
     private var cachedFilteredRecords: [PrintFileRecord] = []
     private var cachedCollectionCounts: CollectionCounts?
@@ -330,6 +334,27 @@ final class LibraryViewModel: ObservableObject {
         addRoot(url: url)
     }
 
+    /// Removes a scanned folder and everything indexed from it. The files themselves are untouched.
+    func removeRoot(_ root: LibraryRoot) {
+        let removedCount = snapshot.records.filter { $0.rootID == root.id }.count
+        snapshot.roots.removeAll { $0.id == root.id }
+        snapshot.records.removeAll { $0.rootID == root.id }
+
+        if selectedRootID == root.id {
+            selectedRootID = nil
+            selectedCollection = .all
+        }
+        selectedRecordIDs = selectedRecordIDs.filter { id in snapshot.records.contains { $0.id == id } }
+        if let selectedRecordID, !snapshot.records.contains(where: { $0.id == selectedRecordID }) {
+            self.selectedRecordID = nil
+        }
+
+        removeRootRequest = nil
+        statusMessage = "Removed \(root.displayName) and \(removedCount) indexed files. The files on disk were not touched."
+        startWatchingFolders()
+        flushPendingSave()
+    }
+
     func setManagedFolderFromPanel() {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
@@ -433,8 +458,19 @@ final class LibraryViewModel: ObservableObject {
         sortAscending = true
     }
 
-    func select(record: PrintFileRecord, extendingSelection: Bool) {
-        if extendingSelection {
+    /// How a click should change the selection, following standard Mac conventions.
+    enum SelectionModifier {
+        /// Plain click: replace the selection.
+        case replace
+        /// Command-click: toggle this file in or out.
+        case toggle
+        /// Shift-click: extend from the last clicked file to this one.
+        case extendRange
+    }
+
+    func select(record: PrintFileRecord, modifier: SelectionModifier) {
+        switch modifier {
+        case .toggle:
             if selectedRecordIDs.contains(record.id) {
                 selectedRecordIDs.remove(record.id)
                 selectedRecordID = firstVisibleSelectedRecordID()
@@ -442,10 +478,35 @@ final class LibraryViewModel: ObservableObject {
                 selectedRecordIDs.insert(record.id)
                 selectedRecordID = record.id
             }
-        } else {
+            selectionAnchorID = record.id
+
+        case .extendRange:
+            let visible = filteredRecords
+            guard let anchorID = selectionAnchorID ?? selectedRecordID,
+                  let anchorIndex = visible.firstIndex(where: { $0.id == anchorID }),
+                  let targetIndex = visible.firstIndex(where: { $0.id == record.id }) else {
+                selectedRecordIDs = [record.id]
+                selectedRecordID = record.id
+                selectionAnchorID = record.id
+                return
+            }
+            let range = anchorIndex <= targetIndex ? anchorIndex...targetIndex : targetIndex...anchorIndex
+            selectedRecordIDs = Set(visible[range].map(\.id))
+            selectedRecordID = record.id
+
+        case .replace:
             selectedRecordIDs = [record.id]
             selectedRecordID = record.id
+            selectionAnchorID = record.id
         }
+    }
+
+    func selectAllVisibleRecords() {
+        let visible = filteredRecords
+        guard !visible.isEmpty else { return }
+        selectedRecordIDs = Set(visible.map(\.id))
+        selectedRecordID = selectedRecordID ?? visible.first?.id
+        selectionAnchorID = visible.first?.id
     }
 
     func scan(root: LibraryRoot) {
