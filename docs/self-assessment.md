@@ -161,4 +161,6 @@ Fixing this surfaced a separate defect. `main` required a check named `Conforman
 reusable workflow reports it as `conformance / Conformance record`, so that requirement could never
 be satisfied. It had gone unnoticed because every change so far reached `main` by an admin push
 rather than through a pull request. The context name is corrected and the `Versions` check is now
-required as well.
+required as well. Verified by merging the stats pull request through the protection rather than
+around it: all five required checks reported, the pull request went `CLEAN`, and it merged without
+an admin bypass — the first change in this repository to do so.
