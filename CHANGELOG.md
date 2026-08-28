@@ -17,6 +17,9 @@ All notable changes to this project are recorded here. The format follows
   builds.
 - `AGENTS.md` describing layout, validation commands and forbidden operations.
 - An app-layer test target covering persistence safety, selection, privacy gating and undo.
+- `scripts/ci-local.sh`, which runs the CI pipeline locally because hosted Actions are blocked.
+- Onboarding in `macos-notarization-broker` as the `printfilemanager` and `threemfquicklook`
+  profiles, so distribution builds are signed without Apple credentials touching this repository.
 
 ### Changed
 

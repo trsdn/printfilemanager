@@ -83,10 +83,12 @@ run_project() {
     CODE_SIGNING_ALLOWED=NO \
     CODE_SIGN_IDENTITY="" > "$log" 2>&1 || status=$?
 
-  # The test host emits a lot of unrelated system-daemon chatter, so report only lines that say
-  # something about this build.
+  # The test host emits a lot of unrelated system-daemon chatter, some of which contains the
+  # word "error:" and would otherwise be reported as a build problem. Filter on the noise's own
+  # markers rather than trying to match only well-formed compiler diagnostics.
   grep -E "error:|warning: .*\.swift|Executed [0-9]+ test|TEST (SUCCEEDED|FAILED)|BUILD (SUCCEEDED|FAILED)" "$log" \
-    | grep -v -e appintents -e iOSSimulator -e "\[Connection\]" \
+    | grep -v -e appintents -e iOSSimulator -e "\[Connection\]" -e NSCocoaErrorDomain \
+              -e autoShortcut -e "Process Instance Registry" -e synchronousRemoteObjectProxy \
     | sort -u || true
 
   if [ "$status" -ne 0 ]; then

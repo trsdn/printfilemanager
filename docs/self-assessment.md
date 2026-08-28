@@ -132,6 +132,18 @@ it is actively developed, so the Archived profile is not applicable either.
 | fail | 3 |
 | na | 15 |
 
+### Going public would close all three failures
+
+The broker that produces notarized builds fetches source anonymously, so it cannot build this
+repository while it is private. Making the repository public is therefore both the release
+prerequisite and the fix for every remaining failure, since public repositories get branch
+protection, secret scanning and Actions minutes at no cost.
+
+That decision belongs to the owner and has not been taken. To make it an informed one, the history
+was scanned first: 21 commits, no file matching a credential shape was ever added, no diff in any
+commit contains a key, token or private-key pattern, and the one absolute home path that appeared
+in a documentation note has been removed. Nothing found in the history argues against publishing.
+
 The three remaining failures are B06, S05 and S09, and they share one root cause: the repository is
 private on a plan that provides neither branch protection nor secret scanning, and no workflow can
 run because Actions billing is blocked — verified against both a macOS and an Ubuntu job, so it is
