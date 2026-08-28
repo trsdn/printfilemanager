@@ -2,13 +2,15 @@ import Foundation
 
 public final class LibraryDatabase {
     public let fileURL: URL
+    private let thumbnailStore: ThumbnailStore?
 
     /// Set once a `.bak` has been written for this session, so the backup captures the last
     /// known-good state rather than being overwritten by every subsequent save.
     private var hasWrittenSessionBackup = false
 
-    public init(fileURL: URL) {
+    public init(fileURL: URL, thumbnailStore: ThumbnailStore? = nil) {
         self.fileURL = fileURL
+        self.thumbnailStore = thumbnailStore
     }
 
     public static func applicationSupport() throws -> LibraryDatabase {
@@ -20,7 +22,10 @@ public final class LibraryDatabase {
         )
         let folderURL = baseURL.appendingPathComponent("Print File Manager", isDirectory: true)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        return LibraryDatabase(fileURL: folderURL.appendingPathComponent("library-index.json"))
+        return LibraryDatabase(
+            fileURL: folderURL.appendingPathComponent("library-index.json"),
+            thumbnailStore: ThumbnailStore(directoryURL: folderURL.appendingPathComponent("Thumbnails", isDirectory: true))
+        )
     }
 
     public func load() throws -> LibrarySnapshot {
@@ -28,19 +33,59 @@ public final class LibraryDatabase {
             return LibrarySnapshot()
         }
 
-        let data = try Data(contentsOf: fileURL)
+        var data = try Data(contentsOf: fileURL)
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let snapshot = try decoder.decode(LibrarySnapshot.self, from: data)
 
-        guard snapshot.schemaVersion <= LibrarySnapshot.currentSchemaVersion else {
+        let storedVersion = try Self.schemaVersion(in: data)
+        guard storedVersion <= LibrarySnapshot.currentSchemaVersion else {
             throw LibrarySchemaError.unsupportedSchemaVersion(
-                found: snapshot.schemaVersion,
+                found: storedVersion,
                 supported: LibrarySnapshot.currentSchemaVersion
             )
         }
 
-        return migrate(snapshot)
+        if storedVersion < 2 {
+            data = try migrateEmbeddedThumbnails(in: data)
+        }
+
+        var snapshot = try decoder.decode(LibrarySnapshot.self, from: data)
+        snapshot.schemaVersion = LibrarySnapshot.currentSchemaVersion
+        return snapshot
+    }
+
+    /// Reads the schema version without decoding the whole document, so a version that this build
+    /// cannot represent is rejected before the typed decode fails on unfamiliar fields.
+    private static func schemaVersion(in data: Data) throws -> Int {
+        guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw LibrarySchemaError.unreadableIndex
+        }
+        return object["schemaVersion"] as? Int ?? 1
+    }
+
+    /// Schema 1 stored preview images as base64 inside every record. This moves them into the
+    /// thumbnail store and replaces them with a key, which is what shrinks the index.
+    private func migrateEmbeddedThumbnails(in data: Data) throws -> Data {
+        guard var object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              var records = object["records"] as? [[String: Any]] else {
+            throw LibrarySchemaError.unreadableIndex
+        }
+
+        for index in records.indices {
+            guard let encodedImage = records[index]["thumbnailData"] as? String else { continue }
+            records[index]["thumbnailData"] = nil
+
+            guard let imageData = Data(base64Encoded: encodedImage), !imageData.isEmpty else { continue }
+            // Without a store there is nowhere to put the image, so the record simply loses its
+            // cached preview and will regenerate one on the next scan.
+            if let key = try? thumbnailStore?.store(imageData) {
+                records[index]["thumbnailKey"] = key
+            }
+        }
+
+        object["records"] = records
+        object["schemaVersion"] = LibrarySnapshot.currentSchemaVersion
+        return try JSONSerialization.data(withJSONObject: object)
     }
 
     /// Moves an index file that could not be decoded out of the way so it is never overwritten,
@@ -76,13 +121,6 @@ public final class LibraryDatabase {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(updatedSnapshot)
         try data.write(to: fileURL, options: [.atomic])
-    }
-
-    /// Applies forward migrations for older on-disk formats.
-    private func migrate(_ snapshot: LibrarySnapshot) -> LibrarySnapshot {
-        var migrated = snapshot
-        migrated.schemaVersion = LibrarySnapshot.currentSchemaVersion
-        return migrated
     }
 
     private func writeSessionBackupIfNeeded() throws {

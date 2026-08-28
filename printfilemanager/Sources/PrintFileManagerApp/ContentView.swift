@@ -8,15 +8,21 @@ struct ContentView: View {
     @EnvironmentObject private var aiSettings: AISettingsStore
 
     var body: some View {
-        NavigationSplitView {
-            SidebarView()
-                .navigationSplitViewColumnWidth(min: 220, ideal: 260)
-        } content: {
-            LibraryBrowserView()
-                .navigationSplitViewColumnWidth(min: 520, ideal: 720)
-        } detail: {
-            FileInspectorView(record: viewModel.selectedRecord)
-                .navigationSplitViewColumnWidth(min: 300, ideal: 360)
+        VStack(spacing: 0) {
+            if let lockout = viewModel.persistenceLockout {
+                PersistenceLockoutBanner(lockout: lockout)
+            }
+
+            NavigationSplitView {
+                SidebarView()
+                    .navigationSplitViewColumnWidth(min: 220, ideal: 260)
+            } content: {
+                LibraryBrowserView()
+                    .navigationSplitViewColumnWidth(min: 520, ideal: 720)
+            } detail: {
+                FileInspectorView(record: viewModel.selectedRecord)
+                    .navigationSplitViewColumnWidth(min: 300, ideal: 360)
+            }
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
@@ -86,6 +92,63 @@ struct ContentView: View {
                 }
             }
         )
+    }
+}
+
+/// Shown when the library index could not be read. Writes are blocked in that state, so the user
+/// has to be told loudly and given a way out — otherwise everything they do is silently discarded.
+private struct PersistenceLockoutBanner: View {
+    @EnvironmentObject private var viewModel: LibraryViewModel
+    @State private var isConfirmingFreshLibrary = false
+
+    let lockout: LibraryViewModel.PersistenceLockout
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Image(systemName: "exclamationmark.octagon.fill")
+                .foregroundStyle(.white)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Your library index could not be read — changes are not being saved.")
+                    .font(.callout.weight(.semibold))
+                Text(lockout.quarantinedFileURL == nil
+                     ? lockout.reason
+                     : "\(lockout.reason) The unreadable file has been kept so nothing is lost.")
+                    .font(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(.white)
+
+            Spacer(minLength: 8)
+
+            if let quarantinedFileURL = lockout.quarantinedFileURL {
+                Button("Reveal Saved Copy") {
+                    NSWorkspace.shared.activateFileViewerSelecting([quarantinedFileURL])
+                }
+            }
+
+            Button("Start a Fresh Library") {
+                isConfirmingFreshLibrary = true
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.red)
+        .confirmationDialog(
+            "Start a fresh library?",
+            isPresented: $isConfirmingFreshLibrary,
+            titleVisibility: .visible
+        ) {
+            Button("Start Fresh", role: .destructive) {
+                viewModel.startFreshLibraryAfterLoadFailure()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your folders, tags and notes will be re-created from scratch. Your .3mf files are never touched, and the unreadable index is kept on disk.")
+        }
     }
 }
 
@@ -546,7 +609,7 @@ private struct FileTile: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(.quaternary.opacity(0.45))
-                ThumbnailView(data: record.thumbnailData)
+                ThumbnailView(data: viewModel.thumbnail(for: record))
                     .padding(8)
             }
             .frame(height: 132)
@@ -1001,6 +1064,11 @@ private struct FileInspectorView: View {
                     }
                     .pickerStyle(.menu)
                 }
+                // Committed as you type, like Notes. Without this, switching to another file
+                // discards whatever was typed since the last "Done".
+                .onChange(of: category) { _, _ in saveDomainFields(record) }
+                .onChange(of: variantName) { _, _ in saveDomainFields(record) }
+                .onChange(of: printabilityID) { _, _ in saveDomainFields(record) }
             } else {
                 MetadataRow(label: "Key", value: displayValue(record.projectKey))
                 MetadataRow(label: "Category", value: displayValue(record.category))
@@ -1114,6 +1182,12 @@ private struct FileInspectorView: View {
                     TextField("License", text: $sourceLicense)
                     TextField("Source URL", text: $sourceURL)
                 }
+                // See projectSection: commit as you type so changing the selection cannot
+                // silently throw the edit away.
+                .onChange(of: sourcePlatform) { _, _ in saveSourceInfo(record) }
+                .onChange(of: sourceAuthor) { _, _ in saveSourceInfo(record) }
+                .onChange(of: sourceLicense) { _, _ in saveSourceInfo(record) }
+                .onChange(of: sourceURL) { _, _ in saveSourceInfo(record) }
             } else {
                 MetadataRow(label: "Platform", value: displayValue(record.sourceInfo?.platform))
                 MetadataRow(label: "Author", value: displayValue(record.sourceInfo?.author))
@@ -1332,6 +1406,7 @@ private struct PrintDetailsView: View {
 }
 
 private struct PlateAndModelPreview: View {
+    @EnvironmentObject private var viewModel: LibraryViewModel
     let record: PrintFileRecord
     @State private var platePreviews: [PlatePreview] = []
     @State private var mesh: ThreeMFMesh?
@@ -1363,7 +1438,7 @@ private struct PlateAndModelPreview: View {
                     ThumbnailView(data: preview.imageData)
                         .padding(8)
                 } else {
-                    ThumbnailView(data: record.thumbnailData)
+                    ThumbnailView(data: viewModel.thumbnail(for: record))
                         .padding(8)
                 }
             }

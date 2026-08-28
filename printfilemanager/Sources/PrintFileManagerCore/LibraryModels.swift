@@ -193,7 +193,10 @@ public struct PrintFileRecord: Identifiable, Codable, Equatable, Sendable {
     public var indexedAt: Date?
     public var indexingStatus: IndexingStatus
     public var previewStatus: PreviewStatus
-    public var thumbnailData: Data?
+
+    /// Key into `ThumbnailStore` rather than the image bytes themselves; see that type for why.
+    public var thumbnailKey: String?
+
     public var projectName: String?
     public var sourceHints: [String]
     public var metadata: [String: String]
@@ -223,7 +226,7 @@ public struct PrintFileRecord: Identifiable, Codable, Equatable, Sendable {
         indexedAt: Date? = nil,
         indexingStatus: IndexingStatus = .pending,
         previewStatus: PreviewStatus = .missing,
-        thumbnailData: Data? = nil,
+        thumbnailKey: String? = nil,
         projectName: String? = nil,
         sourceHints: [String] = [],
         metadata: [String: String] = [:],
@@ -252,7 +255,7 @@ public struct PrintFileRecord: Identifiable, Codable, Equatable, Sendable {
         self.indexedAt = indexedAt
         self.indexingStatus = indexingStatus
         self.previewStatus = previewStatus
-        self.thumbnailData = thumbnailData
+        self.thumbnailKey = thumbnailKey
         self.projectName = projectName
         self.sourceHints = sourceHints
         self.metadata = metadata
@@ -317,7 +320,7 @@ public struct LibrarySnapshot: Codable, Equatable, Sendable {
     /// Bump this whenever the on-disk shape changes in a way that older or newer builds cannot
     /// read, and extend `migrate(from:)` accordingly. Files written before versioning existed
     /// decode as version 1 because the property is optional in `init(from:)`.
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
 
     public var schemaVersion: Int
     public var roots: [LibraryRoot]
@@ -351,11 +354,14 @@ public struct LibrarySnapshot: Codable, Equatable, Sendable {
 
 public enum LibrarySchemaError: Error, Equatable, LocalizedError {
     case unsupportedSchemaVersion(found: Int, supported: Int)
+    case unreadableIndex
 
     public var errorDescription: String? {
         switch self {
         case let .unsupportedSchemaVersion(found, supported):
             return "The library index was written by a newer version of the app (format \(found), this build supports \(supported))."
+        case .unreadableIndex:
+            return "The library index is not in a recognisable format."
         }
     }
 }

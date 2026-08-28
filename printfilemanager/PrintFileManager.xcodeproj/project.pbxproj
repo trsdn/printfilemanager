@@ -13,6 +13,7 @@
 		1CA71A28824BCB7ADC25F0BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254BCB2D5C535AC4BECEE178 /* Assets.xcassets */; };
 		26D0CC8E3F24B67DFF44FF8B /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */; };
 		2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */; };
+		2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */; };
 		32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */; };
 		41B1E32BC7FBF6A2A53361D9 /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */; };
 		490A2043C61D80330F6F6C73 /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -93,6 +94,7 @@
 		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
 		652011BBE18B214E599DFC0B /* PrintFileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrintFileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationPlanner.swift; sourceTree = "<group>"; };
+		7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailStore.swift; sourceTree = "<group>"; };
 		8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySearch.swift; sourceTree = "<group>"; };
 		9616AAB5527A5BB86D07B666 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPreviewExtractor.swift; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */,
 				BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */,
 				445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */,
+				7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */,
 			);
 			name = PrintFileManagerCore;
 			path = Sources/PrintFileManagerCore;
@@ -282,9 +285,10 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 5CDAA671F9406D096C0FF198 /* Build configuration list for PBXProject "PrintFileManager" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -297,11 +301,12 @@
 				F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 59B8082D024EAD1041EC4000 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				025EBDB90973AF505BBEC5F1 /* PrintFileManager */,
 				680443661C56855913C65F5D /* PrintFileManagerCore */,
+				025EBDB90973AF505BBEC5F1 /* PrintFileManager */,
 				BCAEC264A36687A95CBCD62C /* PrintFileManagerCoreTests */,
 			);
 		};
@@ -357,6 +362,7 @@
 				EE38E0883D200A7BA0D5C20F /* ThreeMFPackageReader.swift in Sources */,
 				41B1E32BC7FBF6A2A53361D9 /* ThreeMFPreviewExtractor.swift in Sources */,
 				32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */,
+				2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

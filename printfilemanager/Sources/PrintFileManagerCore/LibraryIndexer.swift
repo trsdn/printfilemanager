@@ -16,7 +16,11 @@ public struct LibraryScanResult: Equatable, Sendable {
 }
 
 public struct LibraryIndexer {
-    public init() {}
+    private let thumbnailStore: ThumbnailStore?
+
+    public init(thumbnailStore: ThumbnailStore? = nil) {
+        self.thumbnailStore = thumbnailStore
+    }
 
     /// Scans a root for `.3mf` files.
     ///
@@ -99,14 +103,14 @@ public struct LibraryIndexer {
         let previewResult = extractor.preview(for: fileURL, maxPixelDimension: 420)
 
         let previewStatus: PreviewStatus
-        let thumbnailData: Data?
+        let thumbnailKey: String?
         switch previewResult {
         case .preview(let image):
             previewStatus = .available
-            thumbnailData = image.data
+            thumbnailKey = try? thumbnailStore?.store(image.data)
         case .fallback(let fallback):
             previewStatus = fallback.reason == .noSupportedImage ? .missing : .failed
-            thumbnailData = nil
+            thumbnailKey = nil
         }
 
         let indexingStatus: IndexingStatus = metadataSummary == nil ? .failed : .indexed
@@ -128,7 +132,7 @@ public struct LibraryIndexer {
             indexedAt: Date(),
             indexingStatus: indexingStatus,
             previewStatus: previewStatus,
-            thumbnailData: thumbnailData,
+            thumbnailKey: thumbnailKey,
             projectName: metadataSummary?.projectName ?? fileURL.deletingPathExtension().lastPathComponent,
             sourceHints: metadataSummary?.sourceHints ?? [],
             metadata: metadataSummary?.metadata ?? [:],

@@ -39,6 +39,7 @@ final class LibraryViewModel: ObservableObject {
     }
 
     private let database: LibraryDatabase
+    private let thumbnails: ThumbnailStore
     private let search = LibrarySearch()
     private let folderWatcher = FolderWatcher()
     private let isUsingVolatileFallbackStore: Bool
@@ -53,7 +54,15 @@ final class LibraryViewModel: ObservableObject {
     private var cachedFilteredRecords: [PrintFileRecord] = []
     private var cachedCollectionCounts: CollectionCounts?
 
-    init(database: LibraryDatabase? = nil) {
+    /// Decoded preview images, keyed by thumbnail key. Bounded so a large library does not pull
+    /// every preview into memory just because it was scrolled past once.
+    private let thumbnailCache: NSCache<NSString, NSData> = {
+        let cache = NSCache<NSString, NSData>()
+        cache.countLimit = 400
+        return cache
+    }()
+
+    init(database: LibraryDatabase? = nil, thumbnailStore: ThumbnailStore? = nil) {
         if let database {
             self.database = database
             isUsingVolatileFallbackStore = false
@@ -67,6 +76,31 @@ final class LibraryViewModel: ObservableObject {
             self.database = LibraryDatabase(fileURL: fallbackURL)
             isUsingVolatileFallbackStore = true
         }
+
+        if let thumbnailStore {
+            thumbnails = thumbnailStore
+        } else if let thumbnailStore = try? ThumbnailStore.applicationSupport() {
+            thumbnails = thumbnailStore
+        } else {
+            thumbnails = ThumbnailStore(
+                directoryURL: FileManager.default.temporaryDirectory
+                    .appendingPathComponent("print-file-manager-thumbnails", isDirectory: true)
+            )
+        }
+    }
+
+    /// Loads a record's preview image on demand. Previews live on disk rather than in the index,
+    /// so this is the only place they are read into memory.
+    func thumbnail(for record: PrintFileRecord) -> Data? {
+        guard let key = record.thumbnailKey else { return nil }
+
+        if let cached = thumbnailCache.object(forKey: key as NSString) {
+            return cached as Data
+        }
+
+        guard let data = thumbnails.data(forKey: key) else { return nil }
+        thumbnailCache.setObject(data as NSData, forKey: key as NSString)
+        return data
     }
 
     var filteredRecords: [PrintFileRecord] {
@@ -417,8 +451,9 @@ final class LibraryViewModel: ObservableObject {
         Task {
             do {
                 let knownRecords = snapshot.records.filter { $0.rootID == root.id }
+                let thumbnailStore = thumbnails
                 let result = try await Task.detached(priority: .userInitiated) {
-                    try LibraryIndexer().scan(root: root, previousRecords: knownRecords)
+                    try LibraryIndexer(thumbnailStore: thumbnailStore).scan(root: root, previousRecords: knownRecords)
                 }.value
 
                 snapshot = database.merge(scanResult: result, into: snapshot)
@@ -485,7 +520,11 @@ final class LibraryViewModel: ObservableObject {
 
         Task {
             do {
-                let result = try await AIEnrichmentClient().enrich(record: record, settings: settings)
+                let result = try await AIEnrichmentClient().enrich(
+                    record: record,
+                    settings: settings,
+                    thumbnailData: thumbnail(for: record)
+                )
                 var lookupRecord = record
                 if let sourceInfo = result.sourceInfo {
                     lookupRecord.sourceInfo = mergeSourceInfo(existing: lookupRecord.sourceInfo, incoming: sourceInfo)
