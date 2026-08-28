@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 #
-# Builds, signs, notarizes and packages the two apps for distribution.
+# Builds and signs the two apps locally, for verifying the signing configuration.
 #
-# Quick Look extensions will not load on a machine other than the one that built them unless they
-# are signed, and macOS will refuse to open an unnotarized download, so this is the only supported
-# way to hand either app to someone else.
+# This is NOT the distribution path. Releases are signed and notarized by
+# trsdn/macos-notarization-broker, which builds from a pinned commit in a secretless job and signs
+# in a gated environment, so Apple credentials never live in this repository:
+#
+#   scripts/request.sh printfilemanager vX.Y
+#   scripts/request.sh threemfquicklook vX.Y
+#
+# Use this script to check that entitlements and the bundle layout are right before tagging.
 #
 # Prerequisites:
 #   * A "Developer ID Application" certificate in the login keychain.
