@@ -16,10 +16,10 @@ criteria:
   B03: pass
   B04: pass
   B05: pass
-  B06: fail
+  B06: pass
   B07: pass
   B08: pass
-  B09: partial
+  B09: pass
   B10: pass
   B11: pass
   B12: pass
@@ -37,12 +37,12 @@ criteria:
   S01: pass
   S02: pass
   S03: pass
-  S04: partial
-  S05: fail
+  S04: pass
+  S05: pass
   S06: pass
   S07: pass
   S08: pass
-  S09: fail
+  S09: pass
   S10: pass
   # Deployable Repositories
   D01: pass

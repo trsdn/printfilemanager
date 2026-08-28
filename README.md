@@ -1,5 +1,9 @@
 # Print File Manager
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![macOS 15+](https://img.shields.io/badge/macOS-15%2B-black)](#requirements)
+[![CI](https://github.com/trsdn/printfilemanager/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/trsdn/printfilemanager/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/trsdn/printfilemanager?display_name=tag&sort=semver)](https://github.com/trsdn/printfilemanager/releases/latest)
 [![Conformance](.github/badges/conformance.svg)](docs/self-assessment.md)
 
 Local macOS tooling for large collections of `.3mf` 3D-printing files: a library manager that
@@ -129,6 +133,19 @@ The original files are treated as valuable source artifacts:
   writes are blocked rather than overwriting it.
 - The app runs in the App Sandbox. It can only reach folders you explicitly choose, and it keeps
   that access across launches with security-scoped bookmarks.
+
+## Support status
+
+Actively developed by a single maintainer as a personal project. Issues and pull requests are
+welcome but carry no response commitment. See [SECURITY.md](SECURITY.md) for reporting
+vulnerabilities privately.
+
+## Repository stats
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/stats/repo-card-dark.svg">
+  <img alt="Repository statistics" src=".github/stats/repo-card.svg">
+</picture>
 
 ## Project conventions
 
