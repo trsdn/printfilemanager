@@ -98,13 +98,23 @@ run_project() {
     cp "$log" "$REPO_ROOT/ci-local-$scheme.log"
     echo "Full log copied to ci-local-$scheme.log"
   fi
+
+  # The broker compares bundle identity against its profile at signing time, which is far too late
+  # to learn about a typo. Check the bundle we just built against the same expectations.
+  local profile="$4"
+  local built="$DERIVED/$scheme/Build/Products/Debug/$scheme.app"
+  [ -d "$built" ] || built="$DERIVED/$scheme/Build/Products/Release/$scheme.app"
+  if [ -n "$profile" ] && [ -d "$built" ]; then
+    ./scripts/check-broker-profile.py "$profile" "$built" \
+      || record_failure "$scheme does not match its notarization broker profile"
+  fi
 }
 
 step "Version consistency"
 ./scripts/check-versions.sh || exit 1
 
-run_project "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager"
-[ "$QUICK" -eq 0 ] && run_project "Quicklook" "ThreeMFQuickLook.xcodeproj" "ThreeMFQuickLook"
+run_project "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager" "printfilemanager"
+[ "$QUICK" -eq 0 ] && run_project "Quicklook" "ThreeMFQuickLook.xcodeproj" "ThreeMFQuickLook" "threemfquicklook"
 
 step "Conformance record"
 if [ -f .github/conformance.yml ]; then

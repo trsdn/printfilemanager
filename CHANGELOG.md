@@ -57,6 +57,22 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [0.1.5] — 2026-08-28
+
+### Added
+
+- `scripts/check-broker-profile.py`, run by `scripts/ci-local.sh` against each freshly built
+  bundle. It mirrors the notarization broker's identity comparison — identifier, executable,
+  package type, minimum system version and display name, including the broker's fallback from
+  `CFBundleDisplayName` to `CFBundleName` — so a mismatch surfaces during a local run instead of
+  after a tag has been cut.
+
+### Fixed
+
+- The Quick Look app advertised itself as `ThreeMFQuickLook` rather than `3MF Quick Look`, because
+  it carried no `CFBundleDisplayName` and `CFBundleName` resolved to `$(PRODUCT_NAME)`. The
+  notarization broker rejected it, and the name was wrong in Finder besides.
+
 ## [0.1.4] — 2026-08-28
 
 ### Added
