@@ -1,10 +1,11 @@
+@testable import PrintFileManagerCore
 import CoreGraphics
 import Foundation
 import ImageIO
+import ThreeMFKit
 import UniformTypeIdentifiers
 import XCTest
 import ZIPFoundation
-@testable import PrintFileManagerCore
 
 final class PrintFileManagerCoreTests: XCTestCase {
     func testIndexerDiscoversNestedThreeMFFilesAndExtractsMetadataAndPreview() throws {

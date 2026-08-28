@@ -8,7 +8,8 @@ included:
   - printfilemanager/Sources
   - printfilemanager/Tests
   - Quicklook/Sources
-  - Quicklook/Tests
+  - ThreeMFKit/Sources
+  - ThreeMFKit/Tests
 
 excluded:
   - "**/.build"

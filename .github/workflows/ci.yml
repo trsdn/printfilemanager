@@ -11,6 +11,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  package:
+    name: ThreeMFKit
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Test
+        working-directory: ThreeMFKit
+        run: swift test
+
   test:
     name: ${{ matrix.name }}
     runs-on: macos-15
@@ -28,8 +42,8 @@ jobs:
             scheme: ThreeMFQuickLook
 
     steps:
-      # Both projects are checked out together on purpose: PrintFileManagerCore compiles
-      # ../Quicklook/Sources/ThreeMFCore by relative path.
+      # Both projects and the shared package are checked out together: each Xcode project
+      # depends on ../ThreeMFKit as a local Swift package.
       - uses: actions/checkout@v4
 
       - uses: maxim-lobanov/setup-xcode@v1

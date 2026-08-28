@@ -4,9 +4,9 @@ import ImageIO
 import UniformTypeIdentifiers
 import XCTest
 import ZIPFoundation
-@testable import ThreeMFCore
+@testable import ThreeMFKit
 
-final class ThreeMFCoreTests: XCTestCase {
+final class ThreeMFKitTests: XCTestCase {
     func testBambuResolverPrefersAuxiliaryThumbnailOverPlateImage() throws {
         let resolver = BambuPreviewResolver()
         let entries = [

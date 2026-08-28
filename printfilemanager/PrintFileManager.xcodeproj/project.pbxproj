@@ -13,29 +13,27 @@
 		12ED009FE3E205CAF6984735 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = D817BC21A2DB782D9C12FA33 /* ZIPFoundation */; };
 		1CA71A28824BCB7ADC25F0BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254BCB2D5C535AC4BECEE178 /* Assets.xcassets */; };
 		2289448DA49ECF246530AC72 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4427B9221B8B4CE8622564 /* LibraryViewModelTests.swift */; };
-		26D0CC8E3F24B67DFF44FF8B /* BambuPreviewResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */; };
+		22C255ECB4B551368CC1ACF3 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6D8E13AEF3D71953642F53AD /* ThreeMFKit */; };
+		247C786441377F361D161879 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2762624B25DEFCAE4EDBF16D /* ThreeMFKit */; };
 		2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */; };
 		2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */; };
 		3003437B911101CB5B1A6BC2 /* NetworkClientProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */; };
 		32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */; };
-		41B1E32BC7FBF6A2A53361D9 /* ThreeMFPreviewExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */; };
 		490A2043C61D80330F6F6C73 /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A472815FF592C604E14F530 /* AISettingsStore.swift */; };
+		57BA08533E206FA346EBD6B7 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3435479745EC244D1D26A8C1 /* ThreeMFKit */; };
 		714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26AAD36474C235E41470619 /* LibraryModels.swift */; };
 		7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */; };
 		85A2EDDBEB5C8968650A5E5F /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		87CB66AD561C453DC3BB1463 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
 		92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */; };
 		96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */; };
-		9ABE494DBBA7A877B71FA347 /* PreviewExtractionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B80E64E60EC008F0138C1AF /* PreviewExtractionResult.swift */; };
 		A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */; };
 		AAEBF017381A6089C05EF0BF /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */; };
 		B2E6A2D341C52AFEFF85394F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9616AAB5527A5BB86D07B666 /* ContentView.swift */; };
-		BC0495854D73104CD255AE65 /* ImageNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAACFE9806D39DEE1C6ED1E /* ImageNormalizer.swift */; };
 		C397D037C4C389D7D728CD44 /* PrintFileManagerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */; };
 		ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */; };
-		EE38E0883D200A7BA0D5C20F /* ThreeMFPackageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A80DE531D9FF623D74204B3 /* ThreeMFPackageReader.swift */; };
 		EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */; };
 		F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */; };
 		FA883B4AA1D79E00B2B1B377 /* PrintFileManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */; };
@@ -110,25 +108,22 @@
 
 /* Begin PBXFileReference section */
 		07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDatabase.swift; sourceTree = "<group>"; };
-		0A80DE531D9FF623D74204B3 /* ThreeMFPackageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPackageReader.swift; sourceTree = "<group>"; };
-		0B80E64E60EC008F0138C1AF /* PreviewExtractionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewExtractionResult.swift; sourceTree = "<group>"; };
 		1964B6783B477FB7F341E7F0 /* FolderWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderWatcher.swift; sourceTree = "<group>"; };
 		1E4427B9221B8B4CE8622564 /* LibraryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModelTests.swift; sourceTree = "<group>"; };
 		24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnrichmentClient.swift; sourceTree = "<group>"; };
 		254BCB2D5C535AC4BECEE178 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerCoreTests.swift; sourceTree = "<group>"; };
-		31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BambuPreviewResolver.swift; sourceTree = "<group>"; };
 		35965FDB1698F900D1A99372 /* PrintFileManagerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		366E4CDB4BF93811FE2538CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PrintFileManagerCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A472815FF592C604E14F530 /* AISettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsStore.swift; sourceTree = "<group>"; };
+		400C82C3DDDDBF9A3EDA5E21 /* ThreeMFKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ThreeMFKit; path = ../ThreeMFKit; sourceTree = SOURCE_ROOT; };
 		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
 		652011BBE18B214E599DFC0B /* PrintFileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrintFileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationPlanner.swift; sourceTree = "<group>"; };
 		7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailStore.swift; sourceTree = "<group>"; };
 		8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySearch.swift; sourceTree = "<group>"; };
 		9616AAB5527A5BB86D07B666 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFPreviewExtractor.swift; sourceTree = "<group>"; };
 		9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryIndexer.swift; sourceTree = "<group>"; };
 		A60DEA6D7E36AF9D9DCE9929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B26AAD36474C235E41470619 /* LibraryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
@@ -137,7 +132,6 @@
 		CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
 		D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientProtocols.swift; sourceTree = "<group>"; };
 		EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		ECAACFE9806D39DEE1C6ED1E /* ImageNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNormalizer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +140,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87CB66AD561C453DC3BB1463 /* PrintFileManagerCore.framework in Frameworks */,
+				57BA08533E206FA346EBD6B7 /* ThreeMFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +150,7 @@
 			files = (
 				EF3579C77DB41E6A2EEDFA01 /* PrintFileManagerCore.framework in Frameworks */,
 				7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */,
+				247C786441377F361D161879 /* ThreeMFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +159,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				12ED009FE3E205CAF6984735 /* ZIPFoundation in Frameworks */,
+				22C255ECB4B551368CC1ACF3 /* ThreeMFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,27 +192,14 @@
 			path = Sources/PrintFileManagerCore;
 			sourceTree = "<group>";
 		};
-		1BD61C608028E1310D4C5320 /* ThreeMFCore */ = {
-			isa = PBXGroup;
-			children = (
-				31E823AF7B6C4EC1BB0ABB3C /* BambuPreviewResolver.swift */,
-				ECAACFE9806D39DEE1C6ED1E /* ImageNormalizer.swift */,
-				0B80E64E60EC008F0138C1AF /* PreviewExtractionResult.swift */,
-				0A80DE531D9FF623D74204B3 /* ThreeMFPackageReader.swift */,
-				99DBAF81E452E037DA8C34F1 /* ThreeMFPreviewExtractor.swift */,
-			);
-			name = ThreeMFCore;
-			path = ../Quicklook/Sources/ThreeMFCore;
-			sourceTree = "<group>";
-		};
 		366BFE07B3C4BE7D41BF0AA5 = {
 			isa = PBXGroup;
 			children = (
+				C7BFCFD7FEF9E2BAA3949B0F /* Packages */,
 				F521545FE75030FAF0642C22 /* PrintFileManagerApp */,
 				E6FD9837C199171CBD5FEE6E /* PrintFileManagerAppTests */,
 				01C970F4FAD03044F9B82112 /* PrintFileManagerCore */,
 				C08528612102194BB933DB71 /* PrintFileManagerCoreTests */,
-				1BD61C608028E1310D4C5320 /* ThreeMFCore */,
 				59B8082D024EAD1041EC4000 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -238,6 +222,14 @@
 			);
 			name = PrintFileManagerCoreTests;
 			path = Tests/PrintFileManagerCoreTests;
+			sourceTree = "<group>";
+		};
+		C7BFCFD7FEF9E2BAA3949B0F /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				400C82C3DDDDBF9A3EDA5E21 /* ThreeMFKit */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		E6FD9837C199171CBD5FEE6E /* PrintFileManagerAppTests */ = {
@@ -284,6 +276,7 @@
 			);
 			name = PrintFileManager;
 			packageProductDependencies = (
+				3435479745EC244D1D26A8C1 /* ThreeMFKit */,
 			);
 			productName = PrintFileManager;
 			productReference = 652011BBE18B214E599DFC0B /* PrintFileManager.app */;
@@ -303,6 +296,7 @@
 			name = PrintFileManagerCore;
 			packageProductDependencies = (
 				D817BC21A2DB782D9C12FA33 /* ZIPFoundation */,
+				6D8E13AEF3D71953642F53AD /* ThreeMFKit */,
 			);
 			productName = PrintFileManagerCore;
 			productReference = 394D842C7A0C971DF557710D /* PrintFileManagerCore.framework */;
@@ -345,6 +339,7 @@
 			name = PrintFileManagerCoreTests;
 			packageProductDependencies = (
 				C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */,
+				2762624B25DEFCAE4EDBF16D /* ThreeMFKit */,
 			);
 			productName = PrintFileManagerCoreTests;
 			productReference = EA5647EB28BAD9C763E3C5B7 /* PrintFileManagerCoreTests.xctest */;
@@ -372,6 +367,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				E50B0302A2261EAC7BDAC786 /* XCLocalSwiftPackageReference "../ThreeMFKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 59B8082D024EAD1041EC4000 /* Products */;
@@ -432,18 +428,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */,
-				26D0CC8E3F24B67DFF44FF8B /* BambuPreviewResolver.swift in Sources */,
-				BC0495854D73104CD255AE65 /* ImageNormalizer.swift in Sources */,
 				F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */,
 				A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */,
 				714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */,
 				D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */,
 				3003437B911101CB5B1A6BC2 /* NetworkClientProtocols.swift in Sources */,
 				92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */,
-				9ABE494DBBA7A877B71FA347 /* PreviewExtractionResult.swift in Sources */,
 				96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */,
-				EE38E0883D200A7BA0D5C20F /* ThreeMFPackageReader.swift in Sources */,
-				41B1E32BC7FBF6A2A53361D9 /* ThreeMFPreviewExtractor.swift in Sources */,
 				32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */,
 				2C23D6795C047F45F8223A0F /* ThumbnailStore.swift in Sources */,
 			);
@@ -788,6 +779,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		E50B0302A2261EAC7BDAC786 /* XCLocalSwiftPackageReference "../ThreeMFKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../ThreeMFKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -800,6 +798,18 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2762624B25DEFCAE4EDBF16D /* ThreeMFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ThreeMFKit;
+		};
+		3435479745EC244D1D26A8C1 /* ThreeMFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ThreeMFKit;
+		};
+		6D8E13AEF3D71953642F53AD /* ThreeMFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ThreeMFKit;
+		};
 		C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F84263D62E219433E58FD734 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;

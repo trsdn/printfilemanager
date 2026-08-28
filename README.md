@@ -11,10 +11,11 @@ Everything runs locally. Nothing is sent anywhere unless you explicitly turn it 
 |---|---|
 | `printfilemanager/` | The **Print File Manager** app — indexing, search, tagging, previews, Auto Sort |
 | `Quicklook/` | **3MF Quick Look** — Finder preview and thumbnail extensions plus their host app |
+| `ThreeMFKit/` | Shared Swift package: 3MF package reading and preview extraction |
 | `docs/` | Product requirements and dated review documents |
 
-`printfilemanager` compiles the shared 3MF parsing core from `Quicklook/Sources/ThreeMFCore` by
-relative path, so **both folders must stay siblings** for the app to build.
+Both Xcode projects depend on `ThreeMFKit` as a local Swift package at `../ThreeMFKit`, so the
+three folders must stay siblings.
 
 ## Requirements
 
@@ -33,6 +34,9 @@ cd ../Quicklook  && xcodegen generate
 ## Build and test
 
 ```bash
+# Shared package
+cd ThreeMFKit && swift test && cd ..
+
 # Library manager
 xcodebuild -project printfilemanager/PrintFileManager.xcodeproj \
            -scheme PrintFileManager -destination 'platform=macOS' test

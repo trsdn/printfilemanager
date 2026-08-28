@@ -1,4 +1,5 @@
 import Foundation
+import ThreeMFKit
 import simd
 
 public struct PlatePreview: Identifiable, Equatable, Sendable {

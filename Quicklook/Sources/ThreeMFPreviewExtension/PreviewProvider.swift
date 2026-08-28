@@ -2,7 +2,7 @@ import CoreGraphics
 import Foundation
 import os
 import Quartz
-import ThreeMFCore
+import ThreeMFKit
 import UniformTypeIdentifiers
 
 final class PreviewProvider: QLPreviewProvider, QLPreviewingController {

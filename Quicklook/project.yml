@@ -9,22 +9,11 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "15.0"
     ENABLE_USER_SCRIPT_SANDBOXING: "YES"
 packages:
-  ZIPFoundation:
-    url: https://github.com/weichsel/ZIPFoundation.git
-    from: 0.9.19
+  # Shared 3MF parsing and preview extraction, also consumed by the app project.
+  # Its own tests live in the package and run with `swift test`.
+  ThreeMFKit:
+    path: ../ThreeMFKit
 targets:
-  ThreeMFCore:
-    type: framework
-    platform: macOS
-    sources:
-      - Sources/ThreeMFCore
-    dependencies:
-      - package: ZIPFoundation
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.ThreeMFCore
-        APPLICATION_EXTENSION_API_ONLY: "YES"
-
   ThreeMFQuickLook:
     type: application
     platform: macOS
@@ -48,7 +37,7 @@ targets:
     sources:
       - Sources/ThreeMFPreviewExtension
     dependencies:
-      - target: ThreeMFCore
+      - package: ThreeMFKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.ThreeMFQuickLook.preview
@@ -62,7 +51,7 @@ targets:
     sources:
       - Sources/ThreeMFThumbnailExtension
     dependencies:
-      - target: ThreeMFCore
+      - package: ThreeMFKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.ThreeMFQuickLook.thumbnail
@@ -70,24 +59,8 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Sources/ThreeMFThumbnailExtension/ThreeMFThumbnailExtension.entitlements
         APPLICATION_EXTENSION_API_ONLY: "YES"
 
-  ThreeMFCoreTests:
-    type: bundle.unit-test
-    platform: macOS
-    sources:
-      - Tests/ThreeMFCoreTests
-    dependencies:
-      - target: ThreeMFCore
-      - package: ZIPFoundation
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.ThreeMFCoreTests
-
 schemes:
   ThreeMFQuickLook:
     build:
       targets:
         ThreeMFQuickLook: all
-        ThreeMFCoreTests: [test]
-    test:
-      targets:
-        - ThreeMFCoreTests

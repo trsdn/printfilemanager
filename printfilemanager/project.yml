@@ -12,15 +12,19 @@ packages:
   ZIPFoundation:
     url: https://github.com/weichsel/ZIPFoundation.git
     from: 0.9.19
+  # Shared 3MF parsing, also consumed by the Quick Look project. Previously compiled by
+  # relative path from ../Quicklook, which made the two projects positionally coupled.
+  ThreeMFKit:
+    path: ../ThreeMFKit
 targets:
   PrintFileManagerCore:
     type: framework
     platform: macOS
     sources:
       - Sources/PrintFileManagerCore
-      - path: ../Quicklook/Sources/ThreeMFCore
     dependencies:
       - package: ZIPFoundation
+      - package: ThreeMFKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManagerCore
@@ -33,6 +37,7 @@ targets:
       - Sources/PrintFileManagerApp
     dependencies:
       - target: PrintFileManagerCore
+      - package: ThreeMFKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManager
@@ -47,6 +52,7 @@ targets:
     dependencies:
       - target: PrintFileManagerCore
       - package: ZIPFoundation
+      - package: ThreeMFKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManagerCoreTests

@@ -3,7 +3,7 @@ import Foundation
 import ImageIO
 import os
 import QuickLookThumbnailing
-import ThreeMFCore
+import ThreeMFKit
 
 final class ThumbnailProvider: QLThumbnailProvider {
     private let extractor = ThreeMFPreviewExtractor()

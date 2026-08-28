@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import ThreeMFKit
 
 public struct LibraryScanResult: Equatable, Sendable {
     public var root: LibraryRoot
