@@ -19,10 +19,40 @@ public struct LibrarySearch {
     }
 
     public func records(in snapshot: LibrarySnapshot, matching query: LibraryQuery) -> [PrintFileRecord] {
+        sort(filteredRecords(in: snapshot, matching: query), option: query.sortOption, ascending: query.sortAscending)
+    }
+
+    /// Counts matches without sorting them.
+    ///
+    /// The sidebar asks for a count per collection and per root on every snapshot change; sorting
+    /// results that are only going to be counted was the single largest cost in that path.
+    public func count(in snapshot: LibrarySnapshot, matching query: LibraryQuery) -> Int {
+        filteredRecords(in: snapshot, matching: query).count
+    }
+
+    /// Counts every smart collection in one pass, sharing the duplicate-hash tally between them.
+    public func collectionCounts(in snapshot: LibrarySnapshot) -> [SmartCollection: Int] {
+        let duplicateContentHashCounts = duplicateContentHashCounts(in: snapshot.records)
+        var counts: [SmartCollection: Int] = [:]
+
+        for collection in SmartCollection.allCases {
+            counts[collection] = snapshot.records.count { record in
+                matchesSmartCollection(
+                    record,
+                    collection: collection,
+                    duplicateContentHashCounts: duplicateContentHashCounts
+                )
+            }
+        }
+
+        return counts
+    }
+
+    private func filteredRecords(in snapshot: LibrarySnapshot, matching query: LibraryQuery) -> [PrintFileRecord] {
         let duplicateContentHashCounts = duplicateContentHashCounts(in: snapshot.records)
         let normalizedText = query.text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
-        let filtered = snapshot.records.filter { record in
+        return snapshot.records.filter { record in
             matchesRoot(record, rootID: query.rootID)
                 && matchesSmartCollection(record, collection: query.smartCollection, duplicateContentHashCounts: duplicateContentHashCounts)
                 && matchesTags(record, selectedTags: query.selectedTags)
@@ -33,8 +63,6 @@ public struct LibrarySearch {
                 && matchesSourceVersionStatuses(record, selectedStatuses: query.selectedSourceVersionStatuses)
                 && matchesText(record, normalizedText: normalizedText)
         }
-
-        return sort(filtered, option: query.sortOption, ascending: query.sortAscending)
     }
 
     private func matchesRoot(_ record: PrintFileRecord, rootID: UUID?) -> Bool {
@@ -108,42 +136,78 @@ public struct LibrarySearch {
 
     private func matchesText(_ record: PrintFileRecord, normalizedText: String) -> Bool {
         guard !normalizedText.isEmpty else { return true }
-        let haystack = searchableText(for: record).lowercased()
+        let haystack = Self.searchIndexCache.haystack(for: record)
         return normalizedText.split(separator: " ").allSatisfy { haystack.contains($0) }
     }
 
-    private func searchableText(for record: PrintFileRecord) -> String {
-        var parts = [
-            record.fileName,
-            record.relativePath,
-            record.projectName ?? "",
-            record.projectKey ?? "",
-            record.variantName ?? "",
-            record.category ?? "",
-            record.printability?.title ?? "",
-            record.sourceInfo?.platform ?? "",
-            record.sourceInfo?.author ?? "",
-            record.sourceInfo?.license ?? "",
-            record.sourceInfo?.url ?? "",
-            record.notes
-        ]
-        if let printDetails = record.printDetails {
-            parts.append(contentsOf: printDetails.materials)
-            parts.append(contentsOf: printDetails.colors)
-            parts.append(printDetails.slicer ?? "")
-            parts.append(printDetails.printer ?? "")
+    /// Caches each record's lowercased searchable text.
+    ///
+    /// Building it means joining roughly 25 fields and lowercasing the result; doing that for
+    /// every record on every query dominated search time on large libraries. The cache is keyed by
+    /// record identity and invalidated whenever the record itself changes.
+    private final class SearchIndexCache: @unchecked Sendable {
+        private struct Entry {
+            let record: PrintFileRecord
+            let haystack: String
         }
-        if let printHistory = record.printHistory {
-            for entry in printHistory {
-                parts.append(contentsOf: [entry.printer, entry.material, entry.result, entry.notes])
+
+        private let lock = NSLock()
+        private var entries: [UUID: Entry] = [:]
+
+        func haystack(for record: PrintFileRecord) -> String {
+            lock.lock()
+            defer { lock.unlock() }
+
+            if let entry = entries[record.id], entry.record == record {
+                return entry.haystack
             }
+
+            let haystack = Self.build(for: record).lowercased()
+            // Bound the cache so a huge library cannot grow it without limit.
+            if entries.count > 20_000 { entries.removeAll(keepingCapacity: true) }
+            entries[record.id] = Entry(record: record, haystack: haystack)
+            return haystack
         }
-        parts.append(contentsOf: record.userTags)
-        parts.append(contentsOf: record.generatedTags.map(\.value))
-        parts.append(contentsOf: record.sourceHints)
-        parts.append(contentsOf: record.metadata.keys)
-        parts.append(contentsOf: record.metadata.values)
-        return parts.joined(separator: " ")
+
+        private static func build(for record: PrintFileRecord) -> String {
+            var parts = [
+                record.fileName,
+                record.relativePath,
+                record.projectName ?? "",
+                record.projectKey ?? "",
+                record.variantName ?? "",
+                record.category ?? "",
+                record.printability?.title ?? "",
+                record.sourceInfo?.platform ?? "",
+                record.sourceInfo?.author ?? "",
+                record.sourceInfo?.license ?? "",
+                record.sourceInfo?.url ?? "",
+                record.notes
+            ]
+            if let printDetails = record.printDetails {
+                parts.append(contentsOf: printDetails.materials)
+                parts.append(contentsOf: printDetails.colors)
+                parts.append(printDetails.slicer ?? "")
+                parts.append(printDetails.printer ?? "")
+            }
+            if let printHistory = record.printHistory {
+                for entry in printHistory {
+                    parts.append(contentsOf: [entry.printer, entry.material, entry.result, entry.notes])
+                }
+            }
+            parts.append(contentsOf: record.userTags)
+            parts.append(contentsOf: record.generatedTags.map(\.value))
+            parts.append(contentsOf: record.sourceHints)
+            parts.append(contentsOf: record.metadata.keys)
+            parts.append(contentsOf: record.metadata.values)
+            return parts.joined(separator: " ")
+        }
+    }
+
+    private static let searchIndexCache = SearchIndexCache()
+
+    func searchableText(for record: PrintFileRecord) -> String {
+        Self.searchIndexCache.haystack(for: record)
     }
 
     private func needsReview(_ record: PrintFileRecord, duplicateContentHashCounts: [String: Int]) -> Bool {

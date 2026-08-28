@@ -123,10 +123,27 @@ final class LibraryViewModelTests: XCTestCase {
         let other = makeRecord(fileName: "spool-holder.3mf", url: folderURL.appendingPathComponent("spool-holder.3mf"))
         viewModel.replaceSnapshotForTesting(LibrarySnapshot(records: [matching, other]))
         viewModel.searchText = "cable"
+        // Search is debounced, so wait for it to reach the grid before selecting.
+        try await waitUntil { viewModel.filteredRecords.count == 1 }
 
         viewModel.selectAllVisibleRecords()
 
         XCTAssertEqual(viewModel.selectedRecordIDs, Set([matching.id]))
+    }
+
+    func testClearingTheSearchAppliesImmediately() async throws {
+        let folderURL = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: folderURL.appendingPathComponent("i.json"), folderURL: folderURL)
+        let matching = makeRecord(fileName: "cable-clip.3mf", url: folderURL.appendingPathComponent("cable-clip.3mf"))
+        let other = makeRecord(fileName: "spool-holder.3mf", url: folderURL.appendingPathComponent("spool-holder.3mf"))
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(records: [matching, other]))
+
+        viewModel.searchText = "cable"
+        try await waitUntil { viewModel.filteredRecords.count == 1 }
+
+        // Clearing must not wait out the debounce; the user expects everything back at once.
+        viewModel.searchText = ""
+        XCTAssertEqual(viewModel.filteredRecords.count, 2)
     }
 
     // MARK: - Root management

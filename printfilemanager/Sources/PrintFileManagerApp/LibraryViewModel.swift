@@ -11,7 +11,12 @@ final class LibraryViewModel: ObservableObject {
     @Published var selectedRootID: UUID?
     @Published var selectedRecordID: UUID?
     @Published var selectedRecordIDs: Set<UUID> = []
-    @Published var searchText = ""
+    @Published var searchText = "" {
+        didSet {
+            guard searchText != oldValue else { return }
+            scheduleSearchTextCommit()
+        }
+    }
     @Published var sortOption: SortOption = .name
     @Published var sortAscending = true
     @Published var selectedTags: Set<String> = []
@@ -57,6 +62,30 @@ final class LibraryViewModel: ObservableObject {
     private static let saveCoalescingDelayMilliseconds = 600
 
     private var pendingSaveTask: Task<Void, Never>?
+
+    /// The search text the grid is actually filtered by.
+    ///
+    /// Typing updates `searchText` immediately so the field stays responsive, but filtering a
+    /// large library is too expensive to redo on every keystroke, so it is debounced into here.
+    @Published private var committedSearchText = ""
+    private var pendingSearchTask: Task<Void, Never>?
+    private static let searchDebounceMilliseconds = 200
+
+    private func scheduleSearchTextCommit() {
+        pendingSearchTask?.cancel()
+
+        // Clearing the field should feel instant.
+        guard !searchText.isEmpty else {
+            committedSearchText = ""
+            return
+        }
+
+        pendingSearchTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(Self.searchDebounceMilliseconds))
+            guard !Task.isCancelled, let self else { return }
+            self.committedSearchText = self.searchText
+        }
+    }
 
     private var snapshotRevision: UInt64 = 0
     private var selectionAnchorID: UUID?
@@ -135,7 +164,7 @@ final class LibraryViewModel: ObservableObject {
 
     private func currentQuery() -> LibraryQuery {
         LibraryQuery(
-            text: searchText,
+            text: committedSearchText,
             smartCollection: selectedCollection,
             rootID: selectedRootID,
             selectedTags: selectedTags,
@@ -422,20 +451,14 @@ final class LibraryViewModel: ObservableObject {
             return cachedCollectionCounts
         }
 
-        var collections: [SmartCollection: Int] = [:]
-        for collection in SmartCollection.allCases {
-            collections[collection] = search.records(
-                in: snapshot,
-                matching: LibraryQuery(text: "", smartCollection: collection, sortOption: .name)
-            ).count
-        }
+        let collections = search.collectionCounts(in: snapshot)
 
         var roots: [UUID: Int] = [:]
         for root in snapshot.roots {
-            roots[root.id] = search.records(
+            roots[root.id] = search.count(
                 in: snapshot,
                 matching: LibraryQuery(text: "", smartCollection: nil, rootID: root.id, sortOption: .name)
-            ).count
+            )
         }
 
         let counts = CollectionCounts(snapshotRevision: revision, collections: collections, roots: roots)
