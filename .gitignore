@@ -27,3 +27,6 @@ Carthage/Build/
 
 # Release artifacts
 .release/
+
+# Local CI logs
+ci-local-*.log

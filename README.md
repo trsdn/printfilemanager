@@ -35,6 +35,17 @@ cd ../Quicklook  && xcodegen generate
 
 ## Build and test
 
+GitHub Actions cannot currently run for this repository — it is private, so Actions draw on the
+paid quota, and that quota is blocked. Until that is resolved, `scripts/ci-local.sh` runs the same
+pipeline locally and is the only thing actually validating a change:
+
+```bash
+scripts/ci-local.sh            # lint, package tests, both projects, conformance record
+scripts/ci-local.sh --quick    # skip the Quick Look project
+```
+
+Or run the steps individually:
+
 ```bash
 # Shared package
 cd ThreeMFKit && swift test && cd ..
@@ -84,6 +95,13 @@ TEAM_ID=TEAMID scripts/release.sh --skip-notarize  # signed only, for local chec
 ```
 
 Artifacts land in `.release/`, which is gitignored.
+
+For distribution the signing happens through
+[macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker), which builds from
+a pinned commit in a secretless job and signs in a gated environment, so Apple credentials never
+reach this repository. Both apps are onboarded there as the `printfilemanager` and
+`threemfquicklook` profiles. **The broker fetches source anonymously, so it can only build this
+repository once it is public.**
 
 ## Privacy
 
