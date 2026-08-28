@@ -201,100 +201,22 @@ final class LibraryViewModel: ObservableObject {
         selectedRecordsForOrganization.count
     }
 
-    var allTags: [String] {
-        let tags = snapshot.records.flatMap { record in
-            record.userTags + record.generatedTags.filter { $0.state == .accepted }.map(\.value)
-        }
-        return Array(Set(tags)).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
-    }
 
-    var allMaterials: [String] {
-        let values = snapshot.records.flatMap { record in
-            var materials = record.printDetails?.materials ?? []
-            if let aiMaterialHints = record.metadata["ai.materialHints"] {
-                materials.append(contentsOf: aiMaterialHints.components(separatedBy: ","))
-            }
-            return materials
-        }
-        return normalizedFacetValues(values)
-    }
 
-    var allPrinters: [String] {
-        let values = snapshot.records.flatMap { record in
-            var printers: [String] = []
-            if let printer = record.printDetails?.printer {
-                printers.append(printer)
-            }
-            if let history = record.printHistory {
-                printers.append(contentsOf: history.map(\.printer))
-            }
-            return printers
-        }
-        return normalizedFacetValues(values)
-    }
 
-    var allSourcePlatforms: [String] {
-        normalizedFacetValues(snapshot.records.compactMap { $0.sourceInfo?.platform })
-    }
 
-    var availableSourceVersionStatuses: [SourceVersionStatus] {
-        let statuses = Set(snapshot.records.map(sourceVersionStatus(for:)))
-        return SourceVersionStatus.allCases.filter { statuses.contains($0) }
-    }
 
-    var activeFilterCount: Int {
-        selectedTags.count
-            + selectedPrintabilities.count
-            + selectedMaterials.count
-            + selectedPrinters.count
-            + selectedSourcePlatforms.count
-            + selectedSourceVersionStatuses.count
-    }
 
     var managedFolderURL: URL? {
         snapshot.managedFolderURL
     }
 
-    func clearFilters() {
-        selectedTags.removeAll()
-        selectedPrintabilities.removeAll()
-        selectedMaterials.removeAll()
-        selectedPrinters.removeAll()
-        selectedSourcePlatforms.removeAll()
-        selectedSourceVersionStatuses.removeAll()
-    }
 
-    func toggleTagFilter(_ tag: String) {
-        toggleTrimmedString(tag, in: &selectedTags)
-    }
 
-    func toggleMaterialFilter(_ material: String) {
-        toggleTrimmedString(material, in: &selectedMaterials)
-    }
 
-    func togglePrinterFilter(_ printer: String) {
-        toggleTrimmedString(printer, in: &selectedPrinters)
-    }
 
-    func toggleSourcePlatformFilter(_ platform: String) {
-        toggleTrimmedString(platform, in: &selectedSourcePlatforms)
-    }
 
-    func togglePrintabilityFilter(_ printability: PrintabilityStatus) {
-        if selectedPrintabilities.contains(printability) {
-            selectedPrintabilities.remove(printability)
-        } else {
-            selectedPrintabilities.insert(printability)
-        }
-    }
 
-    func toggleSourceVersionStatusFilter(_ status: SourceVersionStatus) {
-        if selectedSourceVersionStatuses.contains(status) {
-            selectedSourceVersionStatuses.remove(status)
-        } else {
-            selectedSourceVersionStatuses.insert(status)
-        }
-    }
 
     func reviewReasons(for record: PrintFileRecord) -> [ReviewReason] {
         search.reviewReasons(for: record, in: snapshot)
@@ -608,51 +530,10 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    func acceptGeneratedTag(_ tag: GeneratedTag, for record: PrintFileRecord) {
-        guard !suppressedVisibleTagValues.contains(tag.value.lowercased()) else {
-            rejectGeneratedTag(tag, for: record)
-            return
-        }
 
-        update(record) { mutableRecord in
-            guard let index = mutableRecord.generatedTags.firstIndex(where: { $0.id == tag.id }) else { return }
-            mutableRecord.generatedTags[index].state = .accepted
-            addVisibleTag(tag.value, to: &mutableRecord)
-        }
-        statusMessage = "Accepted tag \(tag.value)"
-    }
 
-    func rejectGeneratedTag(_ tag: GeneratedTag, for record: PrintFileRecord) {
-        update(record) { mutableRecord in
-            guard let index = mutableRecord.generatedTags.firstIndex(where: { $0.id == tag.id }) else { return }
-            mutableRecord.generatedTags[index].state = .rejected
-        }
-        statusMessage = "Rejected tag \(tag.value)"
-    }
 
-    func addUserTag(_ value: String, to record: PrintFileRecord) {
-        let tag = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !tag.isEmpty else { return }
 
-        update(record) { mutableRecord in
-            addVisibleTag(tag, to: &mutableRecord)
-        }
-    }
-
-    func removeUserTag(_ value: String, from record: PrintFileRecord) {
-        update(record) { mutableRecord in
-            mutableRecord.userTags.removeAll { $0.caseInsensitiveCompare(value) == .orderedSame }
-            for index in mutableRecord.generatedTags.indices where mutableRecord.generatedTags[index].value.caseInsensitiveCompare(value) == .orderedSame && mutableRecord.generatedTags[index].state == .accepted {
-                mutableRecord.generatedTags[index].state = .rejected
-            }
-        }
-    }
-
-    func updateNotes(_ notes: String, for record: PrintFileRecord) {
-        update(record) { mutableRecord in
-            mutableRecord.notes = notes
-        }
-    }
 
     func enrich(record: PrintFileRecord, settings: AIEnrichmentSettings, allowSourceLookup: Bool) {
         isEnriching = true
@@ -725,58 +606,9 @@ final class LibraryViewModel: ObservableObject {
         return error.localizedDescription
     }
 
-    func updateDomainFields(
-        category: String,
-        variantName: String,
-        printability: PrintabilityStatus?,
-        for record: PrintFileRecord
-    ) {
-        update(record) { mutableRecord in
-            mutableRecord.category = trimmedOptional(category)
-            mutableRecord.variantName = trimmedOptional(variantName)
-            mutableRecord.printability = printability
-        }
-    }
 
-    func updateSourceInfo(
-        platform: String,
-        author: String,
-        license: String,
-        url: String,
-        for record: PrintFileRecord
-    ) {
-        update(record) { mutableRecord in
-            mutableRecord.sourceInfo = PrintSourceInfo(
-                platform: trimmedOptional(platform),
-                author: trimmedOptional(author),
-                license: trimmedOptional(license),
-                url: trimmedOptional(url),
-                downloadedAt: mutableRecord.sourceInfo?.downloadedAt
-            )
-        }
-    }
 
-    func addPrintHistoryEntry(printer: String, material: String, result: String, notes: String, to record: PrintFileRecord) {
-        let entry = PrintHistoryEntry(
-            printer: printer.trimmingCharacters(in: .whitespacesAndNewlines),
-            material: material.trimmingCharacters(in: .whitespacesAndNewlines),
-            result: result.trimmingCharacters(in: .whitespacesAndNewlines),
-            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines)
-        )
-        guard !entry.printer.isEmpty || !entry.material.isEmpty || !entry.result.isEmpty || !entry.notes.isEmpty else { return }
 
-        update(record) { mutableRecord in
-            var history = mutableRecord.printHistory ?? []
-            history.insert(entry, at: 0)
-            mutableRecord.printHistory = history
-        }
-    }
-
-    func removePrintHistoryEntry(_ entry: PrintHistoryEntry, from record: PrintFileRecord) {
-        update(record) { mutableRecord in
-            mutableRecord.printHistory?.removeAll { $0.id == entry.id }
-        }
-    }
 
     func requestDelete(record: PrintFileRecord) {
         deleteCandidate = record
@@ -1236,7 +1068,7 @@ final class LibraryViewModel: ObservableObject {
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    private func toggleTrimmedString(_ value: String, in set: inout Set<String>) {
+    func toggleTrimmedString(_ value: String, in set: inout Set<String>) {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         if let existing = set.first(where: { $0.caseInsensitiveCompare(trimmed) == .orderedSame }) {
@@ -1246,7 +1078,7 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    private func normalizedFacetValues(_ values: [String]) -> [String] {
+    func normalizedFacetValues(_ values: [String]) -> [String] {
         var seen = Set<String>()
         return values
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -1255,9 +1087,108 @@ final class LibraryViewModel: ObservableObject {
             .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 
-    private func sourceVersionStatus(for record: PrintFileRecord) -> SourceVersionStatus {
+    func sourceVersionStatus(for record: PrintFileRecord) -> SourceVersionStatus {
         guard let rawStatus = record.metadata["source.versionStatus"] else { return .unknown }
         return SourceVersionStatus(rawValue: rawStatus) ?? .unknown
+    }
+
+    func acceptGeneratedTag(_ tag: GeneratedTag, for record: PrintFileRecord) {
+        guard !suppressedVisibleTagValues.contains(tag.value.lowercased()) else {
+            rejectGeneratedTag(tag, for: record)
+            return
+        }
+
+        update(record) { mutableRecord in
+            guard let index = mutableRecord.generatedTags.firstIndex(where: { $0.id == tag.id }) else { return }
+            mutableRecord.generatedTags[index].state = .accepted
+            addVisibleTag(tag.value, to: &mutableRecord)
+        }
+        statusMessage = "Accepted tag \(tag.value)"
+    }
+
+    func rejectGeneratedTag(_ tag: GeneratedTag, for record: PrintFileRecord) {
+        update(record) { mutableRecord in
+            guard let index = mutableRecord.generatedTags.firstIndex(where: { $0.id == tag.id }) else { return }
+            mutableRecord.generatedTags[index].state = .rejected
+        }
+        statusMessage = "Rejected tag \(tag.value)"
+    }
+
+    func addUserTag(_ value: String, to record: PrintFileRecord) {
+        let tag = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !tag.isEmpty else { return }
+
+        update(record) { mutableRecord in
+            addVisibleTag(tag, to: &mutableRecord)
+        }
+    }
+
+    func removeUserTag(_ value: String, from record: PrintFileRecord) {
+        update(record) { mutableRecord in
+            mutableRecord.userTags.removeAll { $0.caseInsensitiveCompare(value) == .orderedSame }
+            for index in mutableRecord.generatedTags.indices where mutableRecord.generatedTags[index].value.caseInsensitiveCompare(value) == .orderedSame && mutableRecord.generatedTags[index].state == .accepted {
+                mutableRecord.generatedTags[index].state = .rejected
+            }
+        }
+    }
+
+    func updateNotes(_ notes: String, for record: PrintFileRecord) {
+        update(record) { mutableRecord in
+            mutableRecord.notes = notes
+        }
+    }
+
+    func updateDomainFields(
+        category: String,
+        variantName: String,
+        printability: PrintabilityStatus?,
+        for record: PrintFileRecord
+    ) {
+        update(record) { mutableRecord in
+            mutableRecord.category = trimmedOptional(category)
+            mutableRecord.variantName = trimmedOptional(variantName)
+            mutableRecord.printability = printability
+        }
+    }
+
+    func updateSourceInfo(
+        platform: String,
+        author: String,
+        license: String,
+        url: String,
+        for record: PrintFileRecord
+    ) {
+        update(record) { mutableRecord in
+            mutableRecord.sourceInfo = PrintSourceInfo(
+                platform: trimmedOptional(platform),
+                author: trimmedOptional(author),
+                license: trimmedOptional(license),
+                url: trimmedOptional(url),
+                downloadedAt: mutableRecord.sourceInfo?.downloadedAt
+            )
+        }
+    }
+
+    func addPrintHistoryEntry(printer: String, material: String, result: String, notes: String, to record: PrintFileRecord) {
+        let entry = PrintHistoryEntry(
+            printer: printer.trimmingCharacters(in: .whitespacesAndNewlines),
+            material: material.trimmingCharacters(in: .whitespacesAndNewlines),
+            result: result.trimmingCharacters(in: .whitespacesAndNewlines),
+            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        guard !entry.printer.isEmpty || !entry.material.isEmpty || !entry.result.isEmpty || !entry.notes.isEmpty else { return }
+
+        update(record) { mutableRecord in
+            var history = mutableRecord.printHistory ?? []
+            history.insert(entry, at: 0)
+            mutableRecord.printHistory = history
+        }
+    }
+
+    func removePrintHistoryEntry(_ entry: PrintHistoryEntry, from record: PrintFileRecord) {
+        update(record) { mutableRecord in
+            mutableRecord.printHistory?.removeAll { $0.id == entry.id }
+        }
     }
 
     private func saveSnapshot() {
