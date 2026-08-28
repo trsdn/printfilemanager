@@ -54,7 +54,7 @@ criteria:
   # Package And Release Repositories
   R01: pass
   R02: partial
-  R03: pass
+  R03: partial
   R04: pass
   R05: pass
   R06: partial

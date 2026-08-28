@@ -103,9 +103,15 @@ Artifacts land in `.release/`, which is gitignored.
 For distribution the signing happens through
 [macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker), which builds from
 a pinned commit in a secretless job and signs in a gated environment, so Apple credentials never
-reach this repository. Both apps are onboarded there as the `printfilemanager` and
-`threemfquicklook` profiles. **The broker fetches source anonymously, so it can only build this
-repository once it is public.**
+reach this repository. Both apps are onboarded there as the `printfilemanager` and `threemfquicklook` profiles, and the
+broker builds this repository successfully.
+
+Notarized artifacts are not published yet. The broker's preflight rejects any nested bundle it has
+not been told about, and SwiftPM emits one for ZIPFoundation's privacy manifest — 8 KB containing
+only `PrivacyInfo.xcprivacy`, no executable. Tracked as
+[macos-notarization-broker#30](https://github.com/trsdn/macos-notarization-broker/issues/30); it
+needs a way to declare an inert resource bundle without routing it through the nested-code review
+gate. Until then the releases here carry unsigned artifacts, clearly labelled as such.
 
 ## Privacy
 
