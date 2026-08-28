@@ -24,15 +24,15 @@ criteria:
   B11: pass
   B12: pass
   # Public Repositories
-  P01: na
-  P02: na
-  P03: na
-  P04: na
-  P05: na
-  P06: na
-  P07: na
-  P08: na
-  P09: na
+  P01: pass
+  P02: pass
+  P03: pass
+  P04: pass
+  P05: pass
+  P06: pass
+  P07: pass
+  P08: partial
+  P09: partial
   # Software Repositories
   S01: pass
   S02: pass
@@ -90,7 +90,7 @@ criteria:
   L07: pass
   # Accessibility
   X01: partial
-  X02: partial
+  X02: pass
   X03: pass
   X04: pass
   X05: pass

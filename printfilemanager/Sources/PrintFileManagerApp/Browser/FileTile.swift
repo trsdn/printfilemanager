@@ -101,7 +101,22 @@ struct FileTile: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isSelected ? Color.accentColor : Color(nsColor: .separatorColor), lineWidth: isSelected ? 2 : 1)
         }
+        // Combined into one element with named actions rather than leaving the three icon
+        // buttons unreachable inside it: VoiceOver could otherwise neither read the tile as a
+        // unit nor operate its actions.
         .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityLabel(accessibilityDescription)
+        .accessibilityHint("Select this file")
+        .accessibilityAction(named: "Reveal in Finder") {
+            NSWorkspace.shared.activateFileViewerSelecting([record.url])
+        }
+        .accessibilityAction(named: "Open") {
+            viewModel.openInDefaultApp(record: record)
+        }
+        .accessibilityAction(named: "Move to Trash") {
+            viewModel.requestDelete(record: record)
+        }
         .contextMenu {
             Button {
                 viewModel.openInDefaultApp(record: record)
@@ -160,6 +175,25 @@ struct FileTile: View {
     private var activeReviewReasons: [ReviewReason] {
         guard !viewModel.isReviewDismissed(for: record) else { return [] }
         return viewModel.reviewReasons(for: record)
+    }
+
+    /// One spoken sentence describing the tile, so VoiceOver conveys what the visual layout
+    /// conveys at a glance instead of reading a pile of disconnected labels.
+    private var accessibilityDescription: String {
+        var parts = [record.projectName ?? record.fileName]
+        if let printability = record.printability?.title {
+            parts.append(printability)
+        }
+        if !record.userTags.isEmpty {
+            parts.append("\(record.userTags.count) tags")
+        }
+        if !activeReviewReasons.isEmpty {
+            parts.append("needs review: \(activeReviewReasons.map(\.title).joined(separator: ", "))")
+        }
+        if record.previewStatus != .available {
+            parts.append("no preview")
+        }
+        return parts.joined(separator: ", ")
     }
 }
 

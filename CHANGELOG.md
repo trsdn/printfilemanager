@@ -49,6 +49,9 @@ All notable changes to this project are recorded here. The format follows
 
 ### Security
 
+- The repository is public, which enabled branch protection requiring the four CI checks, secret
+  scanning with push protection, private vulnerability reporting and Dependabot security updates.
+
 - AI enrichment and web source lookup are both opt-in and default to off; neither can issue a
   request without explicit configuration.
 - AI endpoints must use HTTPS, except for local servers.

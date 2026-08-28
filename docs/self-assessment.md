@@ -1,16 +1,19 @@
 # Self-assessment against the Repository Quality Standard
 
-Standard version 1.3.3 · assessed 2026-08-28 · state **Needs work**
+Standard version 1.3.3 · assessed 2026-08-28 · state **Needs work** · 0 failures
 
-This is the evidence behind [`.github/conformance.yml`](../.github/conformance.yml). Results are
-recorded as they are, not as they should be: three criteria fail and twelve are partial. All three
-failures are outside the repository's control and are noted as such.
+This is the evidence behind [`.github/conformance.yml`](../.github/conformance.yml). Results are recorded as they are, not as they should be.
+
+The repository was made public on 2026-08-28. That resolved the three failures this assessment
+originally recorded — they shared one cause, a private repository on a plan without branch
+protection or secret scanning and with Actions billing blocked — and brought the Public profile
+into scope. Nothing fails now; twelve criteria are partial.
 
 ## Profiles applied
 
-Baseline, Software, Deployable, Package, Product Identity, Agent Readiness, Language,
-Accessibility, Data Protection. The repository is private, so the Public profile is not applicable;
-it is actively developed, so the Archived profile is not applicable either.
+Baseline, Public, Software, Deployable, Package, Product Identity, Agent Readiness, Language,
+Accessibility, Data Protection. The repository is actively developed, so the Archived profile is
+not applicable.
 
 ## Baseline
 
@@ -21,10 +24,10 @@ it is actively developed, so the Archived profile is not applicable either.
 | B03 | pass | `LICENSE` (MIT), also declared in the built artifact. |
 | B04 | pass | `.gitignore` excludes build output, DerivedData and `.release/`; no secrets are tracked. The API key lives in the Keychain. |
 | B05 | pass | Three validation commands documented in `README.md`, `CONTRIBUTING.md` and `AGENTS.md`, all verified from a clean clone. |
-| B06 | **fail** | Branch protection is unavailable: GitHub returns 403 "Upgrade to GitHub Pro or make this repository public". Not fixable inside the repository. |
+| B06 | pass | `main` requires the four CI checks, with force pushes and deletions blocked. Enabled once the repository became public. |
 | B07 | pass | macOS 15 and Xcode 26 stated; Swift 6 pinned in each `project.yml`; one dependency pinned in `ThreeMFKit/Package.swift`. |
 | B08 | pass | `CHANGELOG.md`, plus commit messages that state rationale. |
-| B09 | partial | Visibility and description are intentional. Topics were added for B12; there is no homepage because the project is private and unreleased. |
+| B09 | pass | Public, described, and carrying six topics including `trsdn-standard`. No homepage, which is intentional for an app distributed as a signed download. |
 | B10 | pass | `.github/CODEOWNERS` and the ownership section of `CONTRIBUTING.md`. |
 | B11 | pass | This record and `.github/conformance.yml`. |
 | B12 | pass | The `trsdn-standard` topic is set. |
@@ -36,12 +39,12 @@ it is actively developed, so the Archived profile is not applicable either.
 | S01 | pass | Verified end to end from a fresh `git clone`: install two tools, generate, build, test. |
 | S02 | pass | 77 tests. Failure paths are covered deliberately: unreadable index, oversized ZIP entries, malformed mesh indices, mid-batch operation failure, stale undo. |
 | S03 | pass | SwiftLint in CI, configured so the tree is error-free and warnings track known debt. |
-| S04 | partial | CI covers macOS, the only supported platform, but see S09 — it has never actually executed. |
-| S05 | **fail** | Secret scanning requires GitHub Advanced Security on a private repository and is not enabled. Mitigated by no secrets being tracked, but the automated control is absent. |
+| S04 | pass | CI covers macOS, the only supported platform, and now actually runs: three green jobs on `main`. |
+| S05 | pass | Secret scanning and push protection are enabled. The history was also scanned by hand before publishing: no credential-shaped file was ever added and no diff contains a key or token pattern. |
 | S06 | pass | No configuration is compiled in. The endpoint, model and both feature switches are user settings; the API key is in the Keychain. |
 | S07 | pass | Errors carry the underlying description; the API key is never logged; Quick Look logs file paths at `.private`. |
 | S08 | pass | `.github/dependabot.yml` for both ecosystems, owner named in `CODEOWNERS`, triage process in `SECURITY.md`. |
-| S09 | **fail** | Required checks cannot be configured without branch protection (B06), and no CI run has succeeded — every run since the workflow was added failed with "recent account payments have failed or your spending limit needs to be increased" before any job started. macOS runners bill at ten times the Linux rate, which is the likely cause. |
+| S09 | pass | `main` requires "Print File Manager", "3MF Quick Look", "ThreeMFKit" and "Conformance record". Before going public every run failed with "recent account payments have failed or your spending limit needs to be increased" before starting a job — including the Ubuntu one, so it was the private-repository quota rather than macOS runner cost. |
 | S10 | pass | `docs/assessment-2026-08-28-multi-agent.md` documents architecture and constraints with measurements; `AGENTS.md` states the non-obvious ones. |
 
 ## Deployable
@@ -106,8 +109,8 @@ it is actively developed, so the Archived profile is not applicable either.
 
 | ID | Result | Evidence |
 |---|---|---|
-| X01 | partial | Menu commands cover Select All, Find, Reveal, Trash and Undo, and Shift-click ranges work. Grid tiles are still a tap gesture rather than a focusable control, so arrow-key navigation of the grid is missing. |
-| X02 | partial | Every icon-only button has an accessibility label, verified in the running app. Grid tiles combine their children into one element, so VoiceOver cannot reach the per-tile actions. |
+| X01 | partial | Menu commands cover Select All, Find, Reveal, Trash and Undo; Shift-click ranges work; tiles are now buttons with the button trait. Arrow-key navigation between tiles is still missing. |
+| X02 | pass | Verified against the running app with a real 703-file library: each tile is an `AXButton` carrying a composed description ("4 Ring Gyro Fidget, Needs Slicing, needs review: …") and named actions for Open, Reveal in Finder, Move and Trash. |
 | X03 | pass | Semantic colours throughout, so light, dark and accent settings are honoured; status is carried by icon and text, not colour alone. |
 | X04 | pass | `scripts/release.sh` output is plain ASCII with no colour dependence. |
 | X05 | pass | The limitations above are stated here and in the assessment rather than left implicit. |
@@ -127,25 +130,25 @@ it is actively developed, so the Archived profile is not applicable either.
 
 | Result | Count |
 |---|---|
-| pass | 54 |
-| partial | 12 |
-| fail | 3 |
-| na | 15 |
+| pass | 67 |
+| partial | 11 |
+| fail | 0 |
+| na | 6 |
 
-### Going public would close all three failures
+No criterion fails. The eleven partials are all minor, with two exceptions worth naming rather
+than burying:
 
-The broker that produces notarized builds fetches source anonymously, so it cannot build this
-repository while it is private. Making the repository public is therefore both the release
-prerequisite and the fix for every remaining failure, since public repositories get branch
-protection, secret scanning and Actions minutes at no cost.
+- **X01** — the grid is the app's primary surface and still has no arrow-key navigation between
+  tiles. Tiles are focusable buttons with named VoiceOver actions, so the surface is operable, but
+  a keyboard-only user cannot move through it the way a Mac user expects. This is why the state is
+  `Needs work` rather than `Healthy`.
+- **P09** — the repository stats card is committed as required, but the workflow that regenerates
+  it cannot push while `main` requires status checks it does not run. Resolving this needs a
+  `STATS_TOKEN` with bypass rights. Branch protection was judged worth more than the card, so the
+  card is absent rather than the protection being relaxed.
 
-That decision belongs to the owner and has not been taken. To make it an informed one, the history
-was scanned first: 21 commits, no file matching a credential shape was ever added, no diff in any
-commit contains a key, token or private-key pattern, and the one absolute home path that appeared
-in a documentation note has been removed. Nothing found in the history argues against publishing.
-
-The three remaining failures are B06, S05 and S09, and they share one root cause: the repository is
-private on a plan that provides neither branch protection nor secret scanning, and no workflow can
-run because Actions billing is blocked — verified against both a macOS and an Ubuntu job, so it is
-not a runner-cost problem. Making the repository public, or upgrading the plan and clearing the
-billing block, resolves all three. Nothing inside the repository can.
+The remaining nine are genuinely small: no rollback procedure before a first release (D03), no
+compatibility policy before 1.0 (R02), release notes not yet exercised (R06), no installer surface
+to reuse the icon on (I05), no `github-app.yml` (G08), file sizes not formatted through locale APIs
+(L05), no in-app export or delete-all (Y04), no retention policy for data that never leaves the
+machine (Y06), and two hardcoded badges served from a third-party host (P08).
