@@ -2,9 +2,10 @@
 
 Date: 2026-08-28
 
-> **Remediation status (2026-08-28).** All P0 findings, most P1s, and a number of P2s have since
-> been fixed — see [Remediation Log](#remediation-log) at the end of this document for exactly what
-> changed and what remains open. The findings below are preserved as written at assessment time.
+> **Remediation status (2026-08-28).** Every finding in this document has since been addressed, and
+> a follow-up UI/UX review was run and acted on as well. See the [Remediation Log](#remediation-log)
+> at the end for exactly what changed, with before/after measurements. The findings below are
+> preserved as written at assessment time.
 
 ## Scope and Method
 
@@ -479,22 +480,47 @@ credential-shaped source lines in its output. The real line is 85 characters wit
 `f70b3fc32b59682f7ce8efc2eafd37b4`, matching `request.setValue("Bearer \(trimmedKey)", ...)`
 exactly. Authorization was always implemented correctly.
 
-### Still open
+### Second pass — everything else closed
 
-Unchanged from the roadmap above, in priority order:
+| Item | What changed |
+|---|---|
+| **Thumbnails in the index (P0-2 remainder)** | Preview images moved into a content-addressed `ThumbnailStore` beside the index; records hold a SHA-256 key. Migrating the real 109 MB installation: **index 109 MB → 3 MB**, save **109 MB rewrite → 31 ms**, 652 previews preserved and deduplicated to 547 files, 0 broken, 0 missing, tags and roots intact. |
+| **Search and sidebar cost (P1-5 remainder)** | Cached each record's lowercased searchable text; added `count(in:matching:)` and `collectionCounts(in:)` that filter without sorting; debounced the search field by 200 ms. At 10,000 files: sidebar counts **367 ms → 93 ms**, free text search **117 ms → 66 ms**, index save **224 ms → 125 ms**. |
+| **Undo and batch reporting (P2-2)** | `execute()` attempts every action and returns a per-action report instead of aborting on the first failure; `undo()` reverses a batch (moves back, copies removed, originals never deleted). A result sheet lists failures with reasons and offers Undo, also on ⌘Z. |
+| **App-layer tests (P1-3)** | `AIEnriching` and `SourceLooking` protocols injected into the view model; new `PrintFileManagerAppTests` target with 17 tests covering persistence lockout and recovery, save coalescing, selection, root removal, privacy gating, error surfacing, and move + undo. |
+| **ThreeMFKit as a package (P2-11)** | The `../Quicklook/Sources/ThreeMFCore` relative-path share is gone; both projects consume a local Swift package with a single ZIPFoundation pin. CI runs its tests via `swift test`. |
+| **UTI declaration (P1-2)** | Switched from exported to a single imported declaration, added `public.zip-archive` as a fallback conformer, and added runtime sniffing for the 3MF model part so other archives are handed back to the system. |
+| **ContentView decomposition (P2-8)** | Split into Sidebar, Browser, Organization, Inspector and SharedUI. ContentView itself is now 178 lines; the largest remaining file is the inspector at 563. |
+| **App Sandbox (P2-4)** | Sandbox enabled with user-selected read-write, app-scoped bookmarks and outbound network. Roots are persisted as security-scoped bookmarks, resolved at launch, refreshed when stale. Verified present in an ad-hoc signed binary. |
+| **Prompt injection (P2-5)** | Untrusted metadata is wrapped in a delimited block, its delimiters neutralised and its length bounded. |
 
-1. **Externalize thumbnails** out of `PrintFileRecord` (Phase 2). Coalescing removed the per-keystroke
-   freeze, but the index is still ~109 MB because preview PNGs are base64-embedded in every record.
-   This is the remaining structural cost and should precede any SQLite migration.
-2. **SQLite/GRDB with FTS5** to replace the whole-file JSON store and the linear search.
-3. **Undo and an operation journal** for move/copy, plus a per-file batch result report (P2-2).
-4. **App-layer tests** — `LibraryViewModel` and the network clients still have none, which requires
-   introducing `AIEnriching`/`SourceLooking` protocols and injecting `URLSession` first (P1-3).
-5. **`ThreeMFKit` as a real SwiftPM package** to replace the `../Quicklook/...` relative-path share
-   (P2-11), then embedding the Quick Look extensions in the main app.
-6. **UTI declaration** should become imported rather than exported, with `public.zip-archive` as a
-   fallback conformer plus runtime sniffing (P1-2). This is the remaining blocker for Quick Look
-   working on machines where a slicer owns the `.3mf` type.
-7. **Decompose `ContentView.swift`** and split `LibraryViewModel` (P2-8).
-8. **App Sandbox with security-scoped bookmarks**, and a signing/notarization path (P2-4).
-9. **Prompt-injection delimiting** for untrusted metadata fed into LLM prompts (P2-5).
+### Follow-up UI/UX review
+
+A separate UI/UX review found two further critical defects, both fixed:
+
+- **Lockout recovery was unreachable.** `startFreshLibraryAfterLoadFailure()` was not called by any
+  view, so a user whose index could not be read was told so in grey caption text with no way out.
+  It now shows a red banner with a confirmed "Start a Fresh Library" action.
+- **The inspector silently discarded edits.** Project and Source fields committed only on "Done", so
+  clicking another file threw away whatever had been typed. They now commit as you type.
+
+Also addressed: scanned folders had no way to be removed at all; one generic empty state covered
+four situations and offered no recovery action; Shift-click range selection and ⌘A were missing;
+eight icon-only buttons had no accessibility labels; and the first-run screen was a bare prompt with
+no value proposition or privacy statement.
+
+### Final verified state
+
+| | At assessment | Now |
+|---|---|---|
+| PrintFileManager tests | 29 | **64** (47 core + 17 app) |
+| ThreeMFKit tests | 4 pass, 1 failing | **10 pass, 1 skipped** |
+| Compiler warnings | 8 | **0** |
+| SwiftLint | not configured | 0 errors |
+| Largest UI file | 1,726 lines | 563 lines |
+| Library index (real install) | 109 MB | 3 MB |
+| App-layer test coverage | none | 17 tests |
+
+Remaining known limitations, all deliberate and documented rather than hidden: the store is still
+JSON rather than SQLite (adequate at the measured sizes now that images are external), natural-language
+search remains keyword matching, and signing/notarization for distribution is still unconfigured.
