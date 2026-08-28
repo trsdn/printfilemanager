@@ -89,7 +89,7 @@ struct SourcePageMetadata: Equatable, Sendable {
     var canonicalURL: URL?
 }
 
-public struct SourceLookupClient {
+public struct SourceLookupClient: SourceLooking {
     /// Web search and page fetches are best-effort enrichment, so they must fail fast rather than
     /// block the inspector on an unresponsive host.
     static let requestTimeout: TimeInterval = 20

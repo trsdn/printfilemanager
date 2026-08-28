@@ -82,7 +82,7 @@ public enum AIEnrichmentError: Error, Equatable, LocalizedError {
     }
 }
 
-public struct AIEnrichmentClient {
+public struct AIEnrichmentClient: AIEnriching {
     /// Bounded so a hung or slow provider cannot stall enrichment for the URLSession default of
     /// 60 seconds per request, which is painful when a batch action iterates over many files.
     static let requestTimeout: TimeInterval = 30

@@ -47,6 +47,8 @@ final class LibraryViewModel: ObservableObject {
 
     private let database: LibraryDatabase
     private let thumbnails: ThumbnailStore
+    private let enrichmentClient: any AIEnriching
+    private let sourceLookupClient: any SourceLooking
     private let search = LibrarySearch()
     private let folderWatcher = FolderWatcher()
     private let isUsingVolatileFallbackStore: Bool
@@ -70,7 +72,14 @@ final class LibraryViewModel: ObservableObject {
         return cache
     }()
 
-    init(database: LibraryDatabase? = nil, thumbnailStore: ThumbnailStore? = nil) {
+    init(
+        database: LibraryDatabase? = nil,
+        thumbnailStore: ThumbnailStore? = nil,
+        enrichmentClient: any AIEnriching = AIEnrichmentClient(),
+        sourceLookupClient: any SourceLooking = SourceLookupClient()
+    ) {
+        self.enrichmentClient = enrichmentClient
+        self.sourceLookupClient = sourceLookupClient
         if let database {
             self.database = database
             isUsingVolatileFallbackStore = false
@@ -585,7 +594,7 @@ final class LibraryViewModel: ObservableObject {
 
         Task {
             do {
-                let result = try await AIEnrichmentClient().enrich(
+                let result = try await enrichmentClient.enrich(
                     record: record,
                     settings: settings,
                     thumbnailData: thumbnail(for: record)
@@ -597,7 +606,7 @@ final class LibraryViewModel: ObservableObject {
                 // Web lookup is a separate provider and a separate consent decision, so it only
                 // runs when the user has explicitly enabled it.
                 let sourceResult = allowSourceLookup
-                    ? try? await SourceLookupClient().lookup(record: lookupRecord, settings: settings)
+                    ? try? await sourceLookupClient.lookup(record: lookupRecord, settings: settings)
                     : nil
 
                 update(record) { mutableRecord in
@@ -627,7 +636,7 @@ final class LibraryViewModel: ObservableObject {
 
         Task {
             do {
-                let result = try await SourceLookupClient().lookup(record: record, settings: settings)
+                let result = try await sourceLookupClient.lookup(record: record, settings: settings)
                 update(record) { mutableRecord in
                     applySourceLookupResult(result, to: &mutableRecord)
                 }
@@ -880,7 +889,7 @@ final class LibraryViewModel: ObservableObject {
     ) async -> [OrganizationSuggestion] {
         var suggestions: [OrganizationSuggestion] = []
         var runningFolderContext = folderContext
-        let client = AIEnrichmentClient()
+        let client = enrichmentClient
 
         for record in records {
             do {
@@ -981,6 +990,12 @@ final class LibraryViewModel: ObservableObject {
 
     func dismissOrganizationReport() {
         lastOrganizationReport = nil
+    }
+
+    /// Seeds the in-memory library directly. Exists so app-layer tests can set up a state without
+    /// having to run a real scan.
+    func replaceSnapshotForTesting(_ snapshot: LibrarySnapshot) {
+        self.snapshot = snapshot
     }
 
     private func rescanManagedFolder() {

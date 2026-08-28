@@ -29,6 +29,20 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9230466F435B05F12EABD239"
+               BuildableName = "PrintFileManagerAppTests.xctest"
+               BlueprintName = "PrintFileManagerAppTests"
+               ReferencedContainer = "container:PrintFileManager.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "BCAEC264A36687A95CBCD62C"
                BuildableName = "PrintFileManagerCoreTests.xctest"
                BlueprintName = "PrintFileManagerCoreTests"
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "BCAEC264A36687A95CBCD62C"
                BuildableName = "PrintFileManagerCoreTests.xctest"
                BlueprintName = "PrintFileManagerCoreTests"
+               ReferencedContainer = "container:PrintFileManager.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9230466F435B05F12EABD239"
+               BuildableName = "PrintFileManagerAppTests.xctest"
+               BlueprintName = "PrintFileManagerAppTests"
                ReferencedContainer = "container:PrintFileManager.xcodeproj">
             </BuildableReference>
          </TestableReference>

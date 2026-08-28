@@ -52,12 +52,29 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManagerCoreTests
         GENERATE_INFOPLIST_FILE: "YES"
 
+  PrintFileManagerAppTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/PrintFileManagerAppTests
+    dependencies:
+      - target: PrintFileManager
+      - target: PrintFileManagerCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.printfilemanager.PrintFileManagerAppTests
+        GENERATE_INFOPLIST_FILE: "YES"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/PrintFileManager.app/Contents/MacOS/PrintFileManager"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
 schemes:
   PrintFileManager:
     build:
       targets:
         PrintFileManager: all
         PrintFileManagerCoreTests: [test]
+        PrintFileManagerAppTests: [test]
     test:
       targets:
         - PrintFileManagerCoreTests
+        - PrintFileManagerAppTests
