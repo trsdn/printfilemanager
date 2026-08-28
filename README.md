@@ -1,7 +1,7 @@
 # Print File Manager
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![macOS 15+](https://img.shields.io/badge/macOS-15%2B-black)](#requirements)
+[![License: MIT](.github/badges/license.svg)](LICENSE)
+[![macOS 15+](.github/badges/platform.svg)](#requirements)
 [![CI](https://github.com/trsdn/printfilemanager/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/trsdn/printfilemanager/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/trsdn/printfilemanager?display_name=tag&sort=semver)](https://github.com/trsdn/printfilemanager/releases/latest)
 [![Conformance](.github/badges/conformance.svg)](docs/self-assessment.md)
@@ -147,6 +147,19 @@ Both network features are **off by default** and are enabled independently in Se
 
 The full `.3mf` file is never uploaded.
 
+### What is stored, and for how long
+
+The app keeps a library index and a preview store, both under `~/Library/Application Support`, and
+API keys in the Keychain. Their exact paths are shown in **Settings → Your Data**.
+
+Nothing is stored anywhere else, and nothing expires on its own — there is no retention period
+because there is no server to retain anything on. Data lives until you remove it:
+
+- Removing a scanned folder drops everything indexed from it.
+- **Settings → Your Data → Delete All Data** removes the index and every stored preview. Your own
+  model files are not touched.
+- **Export Library** writes the whole index as plain JSON first, if you want a copy.
+
 ## Safety model
 
 The original files are treated as valuable source artifacts:
@@ -161,6 +174,45 @@ The original files are treated as valuable source artifacts:
   writes are blocked rather than overwriting it.
 - The app runs in the App Sandbox. It can only reach folders you explicitly choose, and it keeps
   that access across launches with security-scoped bookmarks.
+
+## Rolling back
+
+Every release is a signed, notarized artifact that installs by drag-and-drop, so rolling back is
+downloading an older one. Nothing in the app requires a matching version on disk.
+
+1. Quit Print File Manager.
+2. Download the previous release from [Releases](https://github.com/trsdn/printfilemanager/releases)
+   and replace the copy in `/Applications`.
+3. Confirm what you installed before opening it:
+
+   ```bash
+   spctl -a -vvv --type exec /Applications/PrintFileManager.app
+   /Applications/PrintFileManager.app/Contents/MacOS/PrintFileManager --version 2>/dev/null \
+     || defaults read /Applications/PrintFileManager.app/Contents/Info CFBundleShortVersionString
+   ```
+
+4. For the Quick Look extension, replace `ThreeMFQuickLook.app`, launch it once, then
+   `qlmanage -r && qlmanage -r cache`.
+
+The library index is versioned and migrated forward on load. A newer version may therefore write
+an index an older version will refuse to read — it quarantines it as `*.corrupt-<timestamp>.json`
+and blocks writes rather than damaging it. If you plan to move between versions, export the
+library first from **Settings → Your Data → Export Library**; that JSON is plain and readable
+independently of the app.
+
+## Compatibility before 1.0
+
+While the version is below 1.0 the interface is not stable, and minor releases may change
+behaviour. Two guarantees hold regardless:
+
+- **Your files are never the migration.** The app changes only its own index and preview store.
+  Model files on disk are moved or copied solely through an action you confirm in a review sheet.
+- **The index migrates forward, never destructively.** A readable older index is upgraded on load.
+  An index that cannot be read is preserved under a `.corrupt-<timestamp>` name and writes are
+  blocked, so a failed migration is recoverable rather than final.
+
+From 1.0 onward, breaking changes to the index schema or to documented behaviour will require a
+major version.
 
 ## Support status
 
@@ -186,7 +238,8 @@ Security reporting and the threat model are in [SECURITY.md](SECURITY.md).
 
 This repository is assessed against the
 [trsdn Repository Quality Standard](https://github.com/trsdn/.github); the current result is
-**Needs work**, with the evidence in [docs/self-assessment.md](docs/self-assessment.md).
+**Healthy** — 78 pass, 0 partial, 0 fail, 6 not applicable — with the evidence in
+[docs/self-assessment.md](docs/self-assessment.md).
 
 ## Documentation
 

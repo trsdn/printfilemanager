@@ -42,7 +42,7 @@ struct SidebarView: View {
                         .controlSize(.small)
 
                         if viewModel.selectedRecordCount > 0 {
-                            Label("\(viewModel.selectedRecordCount) selected", systemImage: "checkmark.circle")
+                            Label("\(viewModel.selectedRecordCount.formatted()) selected", systemImage: "checkmark.circle")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }

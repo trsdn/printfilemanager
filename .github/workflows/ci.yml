@@ -20,6 +20,9 @@ jobs:
       - name: Check version consistency
         run: ./scripts/check-versions.sh
 
+      - name: Check README badges
+        run: ./scripts/badges.py --check
+
   package:
     name: ThreeMFKit
     runs-on: macos-15

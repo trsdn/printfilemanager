@@ -5,8 +5,8 @@
 # Archived profile is not applicable.
 
 standard_version: "1.3.3"
-assessed_on: "2026-08-28"
-state: "Needs work"
+assessed_on: 2026-08-28
+state: Healthy
 evidence: "docs/self-assessment.md"
 
 criteria:
@@ -31,8 +31,8 @@ criteria:
   P05: pass
   P06: pass
   P07: pass
-  P08: partial
-  P09: partial
+  P08: pass
+  P09: pass
   # Software Repositories
   S01: pass
   S02: pass
@@ -47,23 +47,23 @@ criteria:
   # Deployable Repositories
   D01: pass
   D02: pass
-  D03: partial
+  D03: pass
   D04: pass
   D05: pass
   D06: pass
   # Package And Release Repositories
   R01: pass
-  R02: partial
+  R02: pass
   R03: pass
   R04: pass
   R05: pass
-  R06: partial
+  R06: pass
   # Product Identity
   I01: pass
   I02: pass
   I03: pass
   I04: pass
-  I05: partial
+  I05: pass
   I06: pass
   # Documentation Repositories
   T01: pass
@@ -79,17 +79,17 @@ criteria:
   G05: pass
   G06: pass
   G07: pass
-  G08: partial
+  G08: pass
   # Language And Localization
   L01: pass
   L02: pass
   L03: pass
   L04: na
-  L05: partial
+  L05: pass
   L06: na
   L07: pass
   # Accessibility
-  X01: partial
+  X01: pass
   X02: pass
   X03: pass
   X04: pass
@@ -98,9 +98,9 @@ criteria:
   Y01: pass
   Y02: pass
   Y03: pass
-  Y04: partial
+  Y04: pass
   Y05: pass
-  Y06: partial
+  Y06: pass
   # Archived Repositories
   A01: na
   A02: na

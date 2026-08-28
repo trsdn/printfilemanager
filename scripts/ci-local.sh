@@ -113,6 +113,9 @@ run_project() {
 step "Version consistency"
 ./scripts/check-versions.sh || exit 1
 
+step "README badges"
+./scripts/badges.py --check || record_failure "README badges are out of date; run scripts/badges.py"
+
 run_project "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager" "printfilemanager"
 [ "$QUICK" -eq 0 ] && run_project "Quicklook" "ThreeMFQuickLook.xcodeproj" "ThreeMFQuickLook" "threemfquicklook"
 

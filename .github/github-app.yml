@@ -1,0 +1,42 @@
+# Repository configuration for the GitHub Copilot app.
+#
+# G08: this file exists so the behaviour is a decision rather than an inherited default. The
+# choices below are deliberately conservative for a repository that signs and notarizes a shipping
+# macOS app.
+
+instructions: |
+  Two Xcode projects and one Swift package share this repository, and both projects depend on
+  ThreeMFKit as a local package at ../ThreeMFKit, so the three folders must stay siblings.
+
+  Each .xcodeproj is generated from its project.yml by XcodeGen and is also committed. After
+  changing project.yml, run `xcodegen generate` in that folder and commit the result, or CI fails
+  on a stale project.
+
+  Run `scripts/ci-local.sh` before pushing. It runs the same pipeline CI runs, plus two release
+  checks CI cannot perform: `scripts/check-versions.sh` and `scripts/check-broker-profile.py`.
+  Those two exist because the notarization broker only validates bundle identity at signing time,
+  which is after a tag has been cut.
+
+  Never write Apple credentials, signing identities or notarization secrets into this repository.
+  Signing happens in trsdn/macos-notarization-broker, which builds this source without credentials
+  present. That separation is the point, not an inconvenience to work around.
+
+scripts:
+  - name: Local CI
+    command: ./scripts/ci-local.sh
+
+  - name: Local CI (skip Quick Look)
+    command: ./scripts/ci-local.sh --quick
+
+  - name: Regenerate Xcode projects
+    command: (cd printfilemanager && xcodegen generate) && (cd Quicklook && xcodegen generate)
+
+# There is no dev server to detect, and nothing to open in a browser: the deliverable is a macOS
+# application bundle.
+auto_open_in_browser: false
+
+automation:
+  auto_issue_session: true
+  # Off deliberately. This repository holds a signing and release path; sessions should not be
+  # drivable from outside the machine that holds the Developer ID.
+  remote_control: false

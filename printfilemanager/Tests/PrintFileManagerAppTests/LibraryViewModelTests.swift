@@ -86,6 +86,174 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedRecordID, records[3].id)
     }
 
+    // MARK: - Export and delete
+
+    func testExportWritesTheLibraryAsReadableJSON() async throws {
+        let folderURL = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: folderURL.appendingPathComponent("i.json"), folderURL: folderURL)
+        let records = (0..<3).map { index in
+            makeRecord(fileName: "file-\(index).3mf", url: folderURL.appendingPathComponent("file-\(index).3mf"))
+        }
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(records: records))
+
+        let exportURL = folderURL.appendingPathComponent("export.json")
+        XCTAssertTrue(viewModel.exportLibrary(to: exportURL))
+
+        // Readable by anything, not just this app: decode it as plain JSON.
+        let data = try Data(contentsOf: exportURL)
+        let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        XCTAssertNotNil(object)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(LibrarySnapshot.self, from: data)
+        XCTAssertEqual(decoded.records.count, 3)
+    }
+
+    func testExportToAnUnwritableLocationReportsFailureRatherThanCrashing() async throws {
+        let folderURL = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: folderURL.appendingPathComponent("i.json"), folderURL: folderURL)
+
+        let unwritable = URL(fileURLWithPath: "/System/no-such-directory/export.json")
+        XCTAssertFalse(viewModel.exportLibrary(to: unwritable))
+        XCTAssertTrue(viewModel.statusMessage.contains("Export failed"))
+    }
+
+    func testDeleteAllRemovesTheIndexAndPreviewsButNotTheUsersFiles() async throws {
+        let folderURL = try makeTemporaryDirectory()
+        let indexURL = folderURL.appendingPathComponent("i.json")
+        let viewModel = makeViewModel(indexURL: indexURL, folderURL: folderURL)
+
+        // A real model file, which must survive.
+        let modelURL = folderURL.appendingPathComponent("keep-me.3mf")
+        try Data("model".utf8).write(to: modelURL)
+
+        let snapshot = LibrarySnapshot(records: [makeRecord(fileName: "keep-me.3mf", url: modelURL)])
+        viewModel.replaceSnapshotForTesting(snapshot)
+        // Write a real index file so the delete has something to remove.
+        try LibraryDatabase(fileURL: indexURL).save(snapshot)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: indexURL.path))
+
+        let removed = viewModel.deleteAllLibraryData()
+
+        XCTAssertEqual(removed, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: indexURL.path), "the index must be gone")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: modelURL.path), "the user's own file must survive")
+        XCTAssertTrue(viewModel.snapshot.records.isEmpty)
+        XCTAssertTrue(viewModel.selectedRecordIDs.isEmpty)
+        XCTAssertNil(viewModel.selectedRecordID)
+    }
+
+    func testStorageLocationsPointAtTheRealFiles() async throws {
+        let folderURL = try makeTemporaryDirectory()
+        let indexURL = folderURL.appendingPathComponent("i.json")
+        let viewModel = makeViewModel(indexURL: indexURL, folderURL: folderURL)
+
+        XCTAssertEqual(viewModel.storageLocations.index, indexURL)
+        XCTAssertEqual(
+            viewModel.storageLocations.thumbnails,
+            folderURL.appendingPathComponent("Thumbnails", isDirectory: true)
+        )
+    }
+
+    // MARK: - Keyboard navigation
+
+    /// Builds a grid of `count` tiles and returns the view model plus the records in the order the
+    /// grid actually shows them, which is what arrow keys move through.
+    private func makeGrid(count: Int) throws -> (LibraryViewModel, [PrintFileRecord]) {
+        let folderURL = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: folderURL.appendingPathComponent("i.json"), folderURL: folderURL)
+        let records = (0..<count).map { index in
+            makeRecord(
+                fileName: String(format: "file-%02d.3mf", index),
+                url: folderURL.appendingPathComponent(String(format: "file-%02d.3mf", index))
+            )
+        }
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(records: records))
+        return (viewModel, viewModel.filteredRecords)
+    }
+
+    func testArrowRightMovesToTheNextTile() async throws {
+        let (viewModel, visible) = try makeGrid(count: 9)
+        viewModel.select(record: visible[0], modifier: .replace)
+
+        viewModel.moveSelection(.right, columnCount: 3)
+
+        XCTAssertEqual(viewModel.selectedRecordID, visible[1].id)
+        XCTAssertEqual(viewModel.selectedRecordIDs, [visible[1].id])
+    }
+
+    func testArrowDownMovesAWholeRow() async throws {
+        let (viewModel, visible) = try makeGrid(count: 9)
+        viewModel.select(record: visible[1], modifier: .replace)
+
+        viewModel.moveSelection(.down, columnCount: 3)
+
+        XCTAssertEqual(viewModel.selectedRecordID, visible[4].id)
+    }
+
+    func testArrowUpMovesAWholeRowBack() async throws {
+        let (viewModel, visible) = try makeGrid(count: 9)
+        viewModel.select(record: visible[7], modifier: .replace)
+
+        viewModel.moveSelection(.up, columnCount: 3)
+
+        XCTAssertEqual(viewModel.selectedRecordID, visible[4].id)
+    }
+
+    func testArrowDownOntoAShortLastRowLandsOnTheLastTile() async throws {
+        // Seven tiles across three columns leaves a last row of one. Moving down from the middle
+        // of the second row has no tile directly beneath it, and must not simply refuse to move.
+        let (viewModel, visible) = try makeGrid(count: 7)
+        viewModel.select(record: visible[4], modifier: .replace)
+
+        viewModel.moveSelection(.down, columnCount: 3)
+
+        XCTAssertEqual(viewModel.selectedRecordID, visible[6].id)
+    }
+
+    func testArrowKeysDoNotMoveBeyondTheGrid() async throws {
+        let (viewModel, visible) = try makeGrid(count: 9)
+
+        viewModel.select(record: visible[0], modifier: .replace)
+        viewModel.moveSelection(.left, columnCount: 3)
+        viewModel.moveSelection(.up, columnCount: 3)
+        XCTAssertEqual(viewModel.selectedRecordID, visible[0].id)
+
+        viewModel.select(record: visible[8], modifier: .replace)
+        viewModel.moveSelection(.right, columnCount: 3)
+        viewModel.moveSelection(.down, columnCount: 3)
+        XCTAssertEqual(viewModel.selectedRecordID, visible[8].id)
+    }
+
+    func testArrowKeyWithNothingSelectedStartsAtTheFirstTile() async throws {
+        let (viewModel, visible) = try makeGrid(count: 9)
+        XCTAssertNil(viewModel.selectedRecordID)
+
+        viewModel.moveSelection(.down, columnCount: 3)
+
+        XCTAssertEqual(viewModel.selectedRecordID, visible[0].id)
+    }
+
+    func testShiftArrowExtendsTheSelection() async throws {
+        let (viewModel, visible) = try makeGrid(count: 9)
+        viewModel.select(record: visible[1], modifier: .replace)
+
+        viewModel.moveSelection(.right, columnCount: 3, extending: true)
+        viewModel.moveSelection(.right, columnCount: 3, extending: true)
+
+        XCTAssertEqual(viewModel.selectedRecordIDs, Set(visible[1...3].map(\.id)))
+    }
+
+    func testArrowKeysOnAnEmptyGridDoNothing() async throws {
+        let (viewModel, visible) = try makeGrid(count: 0)
+        XCTAssertTrue(visible.isEmpty)
+
+        viewModel.moveSelection(.right, columnCount: 3)
+
+        XCTAssertNil(viewModel.selectedRecordID)
+        XCTAssertTrue(viewModel.selectedRecordIDs.isEmpty)
+    }
+
     func testShiftClickBackwardsSelectsTheSameRange() async throws {
         let folderURL = try makeTemporaryDirectory()
         let viewModel = makeViewModel(indexURL: folderURL.appendingPathComponent("i.json"), folderURL: folderURL)

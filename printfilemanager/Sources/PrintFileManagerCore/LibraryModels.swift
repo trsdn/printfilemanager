@@ -563,9 +563,9 @@ public struct OrganizationExecutionReport: Identifiable, Equatable, Sendable {
     }
 
     public var summary: String {
-        var parts = ["\(succeededCount) \(kind == .move ? "moved" : "copied")"]
-        if skippedCount > 0 { parts.append("\(skippedCount) skipped") }
-        if failedCount > 0 { parts.append("\(failedCount) failed") }
+        var parts = ["\(succeededCount.formatted()) \(kind == .move ? "moved" : "copied")"]
+        if skippedCount > 0 { parts.append("\(skippedCount.formatted()) skipped") }
+        if failedCount > 0 { parts.append("\(failedCount.formatted()) failed") }
         return parts.joined(separator: " · ")
     }
 }

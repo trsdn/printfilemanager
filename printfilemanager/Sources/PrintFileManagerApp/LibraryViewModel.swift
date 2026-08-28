@@ -257,7 +257,7 @@ final class LibraryViewModel: ObservableObject {
                 try? database.save(snapshot)
             }
             restoreSecurityScopedAccess()
-            statusMessage = snapshot.records.isEmpty ? "No files indexed" : "\(snapshot.records.count) files indexed"
+            statusMessage = snapshot.records.isEmpty ? "No files indexed" : "\(snapshot.records.count.formatted()) files indexed"
             if isUsingVolatileFallbackStore {
                 statusMessage += " — warning: Application Support is unavailable, this index is stored in a temporary location and may be purged."
             }
@@ -283,6 +283,63 @@ final class LibraryViewModel: ObservableObject {
         persistenceLockout = nil
         statusMessage = "Started a new library index"
         saveSnapshot()
+    }
+
+    /// Where the library index and its preview store live, so the user can find, back up or
+    /// delete them without taking the app's word for it.
+    var storageLocations: (index: URL, thumbnails: URL) {
+        (database.fileURL, thumbnails.directoryURL)
+    }
+
+    /// Writes the whole library index to `url` as JSON.
+    ///
+    /// The index never leaves the machine on its own, which makes it easy to forget the user has
+    /// no way to get their own data out of it. This is that way: the same JSON the app stores,
+    /// readable by anything, no export format of its own to learn.
+    @discardableResult
+    func exportLibrary(to url: URL) -> Bool {
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            encoder.dateEncodingStrategy = .iso8601
+            try encoder.encode(snapshot).write(to: url, options: .atomic)
+            statusMessage = "Exported \(snapshot.records.count.formatted()) files to \(url.lastPathComponent)"
+            return true
+        } catch {
+            statusMessage = "Export failed: \(error.localizedDescription)"
+            return false
+        }
+    }
+
+    /// Deletes the index and every stored preview, leaving the user's own files untouched.
+    ///
+    /// Returns the number of records that were removed, so the caller can report it rather than
+    /// guessing. Failure to delete a file on disk is reported but does not stop the in-memory
+    /// library from being cleared: a partial delete the user is told about beats a silent refusal.
+    @discardableResult
+    func deleteAllLibraryData() -> Int {
+        let removed = snapshot.records.count
+        var failures: [String] = []
+
+        for url in [database.fileURL, thumbnails.directoryURL] where FileManager.default.fileExists(atPath: url.path) {
+            do {
+                try FileManager.default.removeItem(at: url)
+            } catch {
+                failures.append(url.lastPathComponent)
+            }
+        }
+
+        snapshot = LibrarySnapshot()
+        selectedRecordIDs = []
+        selectedRecordID = nil
+        selectionAnchorID = nil
+        lastOrganizationReport = nil
+        persistenceLockout = nil
+
+        statusMessage = failures.isEmpty
+            ? "Deleted the library index and all stored previews. Your files were not touched."
+            : "Cleared the library, but could not delete: \(failures.joined(separator: ", "))"
+        return removed
     }
 
     func addFolderFromPanel() {
@@ -313,7 +370,7 @@ final class LibraryViewModel: ObservableObject {
 
         accessCoordinator.stopAccess(rootID: root.id)
         removeRootRequest = nil
-        statusMessage = "Removed \(root.displayName) and \(removedCount) indexed files. The files on disk were not touched."
+        statusMessage = "Removed \(root.displayName) and \(removedCount.formatted()) indexed files. The files on disk were not touched."
         startWatchingFolders()
         flushPendingSave()
     }
@@ -466,6 +523,51 @@ final class LibraryViewModel: ObservableObject {
         case extendRange
     }
 
+    /// One step of keyboard navigation across the tile grid.
+    enum SelectionMove {
+        case left, right, up, down
+    }
+
+    /// Moves the selection one tile in `move`, or starts at the first tile when nothing is
+    /// selected yet. `columnCount` is what the adaptive grid actually laid out, so up and down
+    /// move a whole row rather than a single item.
+    func moveSelection(_ move: SelectionMove, columnCount: Int, extending: Bool = false) {
+        let visible = filteredRecords
+        guard !visible.isEmpty else { return }
+        let columns = max(1, columnCount)
+
+        guard let currentID = selectedRecordID,
+              let current = visible.firstIndex(where: { $0.id == currentID })
+        else {
+            select(record: visible[0], modifier: .replace)
+            return
+        }
+
+        let target: Int
+        switch move {
+        case .left:
+            target = current - 1
+        case .right:
+            target = current + 1
+        case .up:
+            target = current - columns
+        case .down:
+            let below = current + columns
+            if below < visible.count {
+                target = below
+            } else if current / columns < (visible.count - 1) / columns {
+                // A row exists below but is short, so there is no tile directly underneath.
+                // Finder lands on the last tile rather than refusing to move; do the same.
+                target = visible.count - 1
+            } else {
+                return
+            }
+        }
+
+        guard target >= 0, target < visible.count else { return }
+        select(record: visible[target], modifier: extending ? .extendRange : .replace)
+    }
+
     func select(record: PrintFileRecord, modifier: SelectionModifier) {
         switch modifier {
         case .toggle:
@@ -522,7 +624,7 @@ final class LibraryViewModel: ObservableObject {
                 snapshot = database.merge(scanResult: result, into: snapshot)
                 saveSnapshot()
                 startWatchingFolders()
-                statusMessage = "\(result.records.count) files indexed in \(root.displayName)"
+                statusMessage = "\(result.records.count.formatted()) files indexed in \(root.displayName)"
             } catch {
                 statusMessage = "Scan failed for \(root.displayName)"
             }
@@ -753,7 +855,7 @@ final class LibraryViewModel: ObservableObject {
             ? planner.planMove(records: activeRecords, to: managedFolderURL)
             : planner.planCopy(records: activeRecords, to: managedFolderURL)
         organizationPlan = plan
-        statusMessage = "Prepared \(plan.actions.count) \(kind.rawValue) actions"
+        statusMessage = "Prepared \(plan.actions.count.formatted()) \(kind.rawValue) actions"
     }
 
     private func prepareAIOrganizationPlan(
@@ -763,7 +865,7 @@ final class LibraryViewModel: ObservableObject {
         settings: AIEnrichmentSettings
     ) {
         isOrganizing = true
-        statusMessage = "AI is planning folders for \(records.count) files"
+        statusMessage = "AI is planning folders for \(records.count.formatted()) files"
 
         Task {
             let folderContext = await Self.organizationFolderContext(for: managedFolderURL)
@@ -775,8 +877,8 @@ final class LibraryViewModel: ObservableObject {
 
             organizationPlan = plan
             statusMessage = suggestions.isEmpty
-                ? "Prepared \(plan.actions.count) \(kind.rawValue) actions with local fallback"
-                : "Prepared \(plan.actions.count) AI-assisted \(kind.rawValue) actions"
+                ? "Prepared \(plan.actions.count.formatted()) \(kind.rawValue) actions with local fallback"
+                : "Prepared \(plan.actions.count.formatted()) AI-assisted \(kind.rawValue) actions"
             isOrganizing = false
         }
     }
@@ -880,7 +982,7 @@ final class LibraryViewModel: ObservableObject {
 
             lastOrganizationReport = nil
             statusMessage = undoReport.failedCount == 0
-                ? "Undo complete — \(undoReport.succeededCount) files restored"
+                ? "Undo complete — \(undoReport.succeededCount.formatted()) files restored"
                 : "Undo finished with problems — \(undoReport.summary)"
             rescanManagedFolder()
             isOrganizing = false

@@ -94,9 +94,9 @@ struct OrganizationPlanSheet: View {
 
     private var planSummary: String {
         let fileWord = plan.actions.count == 1 ? "file" : "files"
-        let actionText = "\(plan.actions.count) \(fileWord) will be \(isMovePlan ? "moved" : "copied")."
+        let actionText = "\(plan.actions.count.formatted()) \(fileWord) will be \(isMovePlan ? "moved" : "copied")."
         let safetyText = isMovePlan ? "Original files change location." : "Original files stay where they are."
-        let skippedText = plan.skippedCount == 1 ? "1 file is already in place or skipped." : "\(plan.skippedCount) files are already in place or skipped."
+        let skippedText = plan.skippedCount == 1 ? "1 file is already in place or skipped." : "\(plan.skippedCount.formatted()) files are already in place or skipped."
         return "\(actionText) \(safetyText) \(skippedText)"
     }
 

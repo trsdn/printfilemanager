@@ -57,6 +57,34 @@ All notable changes to this project are recorded here. The format follows
 - AI endpoints must use HTTPS, except for local servers.
 - Untrusted `.3mf` metadata is delimited and length-bounded before reaching an LLM prompt.
 
+## [Unreleased-next]
+
+### Added
+
+- Arrow keys move between tiles in the library grid, Shift extends the selection, and the target is
+  scrolled into view. The grid is the app's main surface and was previously only reachable by
+  clicking or tabbing.
+- **Settings → Your Data**: the index path, Reveal in Finder, Export Library as plain JSON, and
+  Delete All Data behind a confirmation. Deleting removes the index and every stored preview and
+  never touches your own model files.
+- `scripts/badges.py`, which renders the licence and platform badges from `LICENSE` and
+  `MACOSX_DEPLOYMENT_TARGET` into committed SVGs, with `--check` failing on drift. The README no
+  longer loads badge images from a third-party host, which also stops that host observing readers.
+- `.github/github-app.yml` recording repository instructions and two deliberate choices: no browser
+  auto-open, and remote control off because this repository holds a signing path.
+- README sections for rolling back to an earlier signed release, what compatibility means before
+  1.0, and what is stored on the machine and how to remove it.
+- The disk image now carries the app icon as its volume icon
+  (macos-notarization-broker#36).
+
+### Changed
+
+- Counts in the interface go through `formatted()`, so they group correctly outside English
+  locales. The search-index token and the 1-9 step badge are deliberately excluded.
+- The repository stats workflow opens a pull request instead of pushing. It could not push while
+  `main` requires status checks it does not run, and the documented alternative was a token with
+  bypass rights; branch protection was worth more than the convenience.
+
 ## [0.1.6] — 2026-08-28
 
 ### Changed

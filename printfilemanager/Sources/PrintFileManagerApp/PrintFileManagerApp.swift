@@ -71,6 +71,7 @@ struct PrintFileManagerApp: App {
         Settings {
             SettingsView()
                 .environmentObject(aiSettings)
+                .environmentObject(viewModel)
         }
     }
 

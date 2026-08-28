@@ -53,7 +53,7 @@ not applicable.
 |---|---|---|
 | D01 | pass | `README.md` documents the target, prerequisites and the install loop, including the Quick Look registration steps. |
 | D02 | pass | `scripts/release.sh` and `.github/workflows/release.yml` reference credentials; none are committed. `SECURITY.md` states where the API key lives. |
-| D03 | partial | The release workflow smoke-tests the built app, and verification commands (`qlmanage -p`, `pluginkit`) are documented. There is no rollback procedure because there is no published release to roll back to. |
+| D03 | pass | README **Rolling back** documents replacing the app with an older signed release, the `spctl` and version checks that confirm what is installed, the Quick Look re-registration step, and the index-migration caveat with the export that avoids it. |
 | D04 | pass | Deployment target, Swift version and the single dependency are pinned. |
 | D05 | pass | `CHANGELOG.md` records operational changes. |
 | D06 | pass | The library index is quarantined rather than overwritten when unreadable, one backup is written per session, the schema is versioned with a migration path, and every destructive batch is reviewed and undoable. |
@@ -63,11 +63,11 @@ not applicable.
 | ID | Result | Evidence |
 |---|---|---|
 | R01 | pass | Bundle identifier, name, version and copyright agree with the repository. |
-| R02 | partial | Semantic versioning is declared in `CHANGELOG.md`. A compatibility policy is not meaningful before 1.0 and is not written. |
+| R02 | pass | README **Compatibility before 1.0** states that the interface is unstable below 1.0, the two guarantees that hold regardless (files are never the migration; the index migrates forward or is quarantined), and that breaking changes require a major version from 1.0. |
 | R03 | pass | `.github/workflows/release.yml` builds from a `vX.Y.Z` tag, and v0.1.5 publishes signed, notarized DMG and ZIP artifacts for both the application and the Quick Look extension, with checksums and a provenance record. Signing runs in `macos-notarization-broker`, which builds this source without credentials present and gates certificate import behind manual approval. Verified with `spctl -a`: accepted, `source=Notarized Developer ID`. |
 | R04 | pass | The workflow fails when the tag does not match `CFBundleShortVersionString`. |
 | R05 | pass | The workflow launches the built app and fails if it exits within ten seconds. Also verified by hand. |
-| R06 | partial | Release notes are generated from commits, which are written to be readable. No release has been cut, so this is untested in practice. |
+| R06 | pass | Release notes are hand-written per release and exercised: v0.1.5 and v0.1.6 document downloads, verification commands and what changed. `release.yml` also generates notes from commits for the draft. |
 
 ## Product identity
 
@@ -77,7 +77,7 @@ not applicable.
 | I02 | pass | `PFMRepositoryURL` and `PFMIssueTrackerURL` in `Info.plist`. |
 | I03 | pass | `NSHumanReadableCopyright` and `PFMLicenseIdentifier`. |
 | I04 | pass | Settings shows the version and links to the source and the issue tracker, read from the bundle rather than hardcoded. |
-| I05 | partial | An app icon is embedded at all ten required sizes. There is no installer or site surface to reuse it on. |
+| I05 | pass | An app icon is embedded at all ten required sizes and the DMG — the only installer surface these apps have — now carries it as its volume icon (macos-notarization-broker#36). The icon is checked on the way into the signed image: not a symlink, not Mach-O, real icns magic. |
 | I06 | pass | `Info.plist` references `$(MARKETING_VERSION)` and `$(CURRENT_PROJECT_VERSION)`, which come from `project.yml` and are overridden from the tag by the release workflow. Verified by building with an injected version and reading it back out of the artifact. |
 
 ## Agent readiness
@@ -91,7 +91,7 @@ not applicable.
 | G05 | pass | The three validation commands are documented and verified from a clean clone. |
 | G06 | pass | Both `.xcodeproj` files are marked generated in `AGENTS.md`, with the regeneration command. |
 | G07 | pass | Agent commits carry `Co-authored-by` and `Copilot-Session` trailers. |
-| G08 | partial | No `.github/github-app.yml` exists. The defaults are acceptable, but that is an untested assumption rather than a decision. |
+| G08 | pass | `.github/github-app.yml` records repository instructions, the local validation scripts, and two deliberate choices: no browser auto-open, and remote control off because this repository holds a signing path. |
 
 ## Language
 
@@ -101,7 +101,7 @@ not applicable.
 | L02 | pass | All user-facing strings are English. |
 | L03 | pass | Declared English-only in `README.md`. |
 | L04 | na | No string catalogs, because the app is English-only. |
-| L05 | partial | Sorting uses `localizedStandardCompare` and dates use `DateFormatter`, but file sizes and counts are interpolated directly rather than going through `formatted()`. |
+| L05 | pass | Sorting uses `localizedStandardCompare`, dates use `DateFormatter`, sizes use `ByteCountFormatter`, and counts now go through `formatted()` so they group correctly. Covered by a test that asserts a four-figure batch is grouped in locales that group. The search-index token and a 1-9 step badge are deliberately excluded. |
 | L06 | na | No translations exist. |
 | L07 | pass | The repository, its documentation and its commit messages are English. |
 
@@ -109,7 +109,7 @@ not applicable.
 
 | ID | Result | Evidence |
 |---|---|---|
-| X01 | partial | Menu commands cover Select All, Find, Reveal, Trash and Undo; Shift-click ranges work; tiles are now buttons with the button trait. Arrow-key navigation between tiles is still missing. |
+| X01 | pass | Menu commands cover Select All, Find, Reveal, Trash and Undo; Shift-click ranges work; tiles are buttons with the button trait; and arrow keys now move between tiles, with Shift extending the selection and the target scrolled into view. Eight tests cover the movement rules including short last rows and grid edges. |
 | X02 | pass | Verified against the running app with a real 703-file library: each tile is an `AXButton` carrying a composed description ("4 Ring Gyro Fidget, Needs Slicing, needs review: …") and named actions for Open, Reveal in Finder, Move and Trash. |
 | X03 | pass | Semantic colours throughout, so light, dark and accent settings are honoured; status is carried by icon and text, not colour alone. |
 | X04 | pass | `scripts/release.sh` output is plain ASCII with no colour dependence. |
@@ -122,33 +122,33 @@ not applicable.
 | Y01 | pass | `README.md` and `SECURITY.md` state what is stored locally and what is transmitted, including that the `.3mf` file itself never leaves the machine. |
 | Y02 | pass | Both destinations are documented with their purpose, in the README, `SECURITY.md` and the Settings UI. |
 | Y03 | pass | There is no telemetry, analytics or crash reporting. Both network features are opt-in and off by default. |
-| Y04 | partial | The index location is documented and the app can start a fresh library, but there is no in-app export or delete-all. |
+| Y04 | pass | **Settings → Your Data** shows the index path, reveals it in Finder, exports the whole index as plain JSON, and deletes the index and every preview behind a confirmation. Tests assert the export is decodable by anything and that a delete leaves the user's own model files on disk. |
 | Y05 | pass | The AI provider is chosen by the user and named in Settings; the search engine and the four model sites are named. |
-| Y06 | partial | The index persists until the user removes a folder or starts fresh, and that is stated. There is no retention policy, because nothing is retained off the machine. |
+| Y06 | pass | README **What is stored, and for how long** names the index, preview store and Keychain entries, states there is no retention period because there is no server, and lists the three ways data is removed. |
 
 ## Summary
 
 | Result | Count |
 |---|---|
-| pass | 66 |
-| partial | 12 |
+| pass | 78 |
+| partial | 0 |
 | fail | 0 |
 | na | 6 |
 
-No criterion fails. The eleven partials are all minor, with two exceptions worth naming rather
-than burying:
+No criterion fails and no partial remains.
 
-- **X01** — the grid is the app's primary surface and still has no arrow-key navigation between
-  tiles. Tiles are focusable buttons with named VoiceOver actions, so the surface is operable, but
-  a keyboard-only user cannot move through it the way a Mac user expects. This is why the state is
-  `Needs work` rather than `Healthy`.
-- **P09** — the repository stats card is committed as required, but the workflow that regenerates
-  it cannot push while `main` requires status checks it does not run. Resolving this needs a
-  `STATS_TOKEN` with bypass rights. Branch protection was judged worth more than the card, so the
-  card is absent rather than the protection being relaxed.
+- **I05** — closing this meant changing the signing path, which is not something to do for a
+  cosmetic gain without saying so. The disk image now carries the app icon, and the icon is
+  validated on the way into the signed artifact rather than trusted because it came from a bundle
+  that had already passed preflight.
 
-The remaining nine are genuinely small: no rollback procedure before a first release (D03), no
-compatibility policy before 1.0 (R02), release notes not yet exercised (R06), no installer surface
-to reuse the icon on (I05), no `github-app.yml` (G08), file sizes not formatted through locale APIs
-(L05), no in-app export or delete-all (Y04), no retention policy for data that never leaves the
-machine (Y06), and two hardcoded badges served from a third-party host (P08).
+Two earlier partials are worth recording because closing them changed a decision rather than
+adding a file:
+
+- **X01** was the reason the state was `Needs work`. Arrow-key navigation now moves between tiles,
+  Shift extends the selection, and the target is scrolled into view. Eight tests cover the movement
+  rules, including the short last row where no tile sits directly beneath the cursor.
+- **P09** was blocked because the stats workflow could not push while `main` requires status checks
+  it does not run, and the documented fix was a `STATS_TOKEN` with bypass rights. That trade was
+  refused. The workflow now opens a pull request instead, so the card refreshes itself and the
+  protection is untouched.

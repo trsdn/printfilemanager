@@ -132,7 +132,7 @@ final class AISettingsStore: ObservableObject {
                 if !enabledModelNames.contains(model), let first = offeredModels.first {
                     model = first.name
                 }
-                modelLoadStatus = "Loaded \(models.count) models"
+                modelLoadStatus = "Loaded \(models.count.formatted()) models"
             } catch {
                 modelLoadStatus = "Could not load models"
             }

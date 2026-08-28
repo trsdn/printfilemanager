@@ -161,6 +161,30 @@ final class PrintFileManagerCoreTests: XCTestCase {
         XCTAssertTrue(report.isUndoable)
     }
 
+    func testReportSummaryGroupsLargeNumbersForTheCurrentLocale() {
+        // A four-figure batch is realistic for a large library, and "1234 moved" is wrong in every
+        // locale that groups thousands. Interpolating the Int directly produced exactly that.
+        let action = OrganizationAction(
+            recordID: UUID(),
+            sourceURL: URL(fileURLWithPath: "/tmp/a.3mf"),
+            destinationURL: URL(fileURLWithPath: "/tmp/library/a.3mf"),
+            kind: .move,
+            reason: "test"
+        )
+        let report = OrganizationExecutionReport(
+            targetRootURL: URL(fileURLWithPath: "/tmp/library"),
+            outcomes: Array(repeating: OrganizationActionOutcome(action: action, result: .succeeded), count: 1234)
+        )
+
+        let grouped = 1234.formatted()
+        XCTAssertTrue(report.summary.contains(grouped), "expected \(grouped) in \(report.summary)")
+        // Only meaningful where the locale actually groups; asserting it unconditionally would
+        // fail in locales that do not.
+        if grouped != "1234" {
+            XCTAssertFalse(report.summary.contains("1234"))
+        }
+    }
+
     private func makePackage(at url: URL, entries: [String: Data]) throws {
         let archive = try Archive(url: url, accessMode: .create)
 

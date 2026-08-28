@@ -5,7 +5,19 @@ import SwiftUI
 struct LibraryBrowserView: View {
     @EnvironmentObject private var viewModel: LibraryViewModel
 
-    private let columns = [GridItem(.adaptive(minimum: 176, maximum: 240), spacing: 16)]
+    private static let tileMinimum: CGFloat = 176
+    private static let tileSpacing: CGFloat = 16
+    private static let gridPadding: CGFloat = 16
+
+    private let columns = [GridItem(.adaptive(minimum: tileMinimum, maximum: 240), spacing: tileSpacing)]
+
+    /// Mirrors what the adaptive grid lays out, so up and down move exactly one visual row.
+    /// Reading it back from SwiftUI is not possible, so it is recomputed from the same numbers.
+    static func columnCount(forWidth width: CGFloat) -> Int {
+        let available = width - gridPadding * 2
+        guard available > 0 else { return 1 }
+        return max(1, Int((available + tileSpacing) / (tileMinimum + tileSpacing)))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,7 +30,7 @@ struct LibraryBrowserView: View {
                     Spacer()
 
                     if viewModel.selectedRecordCount > 0 {
-                        Label("\(viewModel.selectedRecordCount) selected", systemImage: "checkmark.circle")
+                        Label("\(viewModel.selectedRecordCount.formatted()) selected", systemImage: "checkmark.circle")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -42,7 +54,7 @@ struct LibraryBrowserView: View {
                     .accessibilityLabel(viewModel.sortAscending ? "Sort ascending" : "Sort descending")
                     .help(viewModel.sortAscending ? "Ascending" : "Descending")
 
-                    Text("\(viewModel.filteredRecords.count)")
+                    Text(viewModel.filteredRecords.count.formatted())
                         .font(.callout.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
@@ -61,21 +73,42 @@ struct LibraryBrowserView: View {
             } else if viewModel.filteredRecords.isEmpty {
                 EmptyResultsView()
             } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(viewModel.filteredRecords) { record in
-                            FileTile(record: record, isSelected: viewModel.selectedRecordIDs.contains(record.id))
-                                .onTapGesture {
-                                    let flags = NSApp.currentEvent?.modifierFlags ?? []
-                                    let modifier: LibraryViewModel.SelectionModifier =
-                                        flags.contains(.shift) ? .extendRange
-                                        : flags.contains(.command) ? .toggle
-                                        : .replace
-                                    viewModel.select(record: record, modifier: modifier)
+                ScrollViewReader { scroller in
+                    GeometryReader { proxy in
+                        ScrollView {
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(viewModel.filteredRecords) { record in
+                                    FileTile(record: record, isSelected: viewModel.selectedRecordIDs.contains(record.id))
+                                        .id(record.id)
+                                        .onTapGesture {
+                                            let flags = NSApp.currentEvent?.modifierFlags ?? []
+                                            let modifier: LibraryViewModel.SelectionModifier =
+                                                flags.contains(.shift) ? .extendRange
+                                                : flags.contains(.command) ? .toggle
+                                                : .replace
+                                            viewModel.select(record: record, modifier: modifier)
+                                        }
                                 }
+                            }
+                            .padding(16)
+                        }
+                        // The grid has to hold focus for arrow keys to reach it, and the moved-to
+                        // tile has to be scrolled to, or navigation silently walks off-screen.
+                        .focusable()
+                        .focusEffectDisabled()
+                        .onMoveCommand { direction in
+                            let extending = NSApp.currentEvent?.modifierFlags.contains(.shift) ?? false
+                            guard let move = LibraryViewModel.SelectionMove(direction) else { return }
+                            viewModel.moveSelection(
+                                move,
+                                columnCount: Self.columnCount(forWidth: proxy.size.width),
+                                extending: extending
+                            )
+                            if let id = viewModel.selectedRecordID {
+                                withAnimation(.easeOut(duration: 0.12)) { scroller.scrollTo(id) }
+                            }
                         }
                     }
-                    .padding(16)
                 }
             }
         }
@@ -101,7 +134,7 @@ struct EmptyResultsView: View {
             ContentUnavailableView {
                 Label("No files match your filters", systemImage: "line.3.horizontal.decrease.circle")
             } description: {
-                Text("\(viewModel.activeFilterCount) filters are active.")
+                Text("\(viewModel.activeFilterCount.formatted()) filters are active.")
             } actions: {
                 Button("Clear Filters") { viewModel.clearFilters() }
             }
@@ -220,5 +253,18 @@ struct OnboardingStep: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+extension LibraryViewModel.SelectionMove {
+    /// SwiftUI's move commands also fire for focus changes this grid does not handle.
+    init?(_ direction: MoveCommandDirection) {
+        switch direction {
+        case .left: self = .left
+        case .right: self = .right
+        case .up: self = .up
+        case .down: self = .down
+        @unknown default: return nil
+        }
     }
 }
