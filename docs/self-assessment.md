@@ -151,10 +151,11 @@ adding a file:
 - **P09** was blocked because the stats workflow could not push while `main` requires status checks
   it does not run, and the documented fix was a `STATS_TOKEN` with bypass rights. That trade was
   refused. The workflow now opens a pull request instead, so the card is reproduced automatically
-  and the protection is untouched. The merge is manual, because GitHub does not start workflows
-  for events created with `GITHUB_TOKEN` and the required checks therefore never run on that pull
-  request. Dispatching CI at the branch was tried and rejected: the check runs attach to the head
-  commit but the pull request's rollup ignores them.
+  and the protection is untouched. The merge is manual: GitHub holds workflow runs for events
+  created with `GITHUB_TOKEN` at `action_required` until a maintainer approves them, so the
+  required checks run after one click rather than never. Dispatching CI at the branch instead was
+  tried and rejected — the check runs attach to the head commit but the pull request's rollup
+  ignores them.
 
 Fixing this surfaced a separate defect. `main` required a check named `Conformance record`, but the
 reusable workflow reports it as `conformance / Conformance record`, so that requirement could never

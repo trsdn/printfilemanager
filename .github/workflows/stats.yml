@@ -8,12 +8,12 @@ name: Repository stats
 # the protection. Both trade a real guarantee for a picture. Instead this opens a pull request, so
 # the card still refreshes itself and the protection stays exactly as strict.
 #
-# The pull request is merged by the maintainer, not by this workflow. GitHub deliberately does not
-# start workflows for events created with GITHUB_TOKEN, so the required checks never run on a pull
-# request opened here. Dispatching CI against the branch afterwards was tried: the check runs do
-# attach to the head commit, but the pull request's own status rollup ignores them and the merge
-# stays blocked. Making this merge itself would therefore need a personal access token, which is
-# the trade this design exists to avoid.
+# The pull request is reviewed and merged by the maintainer, not by this workflow. GitHub holds
+# workflow runs for events created with GITHUB_TOKEN at `action_required` until someone approves
+# them, so the required checks do run -- after one click -- rather than never. Dispatching CI at
+# the branch instead was tried and does not help: the check runs attach to the head commit, but
+# the pull request's own status rollup ignores them. Making this self-merging would need a
+# personal access token, which is the trade this design exists to avoid.
 
 on:
   workflow_dispatch:
