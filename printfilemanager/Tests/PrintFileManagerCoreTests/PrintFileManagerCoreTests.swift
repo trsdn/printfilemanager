@@ -241,3 +241,37 @@ final class PrintFileManagerCoreTests: XCTestCase {
         case imageCreationFailed
     }
 }
+
+/// A root with no security-scoped bookmark used to be reported as accessible without asking.
+/// That is right for a non-sandboxed build and wrong for a library carried into a sandbox, where
+/// it left folders looking healthy while every file under them read as missing.
+final class UnbookmarkedRootAccessTests: XCTestCase {
+    func testAReadableFolderWithoutABookmarkIsStillUsable() throws {
+        let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        XCTAssertTrue(SecurityScopedAccessCoordinator.isDirectoryReadable(directory))
+    }
+
+    func testAFolderThatCannotBeListedIsReportedAsUnreadable() throws {
+        let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: directory.path)
+            try? FileManager.default.removeItem(at: directory)
+        }
+        // Standing in for the sandbox denial, which a test process cannot produce directly.
+        try FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: directory.path)
+
+        XCTAssertFalse(SecurityScopedAccessCoordinator.isDirectoryReadable(directory))
+    }
+
+    func testAFolderThatDoesNotExistIsReportedAsUnreadable() {
+        let missing = URL(fileURLWithPath: "/nonexistent-\(UUID().uuidString)")
+
+        XCTAssertFalse(SecurityScopedAccessCoordinator.isDirectoryReadable(missing))
+    }
+}

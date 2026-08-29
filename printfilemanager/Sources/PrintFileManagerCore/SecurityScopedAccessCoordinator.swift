@@ -35,12 +35,27 @@ public final class SecurityScopedAccessCoordinator {
     /// - Returns: the resolved URL, plus a replacement bookmark when the old one went stale
     ///   (which happens when the user moves or renames the folder).
     @discardableResult
+    /// Whether the folder can actually be listed, which under the App Sandbox is the only way to
+    /// tell an accessible path from an inaccessible one. `isReadableFile` reports the metadata
+    /// answer and can disagree with what an actual read is allowed to do.
+    nonisolated static func isDirectoryReadable(_ url: URL) -> Bool {
+        (try? FileManager.default.contentsOfDirectory(atPath: url.path)) != nil
+    }
+
     public func beginAccess(to root: LibraryRoot) -> ResolvedRoot? {
         stopAccess(rootID: root.id)
 
         guard let bookmark = root.securityScopedBookmark else {
-            // No bookmark: either a library from before sandboxing, or a non-sandboxed build.
-            return ResolvedRoot(url: root.url, refreshedBookmark: nil)
+            // No bookmark: either a library carried over from before sandboxing, or a
+            // non-sandboxed build. Those two look identical here and need opposite answers, so
+            // the folder is asked rather than assumed.
+            //
+            // Reporting success without checking is what made a migrated library look healthy in
+            // the sidebar while every file under it read as missing -- the user saw a folder with
+            // a file count and no hint that the app could not open a single one of them.
+            return Self.isDirectoryReadable(root.url)
+                ? ResolvedRoot(url: root.url, refreshedBookmark: nil)
+                : nil
         }
 
         var isStale = false

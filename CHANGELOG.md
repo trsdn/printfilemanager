@@ -4,6 +4,18 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] — 2026-08-29
+
+### Fixed
+
+- **A folder with no access was reported as available.** `SecurityScopedAccessCoordinator` treated
+  a root without a security-scoped bookmark as resolvable, returning the plain URL. That is right
+  for a non-sandboxed build and wrong for a library carried into a sandbox — and the two are
+  indistinguishable at that point, so it now asks the folder instead of assuming. The visible
+  effect was a sidebar showing healthy folders with file counts while every file under them read
+  as missing, and the **Grant Access…** button added in 0.2.3 never appearing, because nothing was
+  ever marked unavailable.
+
 ## [0.2.3] — 2026-08-29
 
 ### Fixed
