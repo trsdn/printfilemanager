@@ -199,6 +199,7 @@ This repository is assessed against the
 
 - `CHANGELOG.md` — user-facing and operational changes
 - `docs/self-assessment.md` — conformance evidence against the repository standard
+- `docs/enrichment-benchmark.md` — measured comparison of the AI enrichment prompt and models
 - `docs/prd-3mf-library-manager.md` — library manager requirements
 - `docs/app-review-2026-05-03-print-file-manager.md` — earlier product review
 - `docs/assessment-2026-08-28-multi-agent.md` — current technical assessment and roadmap

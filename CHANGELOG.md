@@ -6,6 +6,15 @@ All notable changes to this project are recorded here. The format follows
 
 ## [0.2.5] — 2026-08-29
 
+### Added
+
+- `scripts/bench-enrichment.py` and `docs/enrichment-benchmark.md`: the AI enrichment prompt
+  measured against real library records instead of assumed. The result contradicted the obvious
+  modernisation — replacing the prose JSON schema with `response_format: json_schema` scored 0/12
+  on schema conformance, because the endpoint ignores it and the model then invents its own keys.
+  Fence-stripping turned out to be load-bearing too: Claude fences every response. The prompt needed
+  no change; the configured model is where the time goes.
+
 ### Changed
 
 - **Plain `http` endpoints are allowed again, anywhere.** The previous rule refused `http` unless
