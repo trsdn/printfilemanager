@@ -19,17 +19,27 @@ struct FileTile: View {
             .frame(height: 132)
 
             VStack(alignment: .leading, spacing: 4) {
+                // Reserving both lines is what keeps the grid straight. Without it a one-line
+                // title makes a shorter tile than a two-line one, every row takes the height of
+                // its tallest tile, and the rest float at different offsets inside it -- which
+                // reads as a broken layout rather than as varying title lengths.
                 Text(record.projectName ?? record.fileName)
                     .font(.body.weight(.medium))
-                    .lineLimit(2)
+                    .lineLimit(2, reservesSpace: true)
                 Text(record.relativePath)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 6) {
-                if !activeReviewReasons.isEmpty {
+                // Badges live in their own clipping group. Left in the same row as the buttons,
+                // a file with several badges pushes the row's minimum width past the grid column
+                // and the tile overflows into its neighbour -- which is what made the grid look
+                // broken after a resize. Extra badges are now cut off instead.
+                HStack(spacing: 6) {
+                    if !activeReviewReasons.isEmpty {
                     TileStatusBadge(
                         title: activeReviewReasons.map(\.title).joined(separator: ", "),
                         systemImage: "exclamationmark.triangle.fill",
@@ -56,8 +66,11 @@ struct FileTile: View {
                         value: "\(record.userTags.count)",
                         tint: .secondary
                     )
+                    }
                 }
-                Spacer(minLength: 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .clipped()
+
                 Button {
                     viewModel.prepareMovePlan(for: record, settings: aiSettings.enrichmentSettings())
                 } label: {
@@ -95,6 +108,7 @@ struct FileTile: View {
             .frame(height: 28)
         }
         .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(isSelected ? Color.accentColor.opacity(0.16) : Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay {

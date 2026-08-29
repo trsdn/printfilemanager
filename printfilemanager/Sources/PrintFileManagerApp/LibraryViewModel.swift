@@ -822,10 +822,25 @@ final class LibraryViewModel: ObservableObject {
             return
         }
 
+        // The completion-handler form of this call crashes under Swift 6. LaunchServices invokes
+        // the handler on com.apple.launchservices.open-queue, but the closure is inferred as
+        // isolated to this main-actor type, so the runtime's executor check fails and traps --
+        // EXC_BREAKPOINT in _dispatch_assert_queue_fail, before the body ever runs. Wrapping the
+        // body in `Task { @MainActor in }` does not help, because the check happens on entry.
+        //
+        // The async form has no foreign callback to be isolated wrongly: the await resumes back
+        // here, on the main actor, where updating statusMessage is simply correct.
         let configuration = NSWorkspace.OpenConfiguration()
-        NSWorkspace.shared.open([record.url], withApplicationAt: appURL, configuration: configuration) { [weak self] _, error in
-            Task { @MainActor in
-                self?.statusMessage = error == nil ? "Opening in Bambu Studio" : "Could not open in Bambu Studio"
+        Task { [weak self] in
+            do {
+                _ = try await NSWorkspace.shared.open(
+                    [record.url],
+                    withApplicationAt: appURL,
+                    configuration: configuration
+                )
+                self?.statusMessage = "Opening in Bambu Studio"
+            } catch {
+                self?.statusMessage = "Could not open in Bambu Studio: \(error.localizedDescription)"
             }
         }
     }

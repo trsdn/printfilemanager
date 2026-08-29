@@ -4,6 +4,30 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] — 2026-08-29
+
+### Fixed
+
+- **Opening a file in Bambu Studio crashed the app.** `NSWorkspace.open(_:withApplicationAt:
+  configuration:completionHandler:)` invokes its handler on `com.apple.launchservices.open-queue`,
+  but the closure is inferred as isolated to this main-actor type. Swift 6 checks that on entry,
+  the check fails, and the process traps — `EXC_BREAKPOINT` in `_dispatch_assert_queue_fail`,
+  before the body ever runs. Wrapping the body in `Task { @MainActor in }` did not help, because
+  the trap happens before the body.
+
+  Replaced with the `async` form, which has no foreign callback to be isolated wrongly: the await
+  resumes on the main actor, where updating the status message is simply correct. The error is now
+  reported with its underlying reason rather than a generic string.
+
+- **The grid fell apart after resizing.** Tiles had no fixed height, because the title was
+  `lineLimit(2)` without reserved space — a one-line title made a shorter tile than a two-line one,
+  every row took the height of its tallest tile, and the rest floated at different offsets inside
+  it. Titles now reserve both lines.
+
+  Tiles could also grow wider than their grid column: the badges and the three action buttons
+  shared one row, so a file with several badges pushed the row's minimum width past the column and
+  the tile overflowed into its neighbour. Badges now sit in their own clipping group.
+
 ## [0.2.5] — 2026-08-29
 
 ### Added
