@@ -12,6 +12,12 @@ struct ContentView: View {
                 PersistenceLockoutBanner(lockout: lockout)
             }
 
+            if let notice = viewModel.legacyLibraryNotice {
+                LegacyLibraryBanner(message: notice) {
+                    viewModel.legacyLibraryNotice = nil
+                }
+            }
+
             NavigationSplitView {
                 SidebarView()
                     .navigationSplitViewColumnWidth(min: 220, ideal: 260)
@@ -174,5 +180,39 @@ struct PersistenceLockoutBanner: View {
         } message: {
             Text("Your folders, tags and notes will be re-created from scratch. Your .3mf files are never touched, and the unreadable index is kept on disk.")
         }
+    }
+}
+
+
+/// Shown once when a library from before the App Sandbox was found.
+///
+/// This is not decoration. To the user, the sandbox change looked like an update deleting their
+/// entire library, and silently fixing it would leave them unsure whether it will happen again --
+/// or, if it could not be fixed, unaware that their data still exists on disk.
+struct LegacyLibraryBanner: View {
+    let message: String
+    let dismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Image(systemName: "arrow.down.doc")
+                .foregroundStyle(.tint)
+                .accessibilityHidden(true)
+
+            Text(message)
+                .font(.callout)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 12)
+
+            Button("Dismiss", action: dismiss)
+                .buttonStyle(.bordered)
+        }
+        .padding(12)
+        .background(.regularMaterial)
+        .overlay(alignment: .bottom) { Divider() }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Library restored")
     }
 }

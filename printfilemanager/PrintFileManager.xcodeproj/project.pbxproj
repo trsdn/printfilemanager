@@ -31,6 +31,7 @@
 		7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */; };
 		7BAAF2CACBCAF675EAED2853 /* FileInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECB807E867C8C817008E3CC /* FileInspectorView.swift */; };
 		887C12741C9994744F27DE23 /* libPrintFileManagerCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */; };
+		8E4ABE4613806D71BC69CBDE /* LegacyLibraryLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A7CF12DD97E08D311277DD /* LegacyLibraryLocator.swift */; };
 		92750B6640334B51CF5A375D /* OrganizationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770A64DD717D79BA3A463231 /* OrganizationPlanner.swift */; };
 		96BEC18E425AE887B7C2FF55 /* SourceLookupClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */; };
 		A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */; };
@@ -39,6 +40,7 @@
 		B2E6A2D341C52AFEFF85394F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9616AAB5527A5BB86D07B666 /* ContentView.swift */; };
 		D2D26CEAFD819D12BCE17695 /* LibrarySearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */; };
 		D4AF8416A642E83991DA9080 /* FilterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BC91A583A4B3A7AAF2AFAE /* FilterViews.swift */; };
+		D63BB4E7946FAF71DF801ACD /* LegacyLibraryLocatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33FF497944B3AA55C6474EA5 /* LegacyLibraryLocatorTests.swift */; };
 		DABCEAD0471661E17CAE9176 /* SharedUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EF1A3634812449BFB3328AF /* SharedUI.swift */; };
 		DDA60D1EF35AC680C120A67F /* PreviewViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C363217B4C3CC28FB4686AAB /* PreviewViews.swift */; };
 		ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */; };
@@ -92,9 +94,11 @@
 		2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerCoreTests.swift; sourceTree = "<group>"; };
 		2EF1A3634812449BFB3328AF /* SharedUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedUI.swift; sourceTree = "<group>"; };
 		337AA15AE85601606517A1A1 /* IndexingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexingTests.swift; sourceTree = "<group>"; };
+		33FF497944B3AA55C6474EA5 /* LegacyLibraryLocatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyLibraryLocatorTests.swift; sourceTree = "<group>"; };
 		35965FDB1698F900D1A99372 /* PrintFileManagerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PrintFileManagerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		366E4CDB4BF93811FE2538CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		3A472815FF592C604E14F530 /* AISettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsStore.swift; sourceTree = "<group>"; };
+		43A7CF12DD97E08D311277DD /* LegacyLibraryLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyLibraryLocator.swift; sourceTree = "<group>"; };
 		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
 		48965A44ABCB9C2AA7A9EE12 /* OrganizationSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationSheets.swift; sourceTree = "<group>"; };
 		540D57033CB2BBF7937FB5E0 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -158,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */,
+				43A7CF12DD97E08D311277DD /* LegacyLibraryLocator.swift */,
 				07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */,
 				9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */,
 				B26AAD36474C235E41470619 /* LibraryModels.swift */,
@@ -218,6 +223,7 @@
 			isa = PBXGroup;
 			children = (
 				337AA15AE85601606517A1A1 /* IndexingTests.swift */,
+				33FF497944B3AA55C6474EA5 /* LegacyLibraryLocatorTests.swift */,
 				0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */,
 				77214A821476C7E94AB11A61 /* PersistenceTests.swift */,
 				2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */,
@@ -447,6 +453,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1545B26DC502AF5C9B94B5AF /* IndexingTests.swift in Sources */,
+				D63BB4E7946FAF71DF801ACD /* LegacyLibraryLocatorTests.swift in Sources */,
 				29644748308DFF0DD550A30D /* NetworkClientTests.swift in Sources */,
 				5E33D4940F6569BB7B03A803 /* PersistenceTests.swift in Sources */,
 				2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */,
@@ -459,6 +466,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */,
+				8E4ABE4613806D71BC69CBDE /* LegacyLibraryLocator.swift in Sources */,
 				F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */,
 				A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */,
 				714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */,
@@ -540,7 +548,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -554,7 +562,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.2.1;
+				MARKETING_VERSION = 0.2.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -701,7 +709,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -721,7 +729,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.2.1;
+				MARKETING_VERSION = 0.2.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

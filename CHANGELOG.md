@@ -4,6 +4,29 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] — 2026-08-29
+
+### Fixed
+
+- **The library disappeared when the app moved into the App Sandbox.** `Application Support`
+  resolves to the sandbox container from that point on, and macOS only migrates existing data into
+  a new container for paths keyed by bundle identifier. This app used a human-readable folder name,
+  so nothing was migrated and it started against an empty index. Nothing was deleted — the library
+  simply became invisible — but from the user's side an update appeared to have destroyed 703
+  files, three scanned folders and every tag, note and print record.
+
+  The app now looks for a pre-sandbox library at the real home directory (not the container, which
+  is what `NSHomeDirectory()` returns inside a sandbox) and adopts it on first launch, copying
+  rather than moving so the original stays put. A library that already has content is never
+  overwritten, and an empty index written by a previous first launch does not count as content —
+  which is exactly the case that would otherwise have stranded the data forever.
+
+  If the old library exists but cannot be read, which is what the sandbox does to a path outside
+  the container, the app says so and where the data is, instead of reporting an empty library.
+
+  Twelve tests cover the decision, three of them against a real filesystem laid out exactly as the
+  failure looked.
+
 ## [0.2.1] — 2026-08-28
 
 ### Changed

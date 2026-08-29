@@ -114,6 +114,11 @@ final class LibraryViewModel: ObservableObject {
             self.database = database
             isUsingVolatileFallbackStore = false
         } else if let database = try? LibraryDatabase.applicationSupport() {
+            // Before reading it: enabling the App Sandbox moved where this resolves to, and macOS
+            // did not migrate the old library because the folder is named for a human rather than
+            // for the bundle identifier. Adopting it here is the difference between the user
+            // seeing their library and seeing an update that appears to have deleted it.
+            legacyLibraryNotice = Self.adoptLegacyLibraryIfNeeded(into: database)
             self.database = database
             isUsingVolatileFallbackStore = false
         } else {
@@ -133,6 +138,58 @@ final class LibraryViewModel: ObservableObject {
                 directoryURL: FileManager.default.temporaryDirectory
                     .appendingPathComponent("print-file-manager-thumbnails", isDirectory: true)
             )
+        }
+    }
+
+
+    /// Set when a pre-sandbox library was found, so the user is told rather than left guessing.
+    @Published var legacyLibraryNotice: String?
+
+    /// Moves a library left outside the sandbox container into it, once.
+    ///
+    /// Returns a message to show the user, or nil when there was nothing to do. Failure is
+    /// reported rather than swallowed: a user whose library did not come back needs to know that
+    /// it still exists on disk.
+    private static func adoptLegacyLibraryIfNeeded(into database: LibraryDatabase) -> String? {
+        let legacyFolder = LegacyLibraryLocator.legacyFolder()
+        switch LegacyLibraryLocator.live().outcome(currentIndex: database.fileURL, legacyFolder: legacyFolder) {
+        case .nothingToAdopt:
+            return nil
+
+        case .needsUserConsent(let suggested):
+            return """
+                An older library was found at \(suggested.path) but could not be read, because this \
+                app now runs in a sandbox. Your data is still there. Copy that folder into \
+                \(database.fileURL.deletingLastPathComponent().path) to restore it.
+                """
+
+        case .adopt(let source):
+            do {
+                let destination = database.fileURL.deletingLastPathComponent()
+                try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+
+                // The index is copied, not moved. If anything below goes wrong, or a later version
+                // reads it differently, the original is still where it was.
+                let index = source.appendingPathComponent("library-index.json")
+                if FileManager.default.fileExists(atPath: database.fileURL.path) {
+                    try FileManager.default.removeItem(at: database.fileURL)
+                }
+                try FileManager.default.copyItem(at: index, to: database.fileURL)
+
+                let thumbnails = source.appendingPathComponent("Thumbnails", isDirectory: true)
+                let newThumbnails = destination.appendingPathComponent("Thumbnails", isDirectory: true)
+                if FileManager.default.fileExists(atPath: thumbnails.path),
+                   !FileManager.default.fileExists(atPath: newThumbnails.path) {
+                    try FileManager.default.copyItem(at: thumbnails, to: newThumbnails)
+                }
+
+                return "Restored your library from \(source.path). Scanned folders may need to be re-authorised."
+            } catch {
+                return """
+                    An older library at \(source.path) could not be copied: \
+                    \(error.localizedDescription). Your data is still there.
+                    """
+            }
         }
     }
 

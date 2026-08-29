@@ -87,6 +87,19 @@ Both network features are **off by default** and are enabled independently in Se
 
 The full `.3mf` file is never uploaded.
 
+### If your library looks empty after an update
+
+Nothing is deleted. Versions before 0.2.2 stored the library outside the App Sandbox, and enabling
+the sandbox changed where the app reads. 0.2.2 and later adopt the old library automatically on
+first launch and tell you they did.
+
+If you are on an older build, the data is at
+`~/Library/Application Support/Print File Manager`, and the app now reads
+`~/Library/Containers/com.printfilemanager.PrintFileManager/Data/Library/Application Support/Print File Manager`.
+
+Scanned folders may need to be re-authorised afterwards, because folder permissions are not part of
+the index.
+
 ### What is stored, and for how long
 
 The app keeps a library index and a preview store, both under `~/Library/Application Support`, and
