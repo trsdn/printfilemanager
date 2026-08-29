@@ -13,7 +13,13 @@ All notable changes to this project are recorded here. The format follows
   modernisation — replacing the prose JSON schema with `response_format: json_schema` scored 0/12
   on schema conformance, because the endpoint ignores it and the model then invents its own keys.
   Fence-stripping turned out to be load-bearing too: Claude fences every response. The prompt needed
-  no change; the configured model is where the time goes.
+  no change; the configured model is where the time goes — `claude-haiku-4.5` measured fastest with
+  the richest output over 40 real records.
+
+  The first run of that benchmark picked its candidates by grepping the model list for
+  `mini|flash|small|fast`, which matches old naming and so tested a 2024 model while treating
+  `gpt-5.4-mini` as current. Corrected, and recorded in the document so the next person picks
+  deliberately.
 
 ### Changed
 
