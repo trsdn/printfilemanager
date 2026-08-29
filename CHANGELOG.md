@@ -4,6 +4,23 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] — 2026-08-29
+
+### Changed
+
+- **Plain `http` endpoints are allowed again, anywhere.** The previous rule refused `http` unless
+  the host was loopback, which blocked the setup this app is built for: a self-hosted model server
+  on your own network. Such a server cannot have a certificate, because no authority issues one for
+  `192.168.2.177`. The endpoint field simply rejected it and AI enrichment could never run.
+
+  The endpoint is yours to choose and nothing refuses it now. Where plain `http` goes to a host that
+  is reachable from the internet, Settings shows a one-line note saying requests — and the API key,
+  if there is one — are readable in transit. A note, not a gate.
+
+  Nine tests pin that nothing is blocked, including the boundaries where a sloppy prefix match
+  would wrongly treat a public address as local: `172.15`/`172.32` either side of `172.16/12`,
+  `192.169` beside `192.168/16`, and `localhost.evil.com`.
+
 ## [0.2.4] — 2026-08-29
 
 ### Fixed

@@ -16,6 +16,12 @@ struct SettingsView: View {
                 TextField("Endpoint", text: $aiSettings.endpointURL)
                     .textFieldStyle(.roundedBorder)
                     .disabled(!aiSettings.enrichmentEnabled)
+                if let note = aiSettings.endpointTransportNote {
+                    Label(note, systemImage: "exclamationmark.triangle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 SecureField("API key", text: $aiSettings.apiKey)
                     .textFieldStyle(.roundedBorder)
                     .disabled(!aiSettings.enrichmentEnabled)
@@ -85,7 +91,8 @@ struct SettingsView: View {
                     When enabled, enriching a file sends its name, folder path, extracted metadata \
                     and — if the toggle above is on — its preview image to the endpoint you configure. \
                     Base URLs like /v1 are expanded to /v1/models and /v1/chat/completions. \
-                    The endpoint must use https, except for local servers. \
+                    Any http or https endpoint works, including a model server on your own \
+                    network. \
                     Leave the API key empty for local endpoints that do not require authentication; \
                     non-empty keys are stored in Keychain.
                     """)

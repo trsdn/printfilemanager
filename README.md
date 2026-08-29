@@ -80,8 +80,7 @@ xcodebuild -project printfilemanager/PrintFileManager.xcodeproj \
 Both network features are **off by default** and are enabled independently in Settings:
 
 - **AI enrichment** — sends the file name, its folder path, extracted metadata and, optionally, the
-  preview image to an endpoint you configure. The endpoint must use `https` unless it is a local
-  server. API keys are stored in the Keychain, never in preferences.
+  preview image to an endpoint you configure. Any `http` or `https` endpoint works, including a server on your own network. API keys are stored in the Keychain, never in preferences.
 - **Web source lookup** — sends the project or file name to a web search engine and fetches the
   matching page from MakerWorld, Printables, Thingiverse or Cults.
 

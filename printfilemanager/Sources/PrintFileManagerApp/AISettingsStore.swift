@@ -69,9 +69,12 @@ final class AISettingsStore: ObservableObject {
             return nil
         }
 
+        // The scheme is not gated. A self-hosted model server on the user's own network is the
+        // setup this app is for, and it cannot have a certificate. Refusing http here blocked that
+        // outright while deciding, on the user's behalf, what is safe on their own machine.
+        // EndpointTransportPolicy supplies a note for the interface instead.
         guard let url = URL(string: endpointURL),
-              let scheme = url.scheme?.lowercased(),
-              scheme == "https" || url.isLocalhost,
+              url.scheme != nil,
               !selectedModelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return nil
         }
@@ -101,16 +104,24 @@ final class AISettingsStore: ObservableObject {
         return offeredModels.first?.name ?? ""
     }
 
+    /// A note about the endpoint's transport, or nil when there is nothing worth saying.
+    /// Advisory only -- it never prevents a request.
+    var endpointTransportNote: String? {
+        guard let url = URL(string: endpointURL) else { return nil }
+        return EndpointTransportPolicy.note(
+            for: url,
+            hasAPIKey: !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
+
     func loadModels() {
         guard enrichmentEnabled else {
             modelLoadStatus = "Enable AI enrichment first"
             return
         }
 
-        guard let url = URL(string: endpointURL),
-              let scheme = url.scheme?.lowercased(),
-              scheme == "https" || url.isLocalhost else {
-            modelLoadStatus = "An https endpoint is required (http is allowed for localhost)"
+        guard let url = URL(string: endpointURL), url.scheme != nil else {
+            modelLoadStatus = "Enter an endpoint URL, for example http://192.168.1.10:8080/v1/"
             return
         }
 
@@ -236,11 +247,3 @@ private struct APIKeyKeychain {
     }
 }
 
-private extension URL {
-    /// Local model servers are commonly plain http, which is fine because the traffic never
-    /// leaves the machine. Everything else must be https.
-    var isLocalhost: Bool {
-        guard let host = host?.lowercased() else { return false }
-        return host == "localhost" || host == "127.0.0.1" || host == "::1" || host.hasSuffix(".local")
-    }
-}

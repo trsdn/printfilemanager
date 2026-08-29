@@ -24,8 +24,10 @@
 		3003437B911101CB5B1A6BC2 /* NetworkClientProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */; };
 		32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */; };
 		4C060D8A5D75FCED5F39819D /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540D57033CB2BBF7937FB5E0 /* SidebarView.swift */; };
+		4CC8ABE7020AAC74B00CBA04 /* EndpointTransportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CACC9D68022D5583DA796E06 /* EndpointTransportPolicy.swift */; };
 		4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A472815FF592C604E14F530 /* AISettingsStore.swift */; };
 		57BA08533E206FA346EBD6B7 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3435479745EC244D1D26A8C1 /* ThreeMFKit */; };
+		5C218CC8B38DA923C22643A3 /* EndpointTransportPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC439A94C0F6DB3A89978AAC /* EndpointTransportPolicyTests.swift */; };
 		5E33D4940F6569BB7B03A803 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77214A821476C7E94AB11A61 /* PersistenceTests.swift */; };
 		714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26AAD36474C235E41470619 /* LibraryModels.swift */; };
 		7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */; };
@@ -119,6 +121,8 @@
 		C0337B1ED5AC62093C8261AA /* AppIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentity.swift; sourceTree = "<group>"; };
 		C363217B4C3CC28FB4686AAB /* PreviewViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViews.swift; sourceTree = "<group>"; };
 		C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerApp.swift; sourceTree = "<group>"; };
+		CACC9D68022D5583DA796E06 /* EndpointTransportPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTransportPolicy.swift; sourceTree = "<group>"; };
+		CC439A94C0F6DB3A89978AAC /* EndpointTransportPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTransportPolicyTests.swift; sourceTree = "<group>"; };
 		CDE4A6630FD02DB9A9F8D9B3 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
 		D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientProtocols.swift; sourceTree = "<group>"; };
 		DC3A62BC5F9C3D29D3AE8FDE /* SecurityScopedAccessCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityScopedAccessCoordinator.swift; sourceTree = "<group>"; };
@@ -162,6 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */,
+				CACC9D68022D5583DA796E06 /* EndpointTransportPolicy.swift */,
 				43A7CF12DD97E08D311277DD /* LegacyLibraryLocator.swift */,
 				07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */,
 				9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */,
@@ -222,6 +227,7 @@
 		C08528612102194BB933DB71 /* PrintFileManagerCoreTests */ = {
 			isa = PBXGroup;
 			children = (
+				CC439A94C0F6DB3A89978AAC /* EndpointTransportPolicyTests.swift */,
 				337AA15AE85601606517A1A1 /* IndexingTests.swift */,
 				33FF497944B3AA55C6474EA5 /* LegacyLibraryLocatorTests.swift */,
 				0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */,
@@ -452,6 +458,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5C218CC8B38DA923C22643A3 /* EndpointTransportPolicyTests.swift in Sources */,
 				1545B26DC502AF5C9B94B5AF /* IndexingTests.swift in Sources */,
 				D63BB4E7946FAF71DF801ACD /* LegacyLibraryLocatorTests.swift in Sources */,
 				29644748308DFF0DD550A30D /* NetworkClientTests.swift in Sources */,
@@ -466,6 +473,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */,
+				4CC8ABE7020AAC74B00CBA04 /* EndpointTransportPolicy.swift in Sources */,
 				8E4ABE4613806D71BC69CBDE /* LegacyLibraryLocator.swift in Sources */,
 				F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */,
 				A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */,
@@ -548,7 +556,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -562,7 +570,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.2.4;
+				MARKETING_VERSION = 0.2.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -709,7 +717,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -729,7 +737,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.2.4;
+				MARKETING_VERSION = 0.2.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
