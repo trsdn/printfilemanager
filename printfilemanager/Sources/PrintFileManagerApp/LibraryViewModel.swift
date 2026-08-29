@@ -464,6 +464,33 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
+    /// Re-grants sandboxed access to a folder the app can no longer read.
+    ///
+    /// A library carried over from before the App Sandbox has roots with no security-scoped
+    /// bookmark, because there was nothing to bookmark at the time. The files are still there and
+    /// still indexed, but every one of them reads as missing. Without a way back, the user is left
+    /// with a library that looks destroyed and no indication that two clicks would fix it.
+    ///
+    /// The panel starts at the folder in question so the user only has to confirm it.
+    func grantAccess(to root: LibraryRoot) {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.directoryURL = root.url
+        panel.message = "Grant access to \(root.url.path) so its files can be read again."
+        panel.prompt = "Grant Access"
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        addRoot(url: url)
+
+        if url.standardizedFileURL != root.url {
+            statusMessage = "Granted access to \(url.path), which replaces \(root.url.path)."
+        } else {
+            statusMessage = "Restored access to \(root.displayName)."
+        }
+    }
+
     func addRoot(url: URL) {
         // The bookmark must be made now, while the open panel has granted access to this URL.
         let root = LibraryRoot(

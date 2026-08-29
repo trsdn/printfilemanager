@@ -97,8 +97,10 @@ If you are on an older build, the data is at
 `~/Library/Application Support/Print File Manager`, and the app now reads
 `~/Library/Containers/com.printfilemanager.PrintFileManager/Data/Library/Application Support/Print File Manager`.
 
-Scanned folders may need to be re-authorised afterwards, because folder permissions are not part of
-the index.
+Scanned folders need to be re-authorised afterwards, because macOS folder permissions are not part
+of the index. A folder the app cannot read shows **Grant Access…** in the sidebar; the panel opens
+at that folder, so confirming it is enough. Until then its files are listed as missing even though
+they are untouched on disk.
 
 ### What is stored, and for how long
 

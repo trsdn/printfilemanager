@@ -4,7 +4,7 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.2] — 2026-08-29
+## [0.2.3] — 2026-08-29
 
 ### Fixed
 
@@ -26,6 +26,13 @@ All notable changes to this project are recorded here. The format follows
 
   Twelve tests cover the decision, three of them against a real filesystem laid out exactly as the
   failure looked.
+
+- **Folders carried over from before the sandbox can be re-authorised.** Those roots have no
+  security-scoped bookmark, because there was nothing to bookmark when they were added, so every
+  file under them reads as missing — on the library this was found with, 261 of 703. A folder the
+  app cannot read now offers **Grant Access…** instead of Rescan, opening the panel at that folder
+  so it takes two clicks. Rescanning a folder that cannot be read only re-confirms that it cannot
+  be read, which is why that button is replaced rather than accompanied.
 
 ## [0.2.1] — 2026-08-28
 

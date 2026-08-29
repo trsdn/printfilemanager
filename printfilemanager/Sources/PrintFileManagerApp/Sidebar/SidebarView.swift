@@ -181,16 +181,28 @@ struct FolderRow: View {
             )
             .help("Show folder contents")
 
-            Button {
-                viewModel.scan(root: root)
-            } label: {
-                Image(systemName: "arrow.clockwise")
-                    .frame(width: 24, height: 24)
+            if root.isAvailable {
+                Button {
+                    viewModel.scan(root: root)
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+                .accessibilityLabel("Rescan folder")
+                .help("Rescan folder")
+            } else {
+                // Rescanning a folder the app cannot read only re-confirms that it cannot read it.
+                // The action that actually helps is granting access, so that is the one offered.
+                Button("Grant Access…") {
+                    viewModel.grantAccess(to: root)
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+                .accessibilityLabel("Grant access to \(root.displayName)")
+                .help("This folder cannot be read. Grant access to restore it.")
             }
-            .buttonStyle(.borderless)
-            .controlSize(.small)
-            .accessibilityLabel("Rescan folder")
-            .help("Rescan folder")
         }
         .contextMenu {
             Button("Reveal in Finder") {
