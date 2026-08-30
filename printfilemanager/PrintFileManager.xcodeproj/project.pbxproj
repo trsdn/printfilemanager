@@ -16,6 +16,7 @@
 		1CA71A28824BCB7ADC25F0BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254BCB2D5C535AC4BECEE178 /* Assets.xcassets */; };
 		2289448DA49ECF246530AC72 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4427B9221B8B4CE8622564 /* LibraryViewModelTests.swift */; };
 		247C786441377F361D161879 /* ThreeMFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2762624B25DEFCAE4EDBF16D /* ThreeMFKit */; };
+		273D36B3764F58D556299C54 /* LegacyLibraryAdoptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BECE53435A4CB905116AF2 /* LegacyLibraryAdoptionTests.swift */; };
 		292999B27E347E3D433F1CA9 /* AppIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0337B1ED5AC62093C8261AA /* AppIdentity.swift */; };
 		29644748308DFF0DD550A30D /* NetworkClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */; };
 		2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */; };
@@ -23,6 +24,7 @@
 		2FBD07027DED35F3A101210F /* libPrintFileManagerCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */; };
 		3003437B911101CB5B1A6BC2 /* NetworkClientProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EB41A7B53FB44C559B5D66 /* NetworkClientProtocols.swift */; };
 		32F588956E1B438580CF6C60 /* ThreeMFSceneExtractors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */; };
+		343F906A1D46658B2D0F8B34 /* LegacyLibraryAdoption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D033CE4FB4E3352F4E7B70 /* LegacyLibraryAdoption.swift */; };
 		4C060D8A5D75FCED5F39819D /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540D57033CB2BBF7937FB5E0 /* SidebarView.swift */; };
 		4CC8ABE7020AAC74B00CBA04 /* EndpointTransportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CACC9D68022D5583DA796E06 /* EndpointTransportPolicy.swift */; };
 		4FA0E6F75F4D756A18A2FCE1 /* AISettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A472815FF592C604E14F530 /* AISettingsStore.swift */; };
@@ -105,6 +107,7 @@
 		445EDF51A50A7BEF7B907BAD /* ThreeMFSceneExtractors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeMFSceneExtractors.swift; sourceTree = "<group>"; };
 		48965A44ABCB9C2AA7A9EE12 /* OrganizationSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationSheets.swift; sourceTree = "<group>"; };
 		540D57033CB2BBF7937FB5E0 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		63D033CE4FB4E3352F4E7B70 /* LegacyLibraryAdoption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyLibraryAdoption.swift; sourceTree = "<group>"; };
 		652011BBE18B214E599DFC0B /* PrintFileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrintFileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPrintFileManagerCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		74A3D269F17663D0A3AF0795 /* FileTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTile.swift; sourceTree = "<group>"; };
@@ -122,6 +125,7 @@
 		BD939A6DAAA43CDBDCC58255 /* SourceLookupClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceLookupClient.swift; sourceTree = "<group>"; };
 		C0337B1ED5AC62093C8261AA /* AppIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentity.swift; sourceTree = "<group>"; };
 		C363217B4C3CC28FB4686AAB /* PreviewViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViews.swift; sourceTree = "<group>"; };
+		C4BECE53435A4CB905116AF2 /* LegacyLibraryAdoptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyLibraryAdoptionTests.swift; sourceTree = "<group>"; };
 		C98B6DB5CF7CCCB3995BA85A /* PrintFileManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileManagerApp.swift; sourceTree = "<group>"; };
 		CACC9D68022D5583DA796E06 /* EndpointTransportPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTransportPolicy.swift; sourceTree = "<group>"; };
 		CC439A94C0F6DB3A89978AAC /* EndpointTransportPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTransportPolicyTests.swift; sourceTree = "<group>"; };
@@ -169,6 +173,7 @@
 			children = (
 				24424A2FBA2A4DBB68894B1C /* AIEnrichmentClient.swift */,
 				CACC9D68022D5583DA796E06 /* EndpointTransportPolicy.swift */,
+				63D033CE4FB4E3352F4E7B70 /* LegacyLibraryAdoption.swift */,
 				43A7CF12DD97E08D311277DD /* LegacyLibraryLocator.swift */,
 				07F708FF03A872D11D4EBED7 /* LibraryDatabase.swift */,
 				9BEDBD1648E24C19F9E2D4BD /* LibraryIndexer.swift */,
@@ -231,6 +236,7 @@
 			children = (
 				CC439A94C0F6DB3A89978AAC /* EndpointTransportPolicyTests.swift */,
 				337AA15AE85601606517A1A1 /* IndexingTests.swift */,
+				C4BECE53435A4CB905116AF2 /* LegacyLibraryAdoptionTests.swift */,
 				33FF497944B3AA55C6474EA5 /* LegacyLibraryLocatorTests.swift */,
 				0A5DB0F0FD5448092F1B239E /* NetworkClientTests.swift */,
 				77214A821476C7E94AB11A61 /* PersistenceTests.swift */,
@@ -463,6 +469,7 @@
 			files = (
 				5C218CC8B38DA923C22643A3 /* EndpointTransportPolicyTests.swift in Sources */,
 				1545B26DC502AF5C9B94B5AF /* IndexingTests.swift in Sources */,
+				273D36B3764F58D556299C54 /* LegacyLibraryAdoptionTests.swift in Sources */,
 				D63BB4E7946FAF71DF801ACD /* LegacyLibraryLocatorTests.swift in Sources */,
 				29644748308DFF0DD550A30D /* NetworkClientTests.swift in Sources */,
 				5E33D4940F6569BB7B03A803 /* PersistenceTests.swift in Sources */,
@@ -478,6 +485,7 @@
 			files = (
 				ED1D83AFDBD94E9EE29085C6 /* AIEnrichmentClient.swift in Sources */,
 				4CC8ABE7020AAC74B00CBA04 /* EndpointTransportPolicy.swift in Sources */,
+				343F906A1D46658B2D0F8B34 /* LegacyLibraryAdoption.swift in Sources */,
 				8E4ABE4613806D71BC69CBDE /* LegacyLibraryLocator.swift in Sources */,
 				F256DB37292AF96816A258D5 /* LibraryDatabase.swift in Sources */,
 				A701819CEECD1777B77A4027 /* LibraryIndexer.swift in Sources */,

@@ -503,20 +503,165 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.snapshot.roots.first?.securityScopedBookmark)
     }
 
+    // MARK: - Adopting a library left outside the sandbox container
+
+    func testAPreSandboxLibraryIsRestoredBeforeTheEmptyIndexIsRead() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let legacyFolder = try makeTemporaryDirectory()
+        let indexURL = libraryFolder.appendingPathComponent("library-index.json")
+
+        let rootID = UUID()
+        let legacySnapshot = LibrarySnapshot(
+            roots: [LibraryRoot(id: rootID, url: legacyFolder)],
+            records: [makeRecord(fileName: "kept.3mf", url: legacyFolder.appendingPathComponent("kept.3mf"), rootID: rootID)]
+        )
+        try LibraryDatabase(fileURL: legacyFolder.appendingPathComponent("library-index.json")).save(legacySnapshot)
+
+        let defaults = isolatedDefaults()
+        let viewModel = makeViewModel(
+            indexURL: indexURL,
+            folderURL: libraryFolder,
+            legacyFolderURL: legacyFolder,
+            adoptionDefaults: defaults
+        )
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.snapshot.records.map(\.fileName), ["kept.3mf"])
+        XCTAssertEqual(viewModel.legacyLibraryNotice?.contains("Restored 1 files"), true)
+        XCTAssertEqual(LegacyAdoptionLedger(defaults: defaults).resolution, .adopted)
+    }
+
+    func testStartingFreshStopsTheOldLibraryComingBackOnTheNextLaunch() async throws {
+        // The legacy folder is copied, not moved, so it stays adoptable forever. Without recording
+        // the decision, the next launch would undo the one the user just made.
+        let libraryFolder = try makeTemporaryDirectory()
+        let indexURL = libraryFolder.appendingPathComponent("library-index.json")
+        try Data("{ not json".utf8).write(to: indexURL)
+
+        let defaults = isolatedDefaults()
+        let viewModel = makeViewModel(indexURL: indexURL, folderURL: libraryFolder, adoptionDefaults: defaults)
+        await viewModel.load()
+        viewModel.startFreshLibraryAfterLoadFailure()
+
+        XCTAssertEqual(LegacyAdoptionLedger(defaults: defaults).resolution, .declined)
+    }
+
+    func testDeletingEverythingStopsTheOldLibraryComingBack() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let defaults = isolatedDefaults()
+        let viewModel = makeViewModel(
+            indexURL: libraryFolder.appendingPathComponent("i.json"),
+            folderURL: libraryFolder,
+            adoptionDefaults: defaults
+        )
+        await viewModel.load()
+
+        viewModel.deleteAllLibraryData()
+
+        XCTAssertEqual(LegacyAdoptionLedger(defaults: defaults).resolution, .declined)
+    }
+
+    func testASettledAdoptionIsNotRepeated() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let legacyFolder = try makeTemporaryDirectory()
+        let rootID = UUID()
+        try LibraryDatabase(fileURL: legacyFolder.appendingPathComponent("library-index.json")).save(
+            LibrarySnapshot(
+                roots: [LibraryRoot(id: rootID, url: legacyFolder)],
+                records: [makeRecord(fileName: "old.3mf", url: legacyFolder.appendingPathComponent("old.3mf"), rootID: rootID)]
+            )
+        )
+
+        let defaults = isolatedDefaults()
+        LegacyAdoptionLedger(defaults: defaults).settle(.declined)
+
+        let viewModel = makeViewModel(
+            indexURL: libraryFolder.appendingPathComponent("library-index.json"),
+            folderURL: libraryFolder,
+            legacyFolderURL: legacyFolder,
+            adoptionDefaults: defaults
+        )
+        await viewModel.load()
+
+        XCTAssertTrue(viewModel.snapshot.records.isEmpty)
+        XCTAssertNil(viewModel.legacyLibraryNotice)
+    }
+
+    func testALibraryWithContentIsNeverReplacedByTheLegacyOne() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let legacyFolder = try makeTemporaryDirectory()
+        let indexURL = libraryFolder.appendingPathComponent("library-index.json")
+
+        let currentRootID = UUID()
+        try LibraryDatabase(fileURL: indexURL).save(
+            LibrarySnapshot(
+                roots: [LibraryRoot(id: currentRootID, url: libraryFolder)],
+                records: [makeRecord(fileName: "current.3mf", url: libraryFolder.appendingPathComponent("current.3mf"), rootID: currentRootID)]
+            )
+        )
+        let legacyRootID = UUID()
+        try LibraryDatabase(fileURL: legacyFolder.appendingPathComponent("library-index.json")).save(
+            LibrarySnapshot(
+                roots: [LibraryRoot(id: legacyRootID, url: legacyFolder)],
+                records: (0..<50).map { index in
+                    makeRecord(
+                        fileName: "old-\(index).3mf",
+                        url: legacyFolder.appendingPathComponent("old-\(index).3mf"),
+                        rootID: legacyRootID
+                    )
+                }
+            )
+        )
+
+        let viewModel = makeViewModel(
+            indexURL: indexURL,
+            folderURL: libraryFolder,
+            legacyFolderURL: legacyFolder,
+            adoptionDefaults: isolatedDefaults()
+        )
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.snapshot.records.map(\.fileName), ["current.3mf"])
+    }
+
     // MARK: - Helpers
 
+    /// Every view model in these tests is given a legacy folder of its own. The default is the
+    /// developer's real `~/Library/Application Support`, and a test that loaded an empty index
+    /// against that would adopt their actual library into a temporary directory.
     private func makeViewModel(
         indexURL: URL,
         folderURL: URL,
         enrichmentClient: any AIEnriching = StubEnrichmentClient(),
-        sourceLookupClient: any SourceLooking = StubSourceLookupClient()
+        sourceLookupClient: any SourceLooking = StubSourceLookupClient(),
+        legacyFolderURL: URL? = nil,
+        adoptionDefaults: UserDefaults? = nil
     ) -> LibraryViewModel {
         LibraryViewModel(
             database: LibraryDatabase(fileURL: indexURL),
             thumbnailStore: ThumbnailStore(directoryURL: folderURL.appendingPathComponent("Thumbnails", isDirectory: true)),
             enrichmentClient: enrichmentClient,
-            sourceLookupClient: sourceLookupClient
+            sourceLookupClient: sourceLookupClient,
+            adoptionLedger: LegacyAdoptionLedger(defaults: adoptionDefaults ?? isolatedDefaults()),
+            legacyLibraryFolder: legacyFolderURL ?? folderURL.appendingPathComponent("no-legacy-library", isDirectory: true)
         )
+    }
+
+    private func isolatedDefaults() -> UserDefaults {
+        let name = "LibraryViewModelTests.\(UUID().uuidString)"
+        suiteNamesBox.append(name)
+        return UserDefaults(suiteName: name) ?? .standard
+    }
+
+    /// Suites created by this test, torn down with it so nothing outlives the run.
+    private var suiteNamesBox: [String] = []
+
+    override func tearDown() {
+        for name in suiteNamesBox {
+            UserDefaults.standard.removePersistentDomain(forName: name)
+        }
+        suiteNamesBox = []
+        super.tearDown()
     }
 
     private func makeRecord(fileName: String, url: URL, rootID: UUID = UUID()) -> PrintFileRecord {
