@@ -23,10 +23,44 @@ final class EndpointTransportPolicyTests: XCTestCase {
 
         XCTAssertEqual(
             EndpointTransportPolicy.advice(for: url, hasAPIKey: false),
-            .plaintextToPublicHost(host: "example.com", carriesAPIKey: false)
+            .plaintextRefusedByTransportSecurity(host: "example.com", carriesAPIKey: false)
         )
         // A note, not a refusal.
         XCTAssertNotNil(EndpointTransportPolicy.note(for: url, hasAPIKey: false))
+    }
+
+    func testTheNoteSaysWhatMacOSWillActuallyDo() {
+        // Measured from a sandboxed build with no NSAppTransportSecurity key: plain http to a
+        // dotted name that is not `.local` is refused with NSURLErrorDomain -1022, so the request
+        // is never sent. "Readable in transit" described a request that does not happen, which
+        // sends the user looking for a network fault instead of a scheme they can change.
+        let note = EndpointTransportPolicy.note(for: URL(string: "http://models.lan/v1/")!, hasAPIKey: false)
+
+        XCTAssertEqual(note?.contains("macOS refuses plain http"), true)
+        XCTAssertEqual(note?.contains("reachable from the internet"), false)
+    }
+
+    func testAnUnqualifiedHostnameIsTreatedAsLocal() {
+        // `http://modelserver:8080` is a normal way to reach a machine on a home network, and ATS
+        // lets an unqualified name through -- measured as a DNS failure, not a -1022 refusal.
+        // Warning about it would be a false alarm about a setup that works.
+        XCTAssertTrue(EndpointTransportPolicy.isPrivate(host: "modelserver"))
+        XCTAssertNil(EndpointTransportPolicy.note(for: URL(string: "http://modelserver:8080/v1/")!, hasAPIKey: true))
+    }
+
+    // MARK: - Which schemes are usable at all
+
+    func testHTTPAndHTTPSAreTheSupportedSchemes() {
+        XCTAssertTrue(EndpointTransportPolicy.isSupportedScheme("http"))
+        XCTAssertTrue(EndpointTransportPolicy.isSupportedScheme("HTTPS"))
+    }
+
+    func testASchemeThatCannotCarryARequestIsNotSupported() {
+        // `file:` and `ftp:` reached URLSession and failed obscurely; neither can carry a chat
+        // completion, and `file:` points the endpoint at the user's own disk.
+        for scheme in ["file", "ftp", "ws", "javascript", "", nil] {
+            XCTAssertFalse(EndpointTransportPolicy.isSupportedScheme(scheme), scheme ?? "nil")
+        }
     }
 
     func testTheNoteNamesTheKeyOnlyWhenThereIsOneToExpose() {

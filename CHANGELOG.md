@@ -4,6 +4,93 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **The test suite wrote to the user's own library.** `PrintFileManagerAppTests` runs the real app
+  as its test host; the host builds its view model and loads a library before any test does, and
+  built without entitlements it is not sandboxed, so Application Support resolved to
+  `~/Library/Application Support/Print File Manager` — the real, pre-sandbox library. A test run
+  read it, migrated it from schema 1 to 2 and wrote it back. Nothing was lost: that migration moves
+  preview images into the content-addressed store rather than discarding them, and of the 652
+  records that carried an inline preview — 547 distinct images, because copies of one model share
+  one image — all 547 were verified present byte-identical on disk afterwards, none missing. But
+  nothing about the arrangement guaranteed that, and the next run would have replaced the only
+  pre-migration backup. A process hosting tests is now given a throwaway directory, for the index,
+  the previews and the search for a pre-sandbox library alike, and cannot opt back in.
+
+- **A good backup could be replaced by a worse one.** The `.bak` beside the index is written once
+  per process and unconditionally replaced whatever was there, so one bad session stood between a
+  good backup and none. It is now only replaced by an index that has not forgotten any of its
+  records. Deliberately not a size rule: moving previews out of the index took a real library from
+  114 MB to 3 MB without dropping one of its 703 records, and a size rule would freeze the backup
+  at the first migration.
+
+- **The pre-sandbox library migration could destroy a real library.** Whether the container already
+  held data was decided by the index's byte size against a 4 KB ceiling. An empty index is about
+  84 bytes and one record about 530, so a library of up to six real files sat under the ceiling and
+  was deleted and overwritten by the older one. A security-scoped bookmark is about 900 bytes, so
+  the mirror image also held: an empty library with four authorised folders cleared the ceiling and
+  suppressed a migration that was due. Content is now decided by decoding the index and asking
+  whether it holds records, and an index that cannot be decoded is never replaced.
+
+- **The migration was described as happening once, and nothing enforced it.** The legacy folder is
+  copied rather than moved, so the decision was re-derived on every launch. A user who chose "Start
+  Fresh" or deleted their library would find the old one restored the next time they opened the
+  app. The outcome is now recorded, and a settled decision is never revisited.
+
+- **The migration could leave the user with no library at all.** It removed the destination index
+  and then copied over it, so a denial, a full disk or the source disappearing ended with nothing
+  in place. Readability had been established by opening the source and reading a single byte, which
+  says nothing about the remaining hundred megabytes. The copy is now staged beside the
+  destination, decoded to prove it survived, and only then swapped in — previews first, index last,
+  because an index that reports content is what stops the migration from ever being retried.
+
+- **"Grant Access…" left the folder it claimed to replace.** `addRoot` builds a root with a fresh
+  identifier, and `upsert` matches on identifier or URL, so choosing a parent folder — which the
+  panel offers by default when the original has moved — appended a second root instead of replacing
+  the first. The following scan then indexed the same files under both, and `PrintFileRecord` is
+  `Identifiable`, so the grid received every file twice with duplicate identifiers. The root is now
+  relocated in place, keeping its identity, its name and its records, and a record whose identity a
+  scan re-attaches can no longer also survive in its old place.
+
+- **A scan could hand one identity to several files, and could preserve duplicates it inherited.**
+  Matching a scanned file to an existing record by content hash returned the same record for every
+  copy of that file, so copies all took one identifier. Found in a real library: 264 identifiers
+  shared across 282 rows of 1,025, one of them held by five records at five paths. An identity is
+  now adopted by at most one record per scan, and a record whose identity is already spoken for
+  keeps its own — with the user's tags and notes for that path either way — so a library that
+  already carries duplicates resolves them on the next rescan instead of carrying them forever.
+
+- **A folder that came back stayed marked unavailable**, still offering "Grant Access…" for
+  something the app could already read. Availability is now updated in both directions, and a
+  folder that cannot be read is no longer offered a rescan that could only re-confirm it.
+
+- **Launch could beachball with nothing on screen.** The migration ran from the view model's
+  initializer, which `@StateObject` evaluates before the window exists. It now runs as async work
+  before the index is read, with the user told what is happening.
+
+- **A tile could still overflow the narrowest grid column.** `.clipped()` affects drawing, not
+  layout, so four badges beside three fixed buttons demanded more than the 176pt column. The badge
+  group is now explicitly compressible.
+
+- **The endpoint accepted any URL scheme**, including `file:` and `ftp:`, which reached
+  `URLSession` and failed obscurely. Restricted to http and https; plain http stays allowed.
+
+### Changed
+
+- **The endpoint transport note now says what macOS will actually do.** Measured from a sandboxed
+  build: App Transport Security allows plain http to a private address, an unqualified hostname or
+  a `.local` name, and refuses it to anything else with `NSURLErrorDomain -1022` — including a
+  private DNS name such as `models.lan`. The note said such requests were "readable in transit",
+  describing a request that is never sent. It now names the refusal and the two ways out.
+
+- **The enrichment benchmark's discipline metric was rewritten.** It reduced every value to its
+  first token and matched it as a substring, so a fabricated `sourceURL` was compared as the string
+  `https` and went undetected in 17 of 40 real records. See `docs/enrichment-benchmark.md`; the
+  metric is now checked itself, offline, on every CI run.
+
 ## [0.2.6] — 2026-08-29
 
 ### Fixed

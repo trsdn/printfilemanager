@@ -22,9 +22,21 @@ Scored on what actually matters for this app:
              source is worse than none, because it looks authoritative and gets stored
   latency    wall-clock per record
 
+The discipline check is the whole point of the benchmark, so it is worth stating how it decides.
+An earlier version reduced every value to its first token by splitting on whitespace, `/`, `:` and
+`.`, then asked whether that token appeared anywhere in the input as a substring. For a URL the
+first token is therefore always the scheme, so `https` was compared against inputs that routinely
+contain a URL of their own -- a fabricated source URL scored clean as long as *any* URL was
+present. Substring matching failed the other way too: `cc` and `mit` match inside unrelated words.
+
+So URLs are now compared as normalised host plus path against the URLs found in the input, and
+every other value has to match whole tokens rather than substrings. Flagged values are printed, so
+the number in docs/enrichment-benchmark.md can be checked by eye instead of taken on trust.
+
 Usage: bench.py <model> [variant ...]
 """
 
+import html
 import json
 import os
 import re
@@ -153,8 +165,81 @@ def strip_fences(text):
     return re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
 
 
+# A URL with or without a scheme. Source hints and 3MF metadata carry both forms.
+# `&` terminates: 3MF descriptions are HTML, so a URL is routinely followed by an entity that is
+# not part of it, and treating that tail as path would make the input's own URL fail to match.
+URL_PATTERN = re.compile(
+    r"(?:https?://)?(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?::\d+)?(?:/[^\s,;&\"'<>)\]]*)?",
+    re.IGNORECASE,
+)
+
+
+def plain(text):
+    """3MF metadata is HTML, and an escaped URL is still the same URL."""
+    return html.unescape(str(text))
+
+
+def normalise_url(text):
+    """host + path, without scheme, `www.`, query, fragment or trailing slash.
+
+    Two URLs that address the same page have to compare equal, or a model that echoes the input
+    URL back in a slightly different form is recorded as having invented it.
+    """
+    text = plain(text).strip().lower()
+    text = re.sub(r"^[a-z][a-z0-9+.-]*://", "", text)
+    text = re.split(r"[#?&]", text, maxsplit=1)[0]
+    if "." not in text.split("/", 1)[0]:
+        return None
+    host, _, path = text.partition("/")
+    host = host.removeprefix("www.").split(":", 1)[0]
+    return host, "/" + path.strip("/")
+
+
+def input_urls(case):
+    found = set()
+    for value in case.values():
+        for match in URL_PATTERN.findall(plain(value)):
+            normalised = normalise_url(match)
+            if normalised:
+                found.add(normalised)
+    return found
+
+
+def url_is_evidenced(value, known):
+    """The output URL must name a host the input named, and may not reach deeper into it.
+
+    Trimming a path the input carried is a loss of detail; adding one the input never mentioned
+    is an invention, and that is the distinction being measured.
+    """
+    normalised = normalise_url(value)
+    if normalised is None:
+        return False
+    host, path = normalised
+    return any(
+        host == known_host and (known_path + "/").startswith(path.rstrip("/") + "/")
+        for known_host, known_path in known
+    )
+
+
+def tokens(text):
+    return re.findall(r"[a-z0-9]+", plain(text).lower())
+
+
+def value_is_evidenced(value, haystack_tokens):
+    """Whole-token containment, so `cc` no longer matches inside `success`.
+
+    One matching token is enough: a model that returns `MakerWorld` for an input naming
+    `makerworld.com` has not invented anything, it has tidied up.
+    """
+    candidates = [token for token in tokens(value) if len(token) >= 3 and not token.isdigit()]
+    if not candidates:
+        candidates = tokens(value)
+    return any(token in haystack_tokens for token in candidates)
+
+
 def score(content, case):
     result = {"parse_raw": False, "parse_stripped": False, "schema": False, "discipline": None}
+    result["invented_fields"] = []
     try:
         parsed = json.loads(content)
         result["parse_raw"] = True
@@ -171,17 +256,37 @@ def score(content, case):
     ok = ok and isinstance(tags, list) and 5 <= len(tags) <= 12
     result["schema"] = ok
 
-    # Discipline: a source field may only be non-null if the string appears in the input.
-    haystack = " ".join(str(v) for v in case.values()).lower()
+    # Discipline: a source field may only be non-null if the input evidenced it.
+    haystack_tokens = set(tokens(" ".join(str(v) for v in case.values())))
+    known_urls = input_urls(case)
     invented = 0
     for key in ("sourcePlatform", "sourceAuthor", "sourceLicense", "sourceURL"):
         value = parsed.get(key)
-        if isinstance(value, str) and value.strip():
-            token = re.split(r"[\s/:.]+", value.strip().lower())[0]
-            if token and token not in haystack:
-                invented += 1
+        if not isinstance(value, str) or not value.strip():
+            continue
+        evidenced = (
+            url_is_evidenced(value, known_urls)
+            if key == "sourceURL"
+            else value_is_evidenced(value, haystack_tokens)
+        )
+        if not evidenced:
+            invented += 1
+            result["invented_fields"].append((key, value.strip()[:80]))
     result["discipline"] = invented
     return result, parsed
+
+
+def echoes_metadata(description, case):
+    """A description that is one of the input's own metadata values described nothing."""
+    normalised = " ".join(tokens(description))
+    if not normalised:
+        return True
+    for chunk in str(case.get("metadata", "")).split(";"):
+        _, _, value = chunk.partition("=")
+        value = " ".join(tokens(value))
+        if len(value) >= 20 and value == normalised:
+            return True
+    return False
 
 
 def export_cases(limit=40):
@@ -210,7 +315,79 @@ def export_cases(limit=40):
     ]
 
 
+def self_test():
+    """Pins the discipline metric against the cases that broke the previous version.
+
+    The metric is the only thing standing between "the prompt never invents a source" and a
+    claim nobody checked, so it gets checked itself, offline, on every CI run.
+    """
+    makerworld = {
+        "fileName": "bracket.3mf",
+        "projectName": "Bracket",
+        "relativePath": "Downloads/bracket.3mf",
+        "sourceHints": "Downloaded from https://makerworld.com/en/models/12345",
+        "metadata": "Application=BambuStudio; Designer=someone",
+        "userTags": "",
+    }
+    no_url = dict(makerworld, sourceHints="Downloaded from MakerWorld")
+
+    def discipline(case, **fields):
+        payload = {key: None for key in REQUIRED}
+        payload.update(fields)
+        return score(json.dumps(payload), case)[0]["discipline"]
+
+    checks = [
+        # The failure that mattered: the scheme is not evidence of anything, so a fabricated URL
+        # used to score clean whenever the input happened to contain any URL at all.
+        (discipline(makerworld, sourceURL="https://www.thingiverse.com/thing:99999"), 1,
+         "a URL from a host the input never named is invented"),
+        (discipline(no_url, sourceURL="https://www.thingiverse.com/thing:99999"), 1,
+         "no URL in the input means any URL out is invented"),
+        (discipline(makerworld, sourceURL="https://makerworld.com/en/models/12345"), 0,
+         "the input's own URL is not an invention"),
+        (discipline(makerworld, sourceURL="http://www.makerworld.com/en/models/12345/"), 0,
+         "scheme, www. and a trailing slash are not differences"),
+        (discipline(makerworld, sourceURL="https://makerworld.com"), 0,
+         "trimming the path loses detail but invents nothing"),
+        (discipline(makerworld, sourceURL="https://makerworld.com/en/models/12345/files/9"), 1,
+         "reaching deeper than the input's own URL is invention"),
+        # 3MF descriptions are HTML, so the input's own URL usually arrives escaped and run
+        # together with the markup that follows it.
+        (discipline({**makerworld,
+                     "sourceHints": "",
+                     "metadata": "Description=&lt;a href=&#34;https://makerworld.com/en/models/12345&amp;x=1&#34;&gt;"},
+                    sourceURL="https://makerworld.com/en/models/12345"), 0,
+         "an HTML-escaped URL in the metadata is still the input's own URL"),
+        # Substring matching used to accept these because the letters occur inside other words.
+        (discipline({**makerworld, "metadata": "Application=BambuStudio successful"},
+                    sourceLicense="CC-BY-4.0"), 1,
+         "'cc' inside 'successful' is not a licence statement"),
+        (discipline({**makerworld, "metadata": "Application=submitted"}, sourceLicense="MIT"), 1,
+         "'mit' inside 'submitted' is not a licence statement"),
+        (discipline({**makerworld, "metadata": "License=MIT"}, sourceLicense="MIT"), 0,
+         "a licence the input states outright is evidenced"),
+        (discipline(makerworld, sourcePlatform="MakerWorld"), 0,
+         "a platform named in a host the input carried is evidenced"),
+        (discipline(makerworld, sourcePlatform="Printables"), 1,
+         "a platform the input never named is invented"),
+        (discipline(makerworld, sourceAuthor="someone"), 0,
+         "an author the metadata names is evidenced"),
+    ]
+
+    failures = [message for actual, expected, message in checks if actual != expected]
+    for actual, expected, message in checks:
+        if actual != expected:
+            print(f"FAIL {message}: expected {expected}, got {actual}")
+    if failures:
+        raise SystemExit(f"{len(failures)} of {len(checks)} discipline checks failed")
+    print(f"discipline metric: {len(checks)}/{len(checks)} checks passed")
+
+
 def main():
+    if "--self-test" in sys.argv:
+        self_test()
+        return
+
     if "--export-cases" in sys.argv:
         print(json.dumps(export_cases(), ensure_ascii=False, indent=1))
         return
@@ -223,6 +400,10 @@ def main():
     for variant in variants:
         raw = stripped = schema = 0
         invented = 0
+        invented_samples = []
+        descriptions = []
+        tag_counts = []
+        unusable = 0
         latencies = []
         errors = []
         for case in cases:
@@ -238,12 +419,20 @@ def main():
                 continue
             latencies.append(time.time() - started)
 
-            result, _ = score(content, case)
+            result, parsed = score(content, case)
             raw += result["parse_raw"]
             stripped += result["parse_stripped"]
             schema += result["schema"]
             if result["discipline"]:
                 invented += result["discipline"]
+                invented_samples.extend(result["invented_fields"])
+            if parsed:
+                description = parsed.get("description") or ""
+                descriptions.append(len(description))
+                if isinstance(parsed.get("tags"), list):
+                    tag_counts.append(len(parsed["tags"]))
+                if len(description) < 30 or echoes_metadata(description, case):
+                    unusable += 1
 
         n = len(latencies)
         if not n:
@@ -251,9 +440,15 @@ def main():
             continue
         print(
             f"{variant:12} JSON direkt {raw}/{n}  nach Fence-Strip {raw + stripped}/{n}  "
-            f"Schema {schema}/{n}  erfundene Quellen {invented}  "
+            f"Schema {schema}/{n}  erfundene Quellen {invented}  unbrauchbar {unusable}  "
+            f"Beschreibung Ø {statistics.mean(descriptions or [0]):.0f}  "
+            f"Tags Ø {statistics.mean(tag_counts or [0]):.1f}  "
             f"median {statistics.median(latencies):.2f}s"
         )
+        # Printed rather than counted silently: a discipline number nobody can check is how the
+        # broken version of this metric survived a review.
+        for key, value in invented_samples:
+            print(f"{'':12}   erfunden {key}={value}")
         if errors:
             print(f"{'':12} {len(errors)} Fehler, erster: {errors[0]}")
 

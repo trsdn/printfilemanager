@@ -208,8 +208,14 @@ struct FolderRow: View {
             Button("Reveal in Finder") {
                 NSWorkspace.shared.activateFileViewerSelecting([root.url])
             }
-            Button("Rescan Folder") {
-                viewModel.scan(root: root)
+            if root.isAvailable {
+                Button("Rescan Folder") {
+                    viewModel.scan(root: root)
+                }
+            } else {
+                Button("Grant Access…") {
+                    viewModel.grantAccess(to: root)
+                }
             }
             Divider()
             Button("Remove from Library", role: .destructive) {

@@ -106,19 +106,18 @@ final class LibraryViewModel: ObservableObject {
         database: LibraryDatabase? = nil,
         thumbnailStore: ThumbnailStore? = nil,
         enrichmentClient: any AIEnriching = AIEnrichmentClient(),
-        sourceLookupClient: any SourceLooking = SourceLookupClient()
+        sourceLookupClient: any SourceLooking = SourceLookupClient(),
+        adoptionLedger: LegacyAdoptionLedger = LegacyAdoptionLedger(),
+        legacyLibraryFolder: URL = LegacyLibraryLocator.legacyFolder()
     ) {
         self.enrichmentClient = enrichmentClient
         self.sourceLookupClient = sourceLookupClient
+        self.adoptionLedger = adoptionLedger
+        self.legacyLibraryFolder = legacyLibraryFolder
         if let database {
             self.database = database
             isUsingVolatileFallbackStore = false
         } else if let database = try? LibraryDatabase.applicationSupport() {
-            // Before reading it: enabling the App Sandbox moved where this resolves to, and macOS
-            // did not migrate the old library because the folder is named for a human rather than
-            // for the bundle identifier. Adopting it here is the difference between the user
-            // seeing their library and seeing an update that appears to have deleted it.
-            legacyLibraryNotice = Self.adoptLegacyLibraryIfNeeded(into: database)
             self.database = database
             isUsingVolatileFallbackStore = false
         } else {
@@ -141,56 +140,80 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-
     /// Set when a pre-sandbox library was found, so the user is told rather than left guessing.
     @Published var legacyLibraryNotice: String?
 
+    /// Records whether the one-time adoption has been settled, so it cannot fire a second time.
+    private let adoptionLedger: LegacyAdoptionLedger
+
+    /// Where a pre-sandbox library would be. Injectable so a test never points this at the real
+    /// home directory, where a developer's own library is sitting.
+    private let legacyLibraryFolder: URL
+
     /// Moves a library left outside the sandbox container into it, once.
     ///
-    /// Returns a message to show the user, or nil when there was nothing to do. Failure is
-    /// reported rather than swallowed: a user whose library did not come back needs to know that
-    /// it still exists on disk.
-    private static func adoptLegacyLibraryIfNeeded(into database: LibraryDatabase) -> String? {
-        let legacyFolder = LegacyLibraryLocator.legacyFolder()
-        switch LegacyLibraryLocator.live().outcome(currentIndex: database.fileURL, legacyFolder: legacyFolder) {
+    /// Enabling the App Sandbox moved where Application Support resolves to, and macOS did not
+    /// migrate the old library because the folder is named for a human rather than for the bundle
+    /// identifier. Adopting it is the difference between the user seeing their library and seeing
+    /// an update that appears to have deleted it.
+    ///
+    /// This runs before the index is read and off the main actor. It used to run from the
+    /// initializer, which `@StateObject` evaluates before the window exists, so copying a large
+    /// index and its previews beachballed launch with nothing on screen to explain it.
+    private func adoptLegacyLibraryIfNeeded() async {
+        guard !isUsingVolatileFallbackStore, !adoptionLedger.isSettled else { return }
+
+        let indexURL = database.fileURL
+        let legacyFolder = legacyLibraryFolder
+        let ledger = adoptionLedger
+        let outcome = await Task.detached(priority: .userInitiated) {
+            LegacyLibraryLocator.live(ledger: ledger).outcome(currentIndex: indexURL, legacyFolder: legacyFolder)
+        }.value
+
+        switch outcome {
         case .nothingToAdopt:
-            return nil
+            return
 
         case .needsUserConsent(let suggested):
-            return """
+            // Not settled: the user has been told where their data is but has not acted on it
+            // yet, and the next launch should still offer to bring it back.
+            legacyLibraryNotice = """
                 An older library was found at \(suggested.path) but could not be read, because this \
                 app now runs in a sandbox. Your data is still there. Copy that folder into \
-                \(database.fileURL.deletingLastPathComponent().path) to restore it.
+                \(indexURL.deletingLastPathComponent().path) to restore it.
                 """
 
         case .adopt(let source):
-            do {
-                let destination = database.fileURL.deletingLastPathComponent()
-                try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
-
-                // The index is copied, not moved. If anything below goes wrong, or a later version
-                // reads it differently, the original is still where it was.
-                let index = source.appendingPathComponent("library-index.json")
-                if FileManager.default.fileExists(atPath: database.fileURL.path) {
-                    try FileManager.default.removeItem(at: database.fileURL)
+            statusMessage = "Restoring your library from \(source.path)"
+            let result = await Task.detached(priority: .userInitiated) { () -> AdoptionResult in
+                do {
+                    return .restored(try LegacyLibraryAdoption.perform(from: source, toIndex: indexURL))
+                } catch {
+                    return .failed(error.localizedDescription)
                 }
-                try FileManager.default.copyItem(at: index, to: database.fileURL)
+            }.value
 
-                let thumbnails = source.appendingPathComponent("Thumbnails", isDirectory: true)
-                let newThumbnails = destination.appendingPathComponent("Thumbnails", isDirectory: true)
-                if FileManager.default.fileExists(atPath: thumbnails.path),
-                   !FileManager.default.fileExists(atPath: newThumbnails.path) {
-                    try FileManager.default.copyItem(at: thumbnails, to: newThumbnails)
-                }
-
-                return "Restored your library from \(source.path). Scanned folders may need to be re-authorised."
-            } catch {
-                return """
-                    An older library at \(source.path) could not be copied: \
-                    \(error.localizedDescription). Your data is still there.
+            switch result {
+            case .restored(let count):
+                adoptionLedger.settle(.adopted)
+                legacyLibraryNotice = """
+                    Restored \(count.formatted()) files from \(source.path). \
+                    Scanned folders may need to be re-authorised.
+                    """
+            case .failed(let reason):
+                // Deliberately not settled: nothing was changed, the original is still where it
+                // was, and the next launch should try again rather than give up silently.
+                legacyLibraryNotice = """
+                    An older library at \(source.path) could not be copied: \(reason). \
+                    Your data is still there.
                     """
             }
         }
+    }
+
+    private enum AdoptionResult: Sendable {
+        case restored(Int)
+        case failed(String)
     }
 
     /// Loads a record's preview image on demand. Previews live on disk rather than in the index,
@@ -306,6 +329,11 @@ final class LibraryViewModel: ObservableObject {
     }
 
     func load() async {
+        // Before the index is read, not after: adopting a pre-sandbox library replaces the file
+        // this is about to load, and saving an empty snapshot first would make the container
+        // library look populated and suppress the migration for good.
+        await adoptLegacyLibraryIfNeeded()
+
         do {
             let loadedSnapshot = try database.load()
             snapshot = promoteAcceptedGeneratedTags(in: pruneGeneratedTagState(in: loadedSnapshot))
@@ -338,6 +366,10 @@ final class LibraryViewModel: ObservableObject {
         guard persistenceLockout != nil else { return }
         snapshot = LibrarySnapshot()
         persistenceLockout = nil
+        // Starting fresh is a decision about which library to keep. Without recording it, the
+        // pre-sandbox copy is still on disk and would be adopted again on the next launch,
+        // undoing the choice the user just made.
+        adoptionLedger.settle(.declined)
         statusMessage = "Started a new library index"
         saveSnapshot()
     }
@@ -392,6 +424,9 @@ final class LibraryViewModel: ObservableObject {
         selectionAnchorID = nil
         lastOrganizationReport = nil
         persistenceLockout = nil
+        // Same reason as starting fresh: deleting everything is a decision, and a pre-sandbox
+        // library still sitting outside the container must not undo it on the next launch.
+        adoptionLedger.settle(.declined)
 
         statusMessage = failures.isEmpty
             ? "Deleted the library index and all stored previews. Your files were not touched."
@@ -482,19 +517,78 @@ final class LibraryViewModel: ObservableObject {
         panel.prompt = "Grant Access"
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        addRoot(url: url)
+        let chosen = url.standardizedFileURL
+        relocate(root: root, to: url)
 
-        if url.standardizedFileURL != root.url {
-            statusMessage = "Granted access to \(url.path), which replaces \(root.url.path)."
-        } else {
-            statusMessage = "Restored access to \(root.displayName)."
+        statusMessage = chosen == root.url
+            ? "Restored access to \(root.displayName)."
+            : "\(root.displayName) now points at \(chosen.path)."
+    }
+
+    /// Points an existing root at a folder, keeping its identity and everything indexed under it.
+    ///
+    /// Re-adding the folder as a new root instead leaves the old one behind: `upsert` matches on
+    /// id or url, and a parent or sibling folder matches neither, so it appends. The unavailable
+    /// root then survives while the next scan indexes the same files a second time under a second
+    /// root, which reaches SwiftUI as duplicate identifiers and renders the whole library twice.
+    ///
+    /// Internal rather than private so the outcome can be tested without driving an open panel.
+    func relocate(root: LibraryRoot, to url: URL) {
+        // Made now, while the open panel's grant is still live.
+        let bookmark = SecurityScopedAccessCoordinator.makeBookmark(for: url)
+        let destination = url.standardizedFileURL
+
+        guard snapshot.roots.contains(where: { $0.id == root.id }) else {
+            addRoot(url: url)
+            return
         }
+
+        var next = snapshot
+
+        // Another root already covering the chosen folder would index the same files under a
+        // second identifier, which is the duplicate this method exists to avoid.
+        let displaced = next.roots.filter { $0.id != root.id && $0.url == destination }
+        for other in displaced {
+            accessCoordinator.stopAccess(rootID: other.id)
+            next.records.removeAll { $0.rootID == other.id }
+        }
+        next.roots.removeAll { candidate in displaced.contains { $0.id == candidate.id } }
+
+        guard let index = next.roots.firstIndex(where: { $0.id == root.id }) else { return }
+        let previousURL = next.roots[index].url
+        next.roots[index].url = destination
+        next.roots[index].securityScopedBookmark = bookmark
+        next.roots[index].isAvailable = true
+
+        // Records keep their identity, tags and notes; only where they live changes.
+        for recordIndex in next.records.indices where next.records[recordIndex].rootID == root.id {
+            next.records[recordIndex].url = destination
+                .appendingPathComponent(next.records[recordIndex].relativePath)
+                .standardizedFileURL
+        }
+
+        if next.managedFolderURL == previousURL {
+            next.managedFolderURL = destination
+        }
+
+        accessCoordinator.stopAccess(rootID: root.id)
+        snapshot = next
+        saveSnapshot()
+
+        let relocated = snapshot.roots[index]
+        accessCoordinator.beginAccess(to: relocated)
+        startWatchingFolders()
+        scan(root: relocated)
     }
 
     func addRoot(url: URL) {
         // The bookmark must be made now, while the open panel has granted access to this URL.
+        let existing = snapshot.roots.first { $0.url == url.standardizedFileURL }
         let root = LibraryRoot(
             url: url,
+            // A folder the user has already named -- "Managed Library", say -- keeps that name
+            // rather than silently reverting to its last path component.
+            displayName: existing?.displayName,
             isWatched: true,
             securityScopedBookmark: SecurityScopedAccessCoordinator.makeBookmark(for: url)
         )
@@ -513,32 +607,44 @@ final class LibraryViewModel: ObservableObject {
     /// Re-establishes sandboxed access to every stored root, refreshing bookmarks that went stale
     /// because the user moved or renamed a folder.
     private func restoreSecurityScopedAccess() {
-        var didRefreshBookmark = false
+        var didChange = false
 
         for index in snapshot.roots.indices {
             let root = snapshot.roots[index]
             guard let resolved = accessCoordinator.beginAccess(to: root) else {
-                snapshot.roots[index].isAvailable = false
+                if root.isAvailable {
+                    snapshot.roots[index].isAvailable = false
+                    didChange = true
+                }
                 continue
             }
 
+            // Availability is updated in both directions. Recording only the loss meant a folder
+            // that came back stayed marked unavailable, still offering "Grant Access…" for
+            // something the app could already read.
+            if !root.isAvailable {
+                snapshot.roots[index].isAvailable = true
+                didChange = true
+            }
             if let refreshedBookmark = resolved.refreshedBookmark {
                 snapshot.roots[index].securityScopedBookmark = refreshedBookmark
-                didRefreshBookmark = true
+                didChange = true
             }
             if resolved.url.standardizedFileURL != root.url {
                 snapshot.roots[index].url = resolved.url.standardizedFileURL
-                didRefreshBookmark = true
+                didChange = true
             }
         }
 
-        if didRefreshBookmark {
+        if didChange {
             saveSnapshot()
         }
     }
 
     func rescanAllRoots() {
-        for root in snapshot.roots {
+        // A folder the app cannot read is skipped: rescanning it only re-confirms that it cannot
+        // be read, and marks every file under it missing again. Grant Access is the way back.
+        for root in snapshot.roots where root.isAvailable {
             scan(root: root)
         }
     }

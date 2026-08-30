@@ -64,6 +64,13 @@ cd printfilemanager && xcodegen generate && xcodebuild test \
 swiftlint lint                                               # exits non-zero on errors only
 ```
 
+The app-hosted suite runs the real app as its test host, and the host loads a library before any
+test does. Built without entitlements it is not sandboxed, so Application Support would otherwise
+resolve to the user's own `~/Library/Application Support/Print File Manager`. A test process is
+therefore given a throwaway directory — `PFM_APPLICATION_SUPPORT` overrides it, and the app refuses
+the real location whenever a test bundle is loaded regardless. `ApplicationSupportIsolationTests`
+fails if either guarantee stops holding.
+
 `swift test` catches regressions in preview extraction and ZIP handling. `xcodebuild test` covers
 the domain logic and the view model, including the persistence-safety and undo paths. `swiftlint`
 is tuned so the current tree produces no errors; its warnings track files that are queued for
@@ -94,6 +101,12 @@ decomposition, so a new warning is a signal rather than noise.
   index bounds all exist because a specific failure was found.
 - Do not hand-edit the `.xcodeproj` files. Change `project.yml` and run `xcodegen generate`.
 - Do not point the app at a real library while testing destructive paths. Use a disposable copy.
+- Do not run the app-hosted test suite with code signing enabled. `PrintFileManagerAppTests` uses
+  the real app as its test host, so a signed host claims the shipping app's sandbox container, and
+  `secinitd` answers a container-identity change with a consent prompt on a serial per-bundle
+  queue. If nothing renders that prompt — a sleeping display is enough — the daemon blocks on it
+  and every later launch of the real app queues behind it until `secinitd` is restarted.
+  `scripts/ci-local.sh` passes `CODE_SIGNING_ALLOWED=NO` for this reason.
 - Do not add dependencies without a stated reason in the pull request; the current surface is one
   third-party package (ZIPFoundation) and that is deliberate.
 

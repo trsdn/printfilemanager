@@ -30,18 +30,27 @@ public final class SecurityScopedAccessCoordinator {
         public let refreshedBookmark: Data?
     }
 
+    /// Whether the folder can actually be listed, which under the App Sandbox is the only way to
+    /// tell an accessible path from an inaccessible one. `isReadableFile` reports the metadata
+    /// answer and can disagree with what an actual read is allowed to do.
+    ///
+    /// Only the first entry is asked for. Collecting the whole listing is what `contentsOfDirectory`
+    /// does, and on an SMB or other network volume that is a long stall at launch for an answer
+    /// that the first successful `readdir` has already given.
+    nonisolated static func isDirectoryReadable(_ url: URL) -> Bool {
+        guard let directory = opendir(url.path) else { return false }
+        defer { closedir(directory) }
+
+        // A nil entry means either "empty" or "failed", and only errno tells them apart.
+        errno = 0
+        return readdir(directory) != nil || errno == 0
+    }
+
     /// Resolves a stored bookmark and begins accessing it.
     ///
     /// - Returns: the resolved URL, plus a replacement bookmark when the old one went stale
     ///   (which happens when the user moves or renames the folder).
     @discardableResult
-    /// Whether the folder can actually be listed, which under the App Sandbox is the only way to
-    /// tell an accessible path from an inaccessible one. `isReadableFile` reports the metadata
-    /// answer and can disagree with what an actual read is allowed to do.
-    nonisolated static func isDirectoryReadable(_ url: URL) -> Bool {
-        (try? FileManager.default.contentsOfDirectory(atPath: url.path)) != nil
-    }
-
     public func beginAccess(to root: LibraryRoot) -> ResolvedRoot? {
         stopAccess(rootID: root.id)
 
