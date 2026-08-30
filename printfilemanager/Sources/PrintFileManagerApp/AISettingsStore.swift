@@ -69,12 +69,14 @@ final class AISettingsStore: ObservableObject {
             return nil
         }
 
-        // The scheme is not gated. A self-hosted model server on the user's own network is the
-        // setup this app is for, and it cannot have a certificate. Refusing http here blocked that
-        // outright while deciding, on the user's behalf, what is safe on their own machine.
-        // EndpointTransportPolicy supplies a note for the interface instead.
+        // The scheme is restricted to http and https, and no further. A self-hosted model server
+        // on the user's own network is the setup this app is for, and it cannot have a
+        // certificate, so refusing plain http would block it outright while deciding on the
+        // user's behalf what is safe on their own machine. EndpointTransportPolicy supplies a
+        // note for the interface instead. What is refused is a scheme that cannot carry a chat
+        // completion at all -- `file:` and `ftp:` reached URLSession and failed obscurely.
         guard let url = URL(string: endpointURL),
-              url.scheme != nil,
+              EndpointTransportPolicy.isSupportedScheme(url.scheme),
               !selectedModelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return nil
         }
@@ -120,8 +122,8 @@ final class AISettingsStore: ObservableObject {
             return
         }
 
-        guard let url = URL(string: endpointURL), url.scheme != nil else {
-            modelLoadStatus = "Enter an endpoint URL, for example http://192.168.1.10:8080/v1/"
+        guard let url = URL(string: endpointURL), EndpointTransportPolicy.isSupportedScheme(url.scheme) else {
+            modelLoadStatus = "Enter an http or https endpoint URL, for example http://192.168.1.10:8080/v1/"
             return
         }
 
