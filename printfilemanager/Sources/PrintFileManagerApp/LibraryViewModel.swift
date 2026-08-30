@@ -517,19 +517,78 @@ final class LibraryViewModel: ObservableObject {
         panel.prompt = "Grant Access"
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        addRoot(url: url)
+        let chosen = url.standardizedFileURL
+        relocate(root: root, to: url)
 
-        if url.standardizedFileURL != root.url {
-            statusMessage = "Granted access to \(url.path), which replaces \(root.url.path)."
-        } else {
-            statusMessage = "Restored access to \(root.displayName)."
+        statusMessage = chosen == root.url
+            ? "Restored access to \(root.displayName)."
+            : "\(root.displayName) now points at \(chosen.path)."
+    }
+
+    /// Points an existing root at a folder, keeping its identity and everything indexed under it.
+    ///
+    /// Re-adding the folder as a new root instead leaves the old one behind: `upsert` matches on
+    /// id or url, and a parent or sibling folder matches neither, so it appends. The unavailable
+    /// root then survives while the next scan indexes the same files a second time under a second
+    /// root, which reaches SwiftUI as duplicate identifiers and renders the whole library twice.
+    ///
+    /// Internal rather than private so the outcome can be tested without driving an open panel.
+    func relocate(root: LibraryRoot, to url: URL) {
+        // Made now, while the open panel's grant is still live.
+        let bookmark = SecurityScopedAccessCoordinator.makeBookmark(for: url)
+        let destination = url.standardizedFileURL
+
+        guard snapshot.roots.contains(where: { $0.id == root.id }) else {
+            addRoot(url: url)
+            return
         }
+
+        var next = snapshot
+
+        // Another root already covering the chosen folder would index the same files under a
+        // second identifier, which is the duplicate this method exists to avoid.
+        let displaced = next.roots.filter { $0.id != root.id && $0.url == destination }
+        for other in displaced {
+            accessCoordinator.stopAccess(rootID: other.id)
+            next.records.removeAll { $0.rootID == other.id }
+        }
+        next.roots.removeAll { candidate in displaced.contains { $0.id == candidate.id } }
+
+        guard let index = next.roots.firstIndex(where: { $0.id == root.id }) else { return }
+        let previousURL = next.roots[index].url
+        next.roots[index].url = destination
+        next.roots[index].securityScopedBookmark = bookmark
+        next.roots[index].isAvailable = true
+
+        // Records keep their identity, tags and notes; only where they live changes.
+        for recordIndex in next.records.indices where next.records[recordIndex].rootID == root.id {
+            next.records[recordIndex].url = destination
+                .appendingPathComponent(next.records[recordIndex].relativePath)
+                .standardizedFileURL
+        }
+
+        if next.managedFolderURL == previousURL {
+            next.managedFolderURL = destination
+        }
+
+        accessCoordinator.stopAccess(rootID: root.id)
+        snapshot = next
+        saveSnapshot()
+
+        let relocated = snapshot.roots[index]
+        accessCoordinator.beginAccess(to: relocated)
+        startWatchingFolders()
+        scan(root: relocated)
     }
 
     func addRoot(url: URL) {
         // The bookmark must be made now, while the open panel has granted access to this URL.
+        let existing = snapshot.roots.first { $0.url == url.standardizedFileURL }
         let root = LibraryRoot(
             url: url,
+            // A folder the user has already named -- "Managed Library", say -- keeps that name
+            // rather than silently reverting to its last path component.
+            displayName: existing?.displayName,
             isWatched: true,
             securityScopedBookmark: SecurityScopedAccessCoordinator.makeBookmark(for: url)
         )
@@ -548,32 +607,44 @@ final class LibraryViewModel: ObservableObject {
     /// Re-establishes sandboxed access to every stored root, refreshing bookmarks that went stale
     /// because the user moved or renamed a folder.
     private func restoreSecurityScopedAccess() {
-        var didRefreshBookmark = false
+        var didChange = false
 
         for index in snapshot.roots.indices {
             let root = snapshot.roots[index]
             guard let resolved = accessCoordinator.beginAccess(to: root) else {
-                snapshot.roots[index].isAvailable = false
+                if root.isAvailable {
+                    snapshot.roots[index].isAvailable = false
+                    didChange = true
+                }
                 continue
             }
 
+            // Availability is updated in both directions. Recording only the loss meant a folder
+            // that came back stayed marked unavailable, still offering "Grant Access…" for
+            // something the app could already read.
+            if !root.isAvailable {
+                snapshot.roots[index].isAvailable = true
+                didChange = true
+            }
             if let refreshedBookmark = resolved.refreshedBookmark {
                 snapshot.roots[index].securityScopedBookmark = refreshedBookmark
-                didRefreshBookmark = true
+                didChange = true
             }
             if resolved.url.standardizedFileURL != root.url {
                 snapshot.roots[index].url = resolved.url.standardizedFileURL
-                didRefreshBookmark = true
+                didChange = true
             }
         }
 
-        if didRefreshBookmark {
+        if didChange {
             saveSnapshot()
         }
     }
 
     func rescanAllRoots() {
-        for root in snapshot.roots {
+        // A folder the app cannot read is skipped: rescanning it only re-confirms that it cannot
+        // be read, and marks every file under it missing again. Grant Access is the way back.
+        for root in snapshot.roots where root.isAvailable {
             scan(root: root)
         }
     }

@@ -216,7 +216,16 @@ extension LibraryDatabase {
                 return missing
             }
 
-        next.records = (unchangedOtherRootRecords + mergedScannedRecords + missingRecords)
+        // A record whose identity the scan re-attached -- because the same file was found by
+        // content hash, or under another root -- must not also survive in its old place.
+        // `PrintFileRecord` is `Identifiable` and the grid iterates it directly, so two rows
+        // sharing an id give SwiftUI an ambiguous selection and an unstable list.
+        let claimedIDs = Set(mergedScannedRecords.map(\.id))
+        next.records = (
+            unchangedOtherRootRecords.filter { !claimedIDs.contains($0.id) }
+                + mergedScannedRecords
+                + missingRecords.filter { !claimedIDs.contains($0.id) }
+        )
             .sorted { $0.fileName.localizedStandardCompare($1.fileName) == .orderedAscending }
         next.updatedAt = Date()
         return next

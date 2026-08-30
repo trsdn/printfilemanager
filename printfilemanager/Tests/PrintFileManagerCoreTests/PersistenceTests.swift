@@ -9,6 +9,81 @@ import ZIPFoundation
 
 /// The library index and thumbnail store, including migration and the data-loss guards.
 final class PersistenceTests: XCTestCase {
+    func testAMovedFileDoesNotEndUpInTheLibraryTwiceUnderOneIdentity() throws {
+        // `PrintFileRecord` is `Identifiable` and the grid iterates it directly, so a record that
+        // appears twice gives SwiftUI an ambiguous selection and an unstable list. A file found
+        // again under a new path claims its old identity, and the entry it left behind must go.
+        let root = LibraryRoot(url: try makeTemporaryDirectory())
+        let recordID = UUID()
+        let oldRecord = PrintFileRecord(
+            id: recordID,
+            rootID: root.id,
+            url: root.url.appendingPathComponent("part.3mf"),
+            fileName: "part.3mf",
+            relativePath: "part.3mf",
+            fileSize: 10,
+            modifiedAt: nil,
+            contentHash: "abc"
+        )
+        let scannedRecord = PrintFileRecord(
+            rootID: root.id,
+            url: root.url.appendingPathComponent("moved/part.3mf"),
+            fileName: "part.3mf",
+            relativePath: "moved/part.3mf",
+            fileSize: 10,
+            modifiedAt: nil,
+            contentHash: "abc"
+        )
+
+        let merged = LibraryDatabase(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString))
+            .merge(
+                scanResult: LibraryScanResult(root: root, rootIsAvailable: true, records: [scannedRecord]),
+                into: LibrarySnapshot(roots: [root], records: [oldRecord])
+            )
+
+        XCTAssertEqual(merged.records.count, 1)
+        XCTAssertEqual(Set(merged.records.map(\.id)).count, merged.records.count)
+        XCTAssertEqual(merged.records.first?.relativePath, "moved/part.3mf")
+    }
+
+    func testAFileClaimedByAnotherRootIsNotAlsoKeptUnderItsOldOne() throws {
+        // What a badly handled "Grant Access…" produced: the same folder indexed under two roots,
+        // the same file matched by path, and the record concatenated into the library twice.
+        let folder = try makeTemporaryDirectory()
+        let orphaned = LibraryRoot(url: folder)
+        let replacement = LibraryRoot(url: folder)
+        let recordID = UUID()
+        let existing = PrintFileRecord(
+            id: recordID,
+            rootID: orphaned.id,
+            url: folder.appendingPathComponent("part.3mf"),
+            fileName: "part.3mf",
+            relativePath: "part.3mf",
+            fileSize: 10,
+            modifiedAt: nil,
+            userTags: ["keep"]
+        )
+        let scanned = PrintFileRecord(
+            rootID: replacement.id,
+            url: folder.appendingPathComponent("part.3mf"),
+            fileName: "part.3mf",
+            relativePath: "part.3mf",
+            fileSize: 10,
+            modifiedAt: nil
+        )
+
+        let merged = LibraryDatabase(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString))
+            .merge(
+                scanResult: LibraryScanResult(root: replacement, rootIsAvailable: true, records: [scanned]),
+                into: LibrarySnapshot(roots: [orphaned, replacement], records: [existing])
+            )
+
+        XCTAssertEqual(merged.records.count, 1)
+        XCTAssertEqual(merged.records.first?.id, recordID)
+        XCTAssertEqual(merged.records.first?.rootID, replacement.id)
+        XCTAssertEqual(merged.records.first?.userTags, ["keep"])
+    }
+
     func testDatabaseMergePreservesUserTagsAndNotesAcrossRescan() throws {
         let root = LibraryRoot(url: try makeTemporaryDirectory())
         let recordID = UUID()

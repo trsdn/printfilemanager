@@ -503,6 +503,146 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.snapshot.roots.first?.securityScopedBookmark)
     }
 
+    // MARK: - Granting access back to a folder
+
+    func testGrantingAccessToADifferentFolderDoesNotLeaveTheOldRootBehind() async throws {
+        // The panel opens at the root's own URL, which for a folder that has moved resolves to
+        // the nearest existing ancestor -- so choosing something other than the original folder
+        // is the easy accident, not the unlikely one. Adding it as a new root left the
+        // unavailable one in place, still offering "Grant Access…" for a folder nothing replaced.
+        let libraryFolder = try makeTemporaryDirectory()
+        let newLocation = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        var root = LibraryRoot(url: URL(fileURLWithPath: "/nowhere/Models"), displayName: "Models")
+        root.isAvailable = false
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(roots: [root], records: []))
+
+        viewModel.relocate(root: root, to: newLocation)
+        try await waitUntil { !viewModel.isScanning }
+
+        XCTAssertEqual(viewModel.snapshot.roots.count, 1)
+        XCTAssertEqual(viewModel.snapshot.roots.first?.id, root.id)
+        XCTAssertEqual(viewModel.snapshot.roots.first?.url, newLocation.standardizedFileURL)
+        XCTAssertEqual(viewModel.snapshot.roots.first?.isAvailable, true)
+    }
+
+    func testRelocatingARootKeepsTheNameTheUserGaveIt() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let newLocation = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        let root = LibraryRoot(url: URL(fileURLWithPath: "/nowhere/Models"), displayName: "Managed Library")
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(roots: [root], records: []))
+
+        viewModel.relocate(root: root, to: newLocation)
+        try await waitUntil { !viewModel.isScanning }
+
+        XCTAssertEqual(viewModel.snapshot.roots.first?.displayName, "Managed Library")
+    }
+
+    func testRelocatingTheManagedFolderMovesTheManagedFolderToo() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let newLocation = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        let oldLocation = URL(fileURLWithPath: "/nowhere/Managed")
+        let root = LibraryRoot(url: oldLocation, displayName: "Managed Library")
+        viewModel.replaceSnapshotForTesting(
+            LibrarySnapshot(roots: [root], records: [], managedFolderURL: oldLocation.standardizedFileURL)
+        )
+
+        viewModel.relocate(root: root, to: newLocation)
+        try await waitUntil { !viewModel.isScanning }
+
+        // Left pointing at the old path, every organised copy or move would fail against a folder
+        // the app has just been told is somewhere else.
+        XCTAssertEqual(viewModel.snapshot.managedFolderURL, newLocation.standardizedFileURL)
+    }
+
+    func testRelocatingRewritesRecordURLsWithoutChangingTheirIdentity() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let newLocation = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        let root = LibraryRoot(url: URL(fileURLWithPath: "/nowhere/Models"), displayName: "Models")
+        var record = makeRecord(
+            fileName: "part.3mf",
+            url: URL(fileURLWithPath: "/nowhere/Models/sub/part.3mf"),
+            rootID: root.id
+        )
+        record.relativePath = "sub/part.3mf"
+        record.userTags = ["keep"]
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(roots: [root], records: [record]))
+
+        viewModel.relocate(root: root, to: newLocation)
+        try await waitUntil { !viewModel.isScanning }
+
+        let moved = try XCTUnwrap(viewModel.snapshot.records.first { $0.id == record.id })
+        XCTAssertEqual(moved.url, newLocation.appendingPathComponent("sub/part.3mf").standardizedFileURL)
+        XCTAssertEqual(moved.userTags, ["keep"])
+    }
+
+    func testRelocatingOntoAFolderAlreadyInTheLibraryDoesNotIndexItTwice() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let shared = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        let stranded = LibraryRoot(url: URL(fileURLWithPath: "/nowhere/Models"), displayName: "Models")
+        let alreadyThere = LibraryRoot(url: shared, displayName: "Shared")
+        viewModel.replaceSnapshotForTesting(
+            LibrarySnapshot(
+                roots: [stranded, alreadyThere],
+                records: [makeRecord(fileName: "a.3mf", url: shared.appendingPathComponent("a.3mf"), rootID: alreadyThere.id)]
+            )
+        )
+
+        viewModel.relocate(root: stranded, to: shared)
+        try await waitUntil { !viewModel.isScanning }
+
+        XCTAssertEqual(viewModel.snapshot.roots.count, 1)
+        XCTAssertEqual(viewModel.snapshot.roots.first?.id, stranded.id)
+        XCTAssertEqual(Set(viewModel.snapshot.records.map(\.id)).count, viewModel.snapshot.records.count)
+    }
+
+    func testAFolderThatCameBackIsMarkedAvailableAgain() async throws {
+        // Availability was only ever written in one direction, so a folder that was readable again
+        // stayed marked unavailable, still offering "Grant Access…" for something already readable.
+        let libraryFolder = try makeTemporaryDirectory()
+        let indexURL = libraryFolder.appendingPathComponent("library-index.json")
+        let watchedFolder = try makeTemporaryDirectory()
+
+        var root = LibraryRoot(url: watchedFolder, displayName: watchedFolder.lastPathComponent)
+        root.isAvailable = false
+        try LibraryDatabase(fileURL: indexURL).save(LibrarySnapshot(roots: [root], records: []))
+
+        let viewModel = makeViewModel(indexURL: indexURL, folderURL: libraryFolder)
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.snapshot.roots.first?.isAvailable, true)
+    }
+
+    func testRescanAllSkipsFoldersThatCannotBeRead() async throws {
+        let libraryFolder = try makeTemporaryDirectory()
+        let viewModel = makeViewModel(indexURL: libraryFolder.appendingPathComponent("i.json"), folderURL: libraryFolder)
+
+        var unavailable = LibraryRoot(url: URL(fileURLWithPath: "/nowhere/Models"), displayName: "Models")
+        unavailable.isAvailable = false
+        let record = makeRecord(
+            fileName: "part.3mf",
+            url: URL(fileURLWithPath: "/nowhere/Models/part.3mf"),
+            rootID: unavailable.id
+        )
+        viewModel.replaceSnapshotForTesting(LibrarySnapshot(roots: [unavailable], records: [record]))
+
+        viewModel.rescanAllRoots()
+        try await waitUntil { !viewModel.isScanning }
+
+        // Rescanning a folder the app cannot read only re-confirms it, and marks every file under
+        // it missing on the way.
+        XCTAssertEqual(viewModel.snapshot.records.first?.indexingStatus, .indexed)
+    }
+
     // MARK: - Adopting a library left outside the sandbox container
 
     func testAPreSandboxLibraryIsRestoredBeforeTheEmptyIndexIsRead() async throws {
