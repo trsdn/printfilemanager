@@ -104,6 +104,12 @@ step "Version consistency"
 step "README badges"
 ./scripts/badges.py --check || record_failure "README badges are out of date; run scripts/badges.py"
 
+# The enrichment benchmark's discipline metric is the only thing standing between "the prompt never
+# invents a source" and a claim nobody checked. A broken version of it survived a review once, so
+# it is now checked itself. Offline: no endpoint, no model, no library.
+step "Enrichment benchmark metric"
+./scripts/bench-enrichment.py --self-test || record_failure "bench-enrichment discipline metric"
+
 run_project "printfilemanager" "PrintFileManager.xcodeproj" "PrintFileManager" "printfilemanager"
 
 step "Conformance record"
