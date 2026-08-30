@@ -12,12 +12,13 @@ All notable changes to this project are recorded here. The format follows
   as its test host; the host builds its view model and loads a library before any test does, and
   built without entitlements it is not sandboxed, so Application Support resolved to
   `~/Library/Application Support/Print File Manager` — the real, pre-sandbox library. A test run
-  read it, migrated it from schema 1 to 2 and wrote it back. Nothing was lost, because that
-  migration moves preview images into the content-addressed store rather than discarding them and
-  all 641 were verified still readable afterwards, but nothing about the arrangement guaranteed
-  that, and the next run would have replaced the only pre-migration backup. A process hosting tests
-  is now given a throwaway directory, for the index, the previews and the search for a pre-sandbox
-  library alike, and cannot opt back in.
+  read it, migrated it from schema 1 to 2 and wrote it back. Nothing was lost: that migration moves
+  preview images into the content-addressed store rather than discarding them, and of the 652
+  records that carried an inline preview — 547 distinct images, because copies of one model share
+  one image — all 547 were verified present byte-identical on disk afterwards, none missing. But
+  nothing about the arrangement guaranteed that, and the next run would have replaced the only
+  pre-migration backup. A process hosting tests is now given a throwaway directory, for the index,
+  the previews and the search for a pre-sandbox library alike, and cannot opt back in.
 
 - **A good backup could be replaced by a worse one.** The `.bak` beside the index is written once
   per process and unconditionally replaced whatever was there, so one bad session stood between a
@@ -53,6 +54,14 @@ All notable changes to this project are recorded here. The format follows
   `Identifiable`, so the grid received every file twice with duplicate identifiers. The root is now
   relocated in place, keeping its identity, its name and its records, and a record whose identity a
   scan re-attaches can no longer also survive in its old place.
+
+- **A scan could hand one identity to several files, and could preserve duplicates it inherited.**
+  Matching a scanned file to an existing record by content hash returned the same record for every
+  copy of that file, so copies all took one identifier. Found in a real library: 264 identifiers
+  shared across 282 rows of 1,025, one of them held by five records at five paths. An identity is
+  now adopted by at most one record per scan, and a record whose identity is already spoken for
+  keeps its own — with the user's tags and notes for that path either way — so a library that
+  already carries duplicates resolves them on the next rescan instead of carrying them forever.
 
 - **A folder that came back stayed marked unavailable**, still offering "Grant Access…" for
   something the app could already read. Availability is now updated in both directions, and a

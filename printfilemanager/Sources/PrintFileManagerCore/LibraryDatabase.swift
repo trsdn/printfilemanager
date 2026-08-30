@@ -207,17 +207,46 @@ extension LibraryDatabase {
         }, by: \.0)
         var scannedPaths = Set<String>()
 
-        let mergedScannedRecords = scanResult.records.map { scannedRecord -> PrintFileRecord in
-            scannedPaths.insert(scannedRecord.url.standardizedFileURL.path)
-            let existing = existingByPath[scannedRecord.url.standardizedFileURL.path]
-                ?? scannedRecord.contentHash.flatMap { existingByHash[$0]?.first?.1 }
+        // An identity may be adopted by exactly one scanned record. Both lookups below can return
+        // the same existing record for several scanned files -- `existingByHash` by design, when a
+        // file has been copied, and `existingByPath` when the stored library already carries
+        // duplicate identifiers from an earlier version of this method. Letting either hand the
+        // same id out twice is what put duplicate rows in front of SwiftUI.
+        var claimedIDs = Set<UUID>()
+        var matches: [Int: PrintFileRecord] = [:]
 
-            guard let existing else {
+        // Paths are unique and exact, so they are resolved before any content-hash guess.
+        for (index, scannedRecord) in scanResult.records.enumerated() {
+            let path = scannedRecord.url.standardizedFileURL.path
+            scannedPaths.insert(path)
+            guard let existing = existingByPath[path] else { continue }
+            matches[index] = existing
+            claimedIDs.insert(existing.id)
+        }
+
+        // A file that moved keeps its identity, but only if nothing else has taken it already.
+        for (index, scannedRecord) in scanResult.records.enumerated() where matches[index] == nil {
+            guard let hash = scannedRecord.contentHash,
+                  let existing = existingByHash[hash]?.lazy.map(\.1).first(where: { !claimedIDs.contains($0.id) })
+            else { continue }
+            matches[index] = existing
+            claimedIDs.insert(existing.id)
+        }
+
+        var reissuedIDs = Set<UUID>()
+        let mergedScannedRecords = scanResult.records.enumerated().map { index, scannedRecord -> PrintFileRecord in
+            guard let existing = matches[index] else {
                 return scannedRecord
             }
 
             var merged = scannedRecord
-            merged.id = existing.id
+            // The user's data belongs to this path either way. Only the identity is withheld when
+            // it is already spoken for, which is how a library that already holds duplicates heals
+            // itself on a rescan instead of carrying them forever.
+            if !reissuedIDs.contains(existing.id) {
+                merged.id = existing.id
+                reissuedIDs.insert(existing.id)
+            }
             merged.userTags = existing.userTags
             merged.generatedTags = mergeGeneratedTags(existing: existing.generatedTags, scanned: scannedRecord.generatedTags)
             merged.notes = existing.notes
@@ -247,12 +276,8 @@ extension LibraryDatabase {
         // content hash, or under another root -- must not also survive in its old place.
         // `PrintFileRecord` is `Identifiable` and the grid iterates it directly, so two rows
         // sharing an id give SwiftUI an ambiguous selection and an unstable list.
-        let claimedIDs = Set(mergedScannedRecords.map(\.id))
-        next.records = (
-            unchangedOtherRootRecords.filter { !claimedIDs.contains($0.id) }
-                + mergedScannedRecords
-                + missingRecords.filter { !claimedIDs.contains($0.id) }
-        )
+        let survivors = (unchangedOtherRootRecords + missingRecords).filter { !reissuedIDs.contains($0.id) }
+        next.records = (survivors + mergedScannedRecords)
             .sorted { $0.fileName.localizedStandardCompare($1.fileName) == .orderedAscending }
         next.updatedAt = Date()
         return next
