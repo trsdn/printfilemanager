@@ -40,35 +40,40 @@ struct FileTile: View {
                 // broken after a resize. Extra badges are now cut off instead.
                 HStack(spacing: 6) {
                     if !activeReviewReasons.isEmpty {
+                        TileStatusBadge(
+                            title: activeReviewReasons.map(\.title).joined(separator: ", "),
+                            systemImage: "exclamationmark.triangle.fill",
+                            value: "\(activeReviewReasons.count)",
+                            tint: .orange
+                        )
+                    }
                     TileStatusBadge(
-                        title: activeReviewReasons.map(\.title).joined(separator: ", "),
-                        systemImage: "exclamationmark.triangle.fill",
-                        value: "\(activeReviewReasons.count)",
-                        tint: .orange
+                        title: record.previewStatus == .available ? "Preview available" : "No preview available",
+                        systemImage: record.previewStatus == .available ? "checkmark.circle.fill" : "photo",
+                        tint: record.previewStatus == .available ? .green : .secondary
                     )
-                }
-                TileStatusBadge(
-                    title: record.previewStatus == .available ? "Preview available" : "No preview available",
-                    systemImage: record.previewStatus == .available ? "checkmark.circle.fill" : "photo",
-                    tint: record.previewStatus == .available ? .green : .secondary
-                )
-                if let printability = record.printability {
-                    TileStatusBadge(
-                        title: printability.title,
-                        systemImage: "checklist.checked",
-                        tint: .blue
-                    )
-                }
-                if !record.userTags.isEmpty {
-                    TileStatusBadge(
-                        title: "\(record.userTags.count) user tags",
-                        systemImage: "tag.fill",
-                        value: "\(record.userTags.count)",
-                        tint: .secondary
-                    )
+                    if let printability = record.printability {
+                        TileStatusBadge(
+                            title: printability.title,
+                            systemImage: "checklist.checked",
+                            tint: .blue
+                        )
+                    }
+                    if !record.userTags.isEmpty {
+                        TileStatusBadge(
+                            title: "\(record.userTags.count) user tags",
+                            systemImage: "tag.fill",
+                            value: "\(record.userTags.count)",
+                            tint: .secondary
+                        )
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                // `minWidth: 0` is what actually lets this compress. `.clipped()` alone only
+                // affects drawing: without a frame that may be narrower than its contents, four
+                // badges at 24pt each still demand 114pt, which together with three fixed
+                // buttons exceeds the grid's 176pt column and pushes the tile into its
+                // neighbour.
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 .clipped()
 
                 Button {
