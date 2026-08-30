@@ -30,3 +30,10 @@ Carthage/Build/
 
 # Local CI logs
 ci-local-*.log
+
+# Python bytecode from the helper scripts
+__pycache__/
+*.pyc
+
+# Benchmark input, exported from the local library — real file names, never committed
+cases.json
