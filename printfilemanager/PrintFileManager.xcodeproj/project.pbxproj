@@ -31,6 +31,7 @@
 		5E33D4940F6569BB7B03A803 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77214A821476C7E94AB11A61 /* PersistenceTests.swift */; };
 		714ED9EF39D8AFB423D90688 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26AAD36474C235E41470619 /* LibraryModels.swift */; };
 		7390DBF632BFA6D18AE33D26 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = C81E4A285CB934C7D2DB6ADE /* ZIPFoundation */; };
+		73D78DA8397A46AAD13659E0 /* SecurityScopedAccessCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8934913C40427547B9C4709A /* SecurityScopedAccessCoordinatorTests.swift */; };
 		7BAAF2CACBCAF675EAED2853 /* FileInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECB807E867C8C817008E3CC /* FileInspectorView.swift */; };
 		887C12741C9994744F27DE23 /* libPrintFileManagerCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7479AA6A2B374CF29B5B4232 /* libPrintFileManagerCore.a */; };
 		8E4ABE4613806D71BC69CBDE /* LegacyLibraryLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A7CF12DD97E08D311277DD /* LegacyLibraryLocator.swift */; };
@@ -111,6 +112,7 @@
 		77214A821476C7E94AB11A61 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		7BE46D09A6AC7CCB95BEB785 /* ThumbnailStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailStore.swift; sourceTree = "<group>"; };
 		8473F43B37FF13763ED45D19 /* LibraryBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryBrowserView.swift; sourceTree = "<group>"; };
+		8934913C40427547B9C4709A /* SecurityScopedAccessCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityScopedAccessCoordinatorTests.swift; sourceTree = "<group>"; };
 		8B0E29D08E5819D40041CB6D /* LibrarySearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySearch.swift; sourceTree = "<group>"; };
 		8ECB807E867C8C817008E3CC /* FileInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileInspectorView.swift; sourceTree = "<group>"; };
 		9616AAB5527A5BB86D07B666 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 				77214A821476C7E94AB11A61 /* PersistenceTests.swift */,
 				2CCCF9AC2802C3D8D4255656 /* PrintFileManagerCoreTests.swift */,
 				27C29AC1B484A9D371862D56 /* SearchTests.swift */,
+				8934913C40427547B9C4709A /* SecurityScopedAccessCoordinatorTests.swift */,
 			);
 			name = PrintFileManagerCoreTests;
 			path = Tests/PrintFileManagerCoreTests;
@@ -465,6 +468,7 @@
 				5E33D4940F6569BB7B03A803 /* PersistenceTests.swift in Sources */,
 				2BDD2094B108E55FDD82E489 /* PrintFileManagerCoreTests.swift in Sources */,
 				184C867336F72DB673732CF3 /* SearchTests.swift in Sources */,
+				73D78DA8397A46AAD13659E0 /* SecurityScopedAccessCoordinatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
