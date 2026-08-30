@@ -59,7 +59,10 @@ public struct LegacyLibraryLocator {
     }
 
     /// Where the library lived before the app was sandboxed.
-    public static func legacyFolder(realHome: URL = realHomeDirectory()) -> URL {
+    ///
+    /// The default home is redirected along with the support directory, so a process that has been
+    /// pointed away from the real library cannot reach it through this door instead.
+    public static func legacyFolder(realHome: URL = ApplicationSupportLocation.legacyHomeDirectory()) -> URL {
         realHome
             .appendingPathComponent("Library/Application Support/Print File Manager", isDirectory: true)
     }
@@ -142,6 +145,23 @@ extension LegacyLibraryLocator {
             return nil
         }
         return shape.records.count
+    }
+
+    /// Which records an index holds, or nil when it could not be read or decoded.
+    ///
+    /// Used to decide whether one index carries everything another one did. Only the identifiers
+    /// are decoded, so this does not depend on the record shape of the build that wrote the file.
+    public static func recordIdentifiers(at url: URL) -> Set<String>? {
+        struct IndexShape: Decodable {
+            struct Identified: Decodable { let id: String }
+            let records: [Identified]
+        }
+
+        guard let data = try? Data(contentsOf: url),
+              let shape = try? JSONDecoder().decode(IndexShape.self, from: data) else {
+            return nil
+        }
+        return Set(shape.records.map(\.id))
     }
 }
 

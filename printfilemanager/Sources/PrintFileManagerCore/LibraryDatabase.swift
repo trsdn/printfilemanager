@@ -14,14 +14,7 @@ public final class LibraryDatabase {
     }
 
     public static func applicationSupport() throws -> LibraryDatabase {
-        let baseURL = try FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
-        let folderURL = baseURL.appendingPathComponent("Print File Manager", isDirectory: true)
-        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let folderURL = try ApplicationSupportLocation.supportDirectory()
         return LibraryDatabase(
             fileURL: folderURL.appendingPathComponent("library-index.json"),
             thumbnailStore: ThumbnailStore(directoryURL: folderURL.appendingPathComponent("Thumbnails", isDirectory: true))
@@ -130,10 +123,44 @@ public final class LibraryDatabase {
 
         let backupURL = fileURL.appendingPathExtension("bak")
         if FileManager.default.fileExists(atPath: backupURL.path) {
+            guard Self.backup(at: backupURL, isSupersededBy: fileURL) else {
+                // The existing backup carries records this one does not. Replacing it would make
+                // the only recoverable copy the poorer of the two, so this session goes without a
+                // backup instead. A stale backup can be replaced later; a discarded one cannot.
+                hasWrittenSessionBackup = true
+                return
+            }
             try FileManager.default.removeItem(at: backupURL)
         }
         try FileManager.default.copyItem(at: fileURL, to: backupURL)
         hasWrittenSessionBackup = true
+    }
+
+    /// Whether `candidate` can replace the backup at `backupURL` without losing anything.
+    ///
+    /// Decided on records rather than bytes. Bytes shrink legitimately — moving preview images out
+    /// of the index into the content-addressed store took a real library from 114 MB to 3 MB
+    /// without dropping a single record — so a size rule would freeze the backup forever at the
+    /// first migration. What must never happen is a backup that knows about files the replacement
+    /// has forgotten.
+    private static func backup(at backupURL: URL, isSupersededBy candidate: URL) -> Bool {
+        // A file that is not smaller cannot have dropped records, and the comparison below has to
+        // parse both documents. Worth avoiding on the common path.
+        let sizes = [candidate, backupURL].map { url in
+            (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int) ?? nil
+        }
+        if let candidateSize = sizes[0], let backupSize = sizes[1], candidateSize >= backupSize {
+            return true
+        }
+
+        guard let existing = LegacyLibraryLocator.recordIdentifiers(at: backupURL) else {
+            // An unreadable backup protects nothing, so there is nothing to lose by replacing it.
+            return true
+        }
+        guard let replacement = LegacyLibraryLocator.recordIdentifiers(at: candidate) else {
+            return false
+        }
+        return existing.isSubset(of: replacement)
     }
 }
 

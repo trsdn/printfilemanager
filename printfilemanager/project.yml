@@ -100,6 +100,15 @@ schemes:
         PrintFileManagerCoreTests: [test]
         PrintFileManagerAppTests: [test]
     test:
+      # The app-hosted suite runs the real app as its test host, and the host builds its view model
+      # and loads a library before any test does. Built without entitlements it is not sandboxed,
+      # so Application Support resolves to the user's real library and a test run reads, migrates
+      # and rewrites it. This points the whole run somewhere disposable.
+      #
+      # The app refuses the real location when a test bundle is loaded regardless of this variable;
+      # this states the intent where someone editing the scheme will see it.
+      environmentVariables:
+        PFM_APPLICATION_SUPPORT: $(TMPDIR)/PrintFileManagerTestSupport
       targets:
         - PrintFileManagerCoreTests
         - PrintFileManagerAppTests

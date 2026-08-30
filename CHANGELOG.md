@@ -8,6 +8,24 @@ All notable changes to this project are recorded here. The format follows
 
 ### Fixed
 
+- **The test suite wrote to the user's own library.** `PrintFileManagerAppTests` runs the real app
+  as its test host; the host builds its view model and loads a library before any test does, and
+  built without entitlements it is not sandboxed, so Application Support resolved to
+  `~/Library/Application Support/Print File Manager` — the real, pre-sandbox library. A test run
+  read it, migrated it from schema 1 to 2 and wrote it back. Nothing was lost, because that
+  migration moves preview images into the content-addressed store rather than discarding them and
+  all 641 were verified still readable afterwards, but nothing about the arrangement guaranteed
+  that, and the next run would have replaced the only pre-migration backup. A process hosting tests
+  is now given a throwaway directory, for the index, the previews and the search for a pre-sandbox
+  library alike, and cannot opt back in.
+
+- **A good backup could be replaced by a worse one.** The `.bak` beside the index is written once
+  per process and unconditionally replaced whatever was there, so one bad session stood between a
+  good backup and none. It is now only replaced by an index that has not forgotten any of its
+  records. Deliberately not a size rule: moving previews out of the index took a real library from
+  114 MB to 3 MB without dropping one of its 703 records, and a size rule would freeze the backup
+  at the first migration.
+
 - **The pre-sandbox library migration could destroy a real library.** Whether the container already
   held data was decided by the index's byte size against a 4 KB ceiling. An empty index is about
   84 bytes and one record about 530, so a library of up to six real files sat under the ceiling and

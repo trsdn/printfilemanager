@@ -20,14 +20,7 @@ public final class ThumbnailStore: Sendable {
     }
 
     public static func applicationSupport() throws -> ThumbnailStore {
-        let baseURL = try FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
-        let folderURL = baseURL
-            .appendingPathComponent("Print File Manager", isDirectory: true)
+        let folderURL = try ApplicationSupportLocation.supportDirectory()
             .appendingPathComponent("Thumbnails", isDirectory: true)
         return ThumbnailStore(directoryURL: folderURL)
     }
