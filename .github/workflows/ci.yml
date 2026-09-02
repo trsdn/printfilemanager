@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -41,7 +44,7 @@ jobs:
       # depends on ../ThreeMFKit as a local Swift package.
       - uses: actions/checkout@v7
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
           # `isolated deinit` requires Swift 6.1 or newer.
           xcode-version: latest-stable
