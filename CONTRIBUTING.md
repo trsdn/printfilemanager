@@ -49,6 +49,23 @@ decomposition, so do not add new ones without saying why.
 
 User-facing and operational changes go in [`CHANGELOG.md`](CHANGELOG.md) under `Unreleased`.
 
+## Dependency updates
+
+Dependabot proposes GitHub Actions updates weekly. It does not update the app's Swift packages:
+they are declared in `printfilemanager/project.yml`, and the former `/ThreeMFKit` package directory
+now lives in [trsdn/ThreeMFKit](https://github.com/trsdn/ThreeMFKit).
+
+The maintainer, [@trsdn](https://github.com/trsdn), reviews ThreeMFKit and ZIPFoundation releases and
+security advisories weekly and before a release. This is a manual responsibility, not an automated
+Swift Dependabot check.
+
+For an app dependency update, review the upstream changes, update `project.yml` as needed, and keep
+ThreeMFKit's `exactVersion` constraint. Run `xcodegen generate` in `printfilemanager`, resolve the
+packages and run `scripts/ci-local.sh`. Include the regenerated project and any changed
+`Package.resolved` in the same reviewed change. Do not replace the exact pin with a version range
+or move parsing code back into this repository. Changes to parsing belong in ThreeMFKit; Finder
+extension changes belong in `trsdn/threemf-quicklook`.
+
 ## Releases
 
 Releases are cut by the maintainer. Tagging `vX.Y` runs the release workflow, which signs,

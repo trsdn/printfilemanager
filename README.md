@@ -126,6 +126,9 @@ The original files are treated as valuable source artifacts:
   removed from the managed library, and originals are never deleted.
 - If the library index cannot be read, it is preserved under a `.corrupt-<timestamp>` name and
   writes are blocked rather than overwriting it.
+- Rescanning a folder only reconciles records owned by that folder. Copies in other roots keep
+  their records and annotations, including when a root is offline. Overlapping roots are tracked
+  independently; a rescan does not transfer ownership between them.
 - The app runs in the App Sandbox. It can only reach folders you explicitly choose, and it keeps
   that access across launches with security-scoped bookmarks.
 
@@ -202,7 +205,8 @@ This repository is assessed against the
 - `docs/enrichment-benchmark.md` — measured comparison of the AI enrichment prompt and models
 - `docs/prd-3mf-library-manager.md` — library manager requirements
 - `docs/app-review-2026-05-03-print-file-manager.md` — earlier product review
-- `docs/assessment-2026-08-28-multi-agent.md` — current technical assessment and roadmap
+- `docs/assessment-2026-08-28-multi-agent.md` — historical technical assessment and remediation log;
+  current work is tracked in [Issues](https://github.com/trsdn/printfilemanager/issues)
 
 ## License
 

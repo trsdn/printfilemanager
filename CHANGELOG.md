@@ -4,6 +4,31 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Rescans now repair duplicate identities even for unchanged files (#8).** The indexer's cache
+  carries old IDs forward, so withholding an adopted ID did not create a fresh one. Merge now
+  explicitly assigns unique IDs while preserving each path's annotations. Missing records with
+  colliding IDs are retained rather than discarded.
+- **Scanning one root no longer consumes another root's records.** Path and content-hash matching
+  are scoped to the scanned root, and moves are tracked by matched paths rather than shared IDs.
+  Other roots remain untouched, even when unavailable or overlapping. Copies indexed under
+  different roots have independent identities.
+- **A larger index can no longer bypass the backup guard.** Every replacement is checked for the
+  backup's record IDs, regardless of byte size. Longer notes cannot disguise missing records, and
+  an unreadable candidate is rejected. Backup writes are atomic instead of deleting the previous
+  backup before copying its replacement.
+- **Removed the broken Swift Dependabot target for `/ThreeMFKit`.** That directory no longer
+  exists here. GitHub Actions updates remain automated; `CONTRIBUTING.md` documents the maintainer's
+  manual weekly package review and exact-pin update process.
+
+### Documentation
+
+- Reconciled the self-assessment's status with its completed remediation and marked the earlier
+  technical assessment as historical rather than the current backlog.
+
 ## [0.2.7] — 2026-08-30
 
 ### Fixed

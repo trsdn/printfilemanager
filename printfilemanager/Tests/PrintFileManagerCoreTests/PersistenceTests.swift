@@ -128,9 +128,8 @@ final class PersistenceTests: XCTestCase {
         XCTAssertEqual(merged.records.first?.relativePath, "moved/part.3mf")
     }
 
-    func testAFileClaimedByAnotherRootIsNotAlsoKeptUnderItsOldOne() throws {
-        // What a badly handled "Grant Access…" produced: the same folder indexed under two roots,
-        // the same file matched by path, and the record concatenated into the library twice.
+    func testOverlappingRootsKeepIndependentRecords() throws {
+        // Rescanning an overlapping root must not take ownership of another root's record.
         let folder = try makeTemporaryDirectory()
         let orphaned = LibraryRoot(url: folder)
         let replacement = LibraryRoot(url: folder)
@@ -160,10 +159,10 @@ final class PersistenceTests: XCTestCase {
                 into: LibrarySnapshot(roots: [orphaned, replacement], records: [existing])
             )
 
-        XCTAssertEqual(merged.records.count, 1)
-        XCTAssertEqual(merged.records.first?.id, recordID)
-        XCTAssertEqual(merged.records.first?.rootID, replacement.id)
-        XCTAssertEqual(merged.records.first?.userTags, ["keep"])
+        XCTAssertEqual(merged.records.count, 2)
+        XCTAssertEqual(Set(merged.records.map(\.id)).count, 2)
+        XCTAssertEqual(merged.records.first { $0.rootID == orphaned.id }, existing)
+        XCTAssertEqual(merged.records.first { $0.rootID == replacement.id }, scanned)
     }
 
     func testDatabaseMergePreservesUserTagsAndNotesAcrossRescan() throws {

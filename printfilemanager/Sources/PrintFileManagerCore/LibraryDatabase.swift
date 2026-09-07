@@ -130,9 +130,9 @@ public final class LibraryDatabase {
                 hasWrittenSessionBackup = true
                 return
             }
-            try FileManager.default.removeItem(at: backupURL)
         }
-        try FileManager.default.copyItem(at: fileURL, to: backupURL)
+        let data = try Data(contentsOf: fileURL)
+        try data.write(to: backupURL, options: [.atomic])
         hasWrittenSessionBackup = true
     }
 
@@ -144,21 +144,12 @@ public final class LibraryDatabase {
     /// first migration. What must never happen is a backup that knows about files the replacement
     /// has forgotten.
     private static func backup(at backupURL: URL, isSupersededBy candidate: URL) -> Bool {
-        // A file that is not smaller cannot have dropped records, and the comparison below has to
-        // parse both documents. Worth avoiding on the common path.
-        let sizes = [candidate, backupURL].map { url in
-            (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int) ?? nil
+        guard let replacement = LegacyLibraryLocator.recordIdentifiers(at: candidate) else {
+            return false
         }
-        if let candidateSize = sizes[0], let backupSize = sizes[1], candidateSize >= backupSize {
-            return true
-        }
-
         guard let existing = LegacyLibraryLocator.recordIdentifiers(at: backupURL) else {
             // An unreadable backup protects nothing, so there is nothing to lose by replacing it.
             return true
-        }
-        guard let replacement = LegacyLibraryLocator.recordIdentifiers(at: candidate) else {
-            return false
         }
         return existing.isSubset(of: replacement)
     }
@@ -199,54 +190,49 @@ extension LibraryDatabase {
         rootsByID[root.id] = root
         next.roots = rootsByID.values.sorted { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }
 
-        let oldRecords = next.records
-        let existingByPath = Dictionary(uniqueKeysWithValues: oldRecords.map { ($0.url.standardizedFileURL.path, $0) })
+        // A scan cannot establish whether a copy in another root moved or still exists.
+        // Match only within this root, even when roots overlap or share content hashes.
+        let oldRecords = next.records.filter { $0.rootID == root.id }
+        let unchangedOtherRootRecords = next.records.filter { $0.rootID != root.id }
+        let existingByPath = Dictionary(grouping: oldRecords, by: { $0.url.standardizedFileURL.path })
         let existingByHash = Dictionary(grouping: oldRecords.compactMap { record -> (String, PrintFileRecord)? in
             guard let hash = record.contentHash else { return nil }
             return (hash, record)
         }, by: \.0)
         var scannedPaths = Set<String>()
 
-        // An identity may be adopted by exactly one scanned record. Both lookups below can return
-        // the same existing record for several scanned files -- `existingByHash` by design, when a
-        // file has been copied, and `existingByPath` when the stored library already carries
-        // duplicate identifiers from an earlier version of this method. Letting either hand the
-        // same id out twice is what put duplicate rows in front of SwiftUI.
-        var claimedIDs = Set<UUID>()
+        // Historical IDs are not unique. Track matched paths so distinct copies keep their own
+        // annotations and only a record actually matched as a move is removed from its old path.
+        var claimedPaths = Set<String>()
         var matches: [Int: PrintFileRecord] = [:]
 
         // Paths are unique and exact, so they are resolved before any content-hash guess.
         for (index, scannedRecord) in scanResult.records.enumerated() {
             let path = scannedRecord.url.standardizedFileURL.path
             scannedPaths.insert(path)
-            guard let existing = existingByPath[path] else { continue }
+            guard let existing = existingByPath[path]?.first else { continue }
             matches[index] = existing
-            claimedIDs.insert(existing.id)
+            claimedPaths.insert(path)
         }
 
         // A file that moved keeps its identity, but only if nothing else has taken it already.
         for (index, scannedRecord) in scanResult.records.enumerated() where matches[index] == nil {
             guard let hash = scannedRecord.contentHash,
-                  let existing = existingByHash[hash]?.lazy.map(\.1).first(where: { !claimedIDs.contains($0.id) })
+                  let existing = existingByHash[hash]?.lazy.map(\.1).first(where: {
+                      !claimedPaths.contains($0.url.standardizedFileURL.path)
+                  })
             else { continue }
             matches[index] = existing
-            claimedIDs.insert(existing.id)
+            claimedPaths.insert(existing.url.standardizedFileURL.path)
         }
 
-        var reissuedIDs = Set<UUID>()
         let mergedScannedRecords = scanResult.records.enumerated().map { index, scannedRecord -> PrintFileRecord in
             guard let existing = matches[index] else {
                 return scannedRecord
             }
 
             var merged = scannedRecord
-            // The user's data belongs to this path either way. Only the identity is withheld when
-            // it is already spoken for, which is how a library that already holds duplicates heals
-            // itself on a rescan instead of carrying them forever.
-            if !reissuedIDs.contains(existing.id) {
-                merged.id = existing.id
-                reissuedIDs.insert(existing.id)
-            }
+            merged.id = existing.id
             merged.userTags = existing.userTags
             merged.generatedTags = mergeGeneratedTags(existing: existing.generatedTags, scanned: scannedRecord.generatedTags)
             merged.notes = existing.notes
@@ -262,9 +248,11 @@ extension LibraryDatabase {
             return merged
         }
 
-        let unchangedOtherRootRecords = oldRecords.filter { $0.rootID != scanResult.root.id }
         let missingRecords = oldRecords
-            .filter { $0.rootID == scanResult.root.id && !scannedPaths.contains($0.url.standardizedFileURL.path) }
+            .filter {
+                let path = $0.url.standardizedFileURL.path
+                return !scannedPaths.contains(path) && !claimedPaths.contains(path)
+            }
             .map { record -> PrintFileRecord in
                 var missing = record
                 missing.indexingStatus = .missing
@@ -272,12 +260,17 @@ extension LibraryDatabase {
                 return missing
             }
 
-        // A record whose identity the scan re-attached -- because the same file was found by
-        // content hash, or under another root -- must not also survive in its old place.
-        // `PrintFileRecord` is `Identifiable` and the grid iterates it directly, so two rows
-        // sharing an id give SwiftUI an ambiguous selection and an unstable list.
-        let survivors = (unchangedOtherRootRecords + missingRecords).filter { !reissuedIDs.contains($0.id) }
-        next.records = (survivors + mergedScannedRecords)
+        // Cached scan records retain their old IDs. Mint replacements explicitly, including for
+        // missing records, without changing any record belonging to an unscanned root.
+        var usedIDs = Set(unchangedOtherRootRecords.map(\.id))
+        let uniqueRootRecords = (mergedScannedRecords + missingRecords).map { record in
+            var unique = record
+            while !usedIDs.insert(unique.id).inserted {
+                unique.id = UUID()
+            }
+            return unique
+        }
+        next.records = (unchangedOtherRootRecords + uniqueRootRecords)
             .sorted { $0.fileName.localizedStandardCompare($1.fileName) == .orderedAscending }
         next.updatedAt = Date()
         return next

@@ -1,16 +1,10 @@
 # S08: dependency updates have an owner and a process.
 #
-# The dependency surface is deliberately small — one third-party Swift package plus the GitHub
-# Actions used by CI and releases — so weekly is frequent enough to stay current without noise.
+# Swift packages are declared in XcodeGen's project.yml, not a Package.swift in this repository.
+# The old /ThreeMFKit directory is now a separate repository. The maintainer reviews the app's
+# package versions weekly using the exact-pin update process in CONTRIBUTING.md.
 version: 2
 updates:
-  - package-ecosystem: "swift"
-    directory: "/ThreeMFKit"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    reviewers: ["trsdn"]
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

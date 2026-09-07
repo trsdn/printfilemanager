@@ -7,6 +7,13 @@ Date: 2026-08-28
 > at the end for exactly what changed, with before/after measurements. The findings below are
 > preserved as written at assessment time.
 
+> **Historical scope.** This report predates the repository split and is not the current backlog.
+> ThreeMFKit and the Finder extensions now live in separate repositories. Later regressions and
+> fixes, including the rescan identity follow-up in issue #8, are tracked in
+> [GitHub Issues](https://github.com/trsdn/printfilemanager/issues) and
+> [CHANGELOG.md](../CHANGELOG.md). Measurements and completion statements below describe their
+> dated review passes, not the current source tree.
+
 ## Scope and Method
 
 Read-only assessment of the whole repository (both Xcode projects, ~7,674 lines of Swift) by five

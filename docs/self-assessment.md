@@ -1,13 +1,16 @@
 # Self-assessment against the Repository Quality Standard
 
-Standard version 1.3.3 · assessed 2026-08-28 · state **Needs work** · 0 failures
+Standard version 1.3.3 · assessed 2026-08-28 · recorded state **Healthy** · 0 failures
 
 This is the evidence behind [`.github/conformance.yml`](../.github/conformance.yml). Results are recorded as they are, not as they should be.
 
 The repository was made public on 2026-08-28. That resolved the three failures this assessment
 originally recorded — they shared one cause, a private repository on a plan without branch
 protection or secret scanning and with Actions billing blocked — and brought the Public profile
-into scope. Nothing fails now; twelve criteria are partial.
+into scope. Subsequent remediation closed the twelve partial criteria, as recorded below.
+This is a conformance assessment, not a claim that the app has no bugs. Current defects are tracked
+in [GitHub Issues](https://github.com/trsdn/printfilemanager/issues); unreleased fixes are recorded in
+[`CHANGELOG.md`](../CHANGELOG.md).
 
 ## Profiles applied
 
@@ -43,7 +46,7 @@ not applicable.
 | S05 | pass | Secret scanning and push protection are enabled. The history was also scanned by hand before publishing: no credential-shaped file was ever added and no diff contains a key or token pattern. |
 | S06 | pass | No configuration is compiled in. The endpoint, model and both feature switches are user settings; the API key is in the Keychain. |
 | S07 | pass | Errors carry the underlying description; the API key is never logged; file paths are logged at `.private`. |
-| S08 | pass | `.github/dependabot.yml` for both ecosystems, owner named in `CODEOWNERS`, triage process in `SECURITY.md`. |
+| S08 | pass | `.github/dependabot.yml` covers GitHub Actions. Swift package releases and advisories are reviewed manually by the maintainer weekly and before releases, following the exact-pin update process in `CONTRIBUTING.md`. The obsolete `/ThreeMFKit` Dependabot target was removed after the package moved to its own repository. Owner named in `CODEOWNERS`, triage process in `SECURITY.md`. |
 | S09 | pass | `main` requires "Print File Manager", "Versions" and "conformance / Conformance record" — the context name matters: it must match the check-run name the workflow reports, including the job prefix a reusable workflow adds. Before going public every run failed with "recent account payments have failed or your spending limit needs to be increased" before starting a job — including the Ubuntu one, so it was the private-repository quota rather than macOS runner cost. |
 | S10 | pass | `docs/assessment-2026-08-28-multi-agent.md` documents architecture and constraints with measurements; `AGENTS.md` states the non-obvious ones. |
 

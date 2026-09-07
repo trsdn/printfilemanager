@@ -92,6 +92,42 @@ final class LibraryBackupTests: XCTestCase {
         XCTAssertEqual(LegacyLibraryLocator.recordCount(at: backupURL), 9)
     }
 
+    func testLargerIndexWithFewerRecordsDoesNotReplaceBackup() throws {
+        try write(snapshot(recordCount: 40), to: backupURL)
+        let original = try Data(contentsOf: backupURL)
+        try write(snapshot(recordCount: 3, padding: 40_000), to: indexURL)
+        XCTAssertGreaterThan(try Data(contentsOf: indexURL).count, original.count)
+
+        try LibraryDatabase(fileURL: indexURL).save(snapshot(recordCount: 3))
+
+        XCTAssertEqual(try Data(contentsOf: backupURL), original)
+        XCTAssertEqual(LegacyLibraryLocator.recordCount(at: indexURL), 3)
+    }
+
+    func testSameRecordCountWithDifferentIdentityDoesNotReplaceBackup() throws {
+        let backup = snapshot(recordCount: 5)
+        try write(backup, to: backupURL)
+        let original = try Data(contentsOf: backupURL)
+        var candidate = backup
+        candidate.records[0].id = UUID()
+        try write(candidate, to: indexURL)
+        XCTAssertEqual(try Data(contentsOf: indexURL).count, original.count)
+
+        try LibraryDatabase(fileURL: indexURL).save(candidate)
+
+        XCTAssertEqual(try Data(contentsOf: backupURL), original)
+    }
+
+    func testLargerUnreadableIndexDoesNotReplaceReadableBackup() throws {
+        try write(snapshot(recordCount: 5), to: backupURL)
+        let original = try Data(contentsOf: backupURL)
+        try Data(repeating: 120, count: original.count + 1).write(to: indexURL)
+
+        try LibraryDatabase(fileURL: indexURL).save(snapshot(recordCount: 1))
+
+        XCTAssertEqual(try Data(contentsOf: backupURL), original)
+    }
+
     func testAnIndexThatShrankWithoutLosingRecordsStillReplacesTheBackup() throws {
         // Bytes are not the test. Moving preview images out of the index into the content-addressed
         // store took a real library from 114 MB to 3 MB without dropping one of its 703 records, and
